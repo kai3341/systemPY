@@ -19,7 +19,8 @@ logs. Anyway it's better then via socket and works good everywhere
 ## [0.0.0]
 * Unfortunally, the name `lifecycle` is already used. Choosing the new name
 * * New name is `systemPY`
-* * The LULZ explanation is (http://example.com/)[here]
+* * The LULZ explanation is in the article
+[Why does it `systemPY`](https://telegra.ph/Why-does-it-systemPY-08-12)
 * Initial commit as independent project
 * Pypi stub
 
