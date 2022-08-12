@@ -5,7 +5,9 @@ Python application component initialization system
 from setuptools import setup
 from inspect import cleandoc
 
-name = "systemPY"
+name_canonical = "systemPY"
+name = name_canonical.lower()
+
 description = cleandoc(__doc__)
 
 requirements = []
@@ -66,7 +68,7 @@ setup(
     long_description_content_type="text/markdown",
     include_package_data=True,
     keywords=keywords,
-    name=name,
+    name=name_canonical,
     py_modules=py_modules,
     url="https://github.com/kai3341/systemPY",
     version="0.0.1",
