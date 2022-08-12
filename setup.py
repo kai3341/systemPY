@@ -71,6 +71,6 @@ setup(
     name=name_canonical,
     py_modules=py_modules,
     url="https://github.com/kai3341/systemPY",
-    version="0.0.1",
+    version="0.0.2",
     zip_safe=True,
 )
