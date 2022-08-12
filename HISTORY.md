@@ -2,6 +2,7 @@
 
 ## [0.0.2]
 * Rename module. The lowerCamelCase makes me suffer. Current name is `systempy`
+* Write initial docs
 
 ## [0.0.1]
 * Implementation complete. Library is installable and tested on my pet project
@@ -20,16 +21,19 @@ logs. Anyway it's better then via socket and works good everywhere
 * Unfortunally, the name `lifecycle` is already used. Choosing the new name
 * * New name is `systemPY`
 * * The LULZ explanation is in the article
-[Why does it `systemPY`](https://telegra.ph/Why-does-it-systemPY-08-12)
+[Why does it `systemPY`?](https://telegra.ph/Why-does-it-systemPY-08-12)
 * Initial commit as independent project
 * Pypi stub
 
 # Ancient History
 
+Fossil area. Be careful, don't trample the bones
+
 ## [-0.1.0]
-* Drop hardcoded stages, make implementation ultimately soft. Now all lifecycle
-stages are custom. It's possible to define any new custom stages and bind it to
-any previously defined stage (before or after it)
+* By the impression of systemd refactor the library, drop hardcoded stages,
+make implementation ultimately soft. Now all lifecycle stages are custom.
+It's possible to define any new custom stages and bind it to any previously
+defined stage (before or after it) without any limit
 * Implement `gather` direction as arbitrary, handled by `asyncio.gather` core
 * Implement experimental `reload_threadsafe`
 
