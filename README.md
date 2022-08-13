@@ -1,11 +1,14 @@
 # systemPY
 
+![Logo](docs/images/systempy-logo.png)
+
 Python application component initialization system
 
 ![python](https://img.shields.io/pypi/pyversions/systemPY)
 ![version](https://img.shields.io/pypi/v/systemPY)
 ![downloads](https://img.shields.io/pypi/dm/systemPY)
 ![format](https://img.shields.io/pypi/format/systemPY)
+[![Documentation Status](https://readthedocs.org/projects/systempy/badge/?version=latest)](https://systempy.readthedocs.io/en/latest/?badge=latest)
 ![GitHub issues](https://img.shields.io/github/issues/kai3341/systemPY)
 
 ## The problem
