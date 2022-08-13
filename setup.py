@@ -49,13 +49,7 @@ py_modules = [
 ]
 
 with open("README.md") as readme_file:
-    readme = readme_file.read()
-
-with open("HISTORY.md") as history_file:
-    history = history_file.read()
-
-
-long_description = "\n\n".join((readme, history))
+    long_description = readme_file.read()
 
 
 setup(

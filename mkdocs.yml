@@ -1,0 +1,14 @@
+site_name: SystemPY Documentation
+site_url: https://systempy.readthedocs.io
+site_description: SystemPY -- python application component initialization system
+site_author: Anton Kavalevich (kai3341)
+
+repo_url: https://github.com/kai3341/systemPY
+
+pages:
+# - Home: index.md
+- Home: ../README.md
+- First Steps:
+    - Installing: first-steps/Installing.md
+- About:
+    - History: about/history.md

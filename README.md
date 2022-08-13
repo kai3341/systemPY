@@ -33,6 +33,16 @@ into the current application `Unit` class. Then create an instance and pass
 dependencies as keyword arguments. In case it's daemon run `instance.run_sync()`
 methed
 
+It's possible to use `systemPY` in three scenarios:
+
+* Secondary application, which is handled by another application like
+`celery` or `starlette`
+
+* Daemon or script -- self-hosted application
+
+* Master application, handles other applications
+
+
 ## Short Stupid Example
 
 Here it should be normal example, but I have only this:
