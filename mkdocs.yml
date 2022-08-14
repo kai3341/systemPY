@@ -9,7 +9,6 @@ nav:
 - Home: index.md
 - Installing: about/installing.md
 - Examples:
-    - Index: examples/index.md
     - Secondary Application:
         - FastAPI / Starlette: examples/secondary/starlette.md
         - Celery: examples/secondary/celery.md
@@ -40,6 +39,9 @@ theme:
 
     features:
     - navigation.instant
-    - navigation.tracking
+    # - navigation.tracking
     - navigation.sections
+    - navigation.indexes
     - navigation.expand
+
+    favicon: images/favicon.png
