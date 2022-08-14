@@ -1,0 +1,1 @@
+# DIRECTED BY D. R. WEIDE

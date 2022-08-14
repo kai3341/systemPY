@@ -25,7 +25,7 @@ shutdown
 
 The most painful part is one-time scripts. It's kind of The Banana Gorilla
 Problem: you wanted a banana but you have to initialize a gorilla holding the
-banana and the entire jungle, and then graceful shutdown it
+banana and the entire jungle, and after all graceful shutdown it
 
 ## Solution
 

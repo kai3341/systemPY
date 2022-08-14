@@ -39,8 +39,8 @@ and pass dependencies as keyword arguments. In case it's daemon run
 It's possible to use `systemPY` in three scenarios:
 
 * Secondary application, which is handled by another application like
-`celery` or `starlette`
+`celery` or [starlette](examples/secondary/starlette.md)
 
-* Daemon or script -- self-hosted application
+* Daemon, script or REPL -- self-hosted application
 
 * Master application, handles other applications

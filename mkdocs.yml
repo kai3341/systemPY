@@ -7,9 +7,20 @@ repo_url: https://github.com/kai3341/systemPY
 
 pages:
 - Home: index.md
-- First Steps:
-    - Installing: first-steps/Installing.md
-- About:
-    - History: about/history.md
+- Installing: about/installing.md
+- Examples:
+    - Index: examples/index.md
+    - Secondary Application:
+        - FastAPI / Starlette: examples/secondary/starlette.md
+        - Celery: examples/secondary/celery.md
+    - Self hosted App:
+        - Daemon: examples/self-hosted/daemon.md
+        - Script: examples/self-hosted/script.md
+        - REPL: examples/self-hosted/repl.md
+    - Primary Application:
+        - No example yes: examples/primary/write-me.md
+- History: about/history.md
 
-theme: readthedocs
+theme:
+    locale: en
+    name: material
