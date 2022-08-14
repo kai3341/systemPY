@@ -5,7 +5,7 @@ site_author: Anton Kavalevich (kai3341)
 
 repo_url: https://github.com/kai3341/systemPY
 
-pages:
+nav:
 - Home: index.md
 - Installing: about/installing.md
 - Examples:
