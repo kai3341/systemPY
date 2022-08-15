@@ -7,7 +7,7 @@ repo_url: https://github.com/kai3341/systemPY
 
 nav:
 - Home: index.md
-- Installing: about/installing.md
+# - Installing: about/installing.md
 - Examples:
     - Secondary Application:
         - FastAPI / Starlette: examples/secondary/starlette.md
@@ -41,7 +41,14 @@ theme:
     - navigation.instant
     # - navigation.tracking
     - navigation.sections
-    - navigation.indexes
+    # - navigation.indexes
     - navigation.expand
 
     favicon: images/favicon.png
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
