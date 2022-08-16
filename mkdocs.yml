@@ -23,6 +23,7 @@ nav:
 theme:
     locale: en
     name: material
+    custom_dir: docs/mkdocs_overrides
 
     palette:
     -   media: "(prefers-color-scheme: light)"

@@ -144,9 +144,12 @@ Here there were registered two new lifecycle methods:
 * `pre_shutdown` callbacks will be called before running `Target.on_shutdown`
 in `"backward"` order
 
-You are able to define your own lifecycle stages without any limit binding
-before or after existing. It's like `systemd`'s `Unit` options `Before` and
-`After`. Yes, `systemPY` is a small `systemd`'s brother
+You are able to define your own lifecycle stages without any limit binding them
+before or after already existing. It's like `systemd`'s `Unit` options `Before`
+and `After`. Yes, `systemPY` is a small `systemd`'s brother
+
+You can find more examples. Interesting `Target` example is a
+[daemon](examples/self-hosted/daemon.md) example
 
 ## Installing
 
