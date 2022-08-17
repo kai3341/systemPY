@@ -154,7 +154,7 @@ You can find more examples. Interesting `Target` example is a
 Also look at the [REPL](examples/self-hosted/repl.md) example. REPL is useful
 and handy, also example has the most canonical usage example
 
-### Method Relosve Ordering
+### Method Relosve Order
 
 I'll exaplin on the part of [REPL](examples/self-hosted/repl.md) example:
 
@@ -174,11 +174,11 @@ class MyPrettyReplUnit(
 ```
 
 So, you may put `Unit` base class anywhere it's handy for you. It will be
-ignored
+ignored. Also all `Target` class lifecycle methods will be skipped too
 
 Important: while you are implementing `Unit` mixins, remember NEVER call
 `super()` in lifecycle methods. These methods will be collected and called
-automatically
+by `systemPY` in the right order
 
 ## Installing
 
@@ -193,4 +193,3 @@ You also able to install the latest version from github repository:
 ```
 pip install git+https://github.com/kai3341/systemPY.git
 ```
-
