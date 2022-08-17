@@ -18,6 +18,7 @@ nav:
         - REPL: examples/self-hosted/repl.md
     - Primary Application:
         - No example yes: examples/primary/write-me.md
+- API Reference: api-reference.md
 - History: about/history.md
 
 theme:

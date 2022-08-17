@@ -65,35 +65,43 @@ Use "await" directly instead of "asyncio.run()".
 Type "help", "copyright", "credits" or "license" for more information.
 
 Working on petproject.mymodule.repl
-Variables: ['asyncio', 'config', 'othermodule_service', 'singleton', 'unit', 'views']
+Variables: ['asyncio', 'config', 'models', 'othermodule_service', 'singleton', 'tasks', 'unit', 'views']
+>>> |
 ```
 
 API reference is the same. This is my pet project code with minimal changes
 
 ```python
 from systempy import Unit
+from systempy.ext.celery import CeleryUnit
+from systempy.ext.starlette import StarletteUnit
 from systempy.ext.pretty_repl import PrettyReplUnit
 
 from petproject.common.systempy import (
     ConfigUnit,
     LoggerUnit,
     LoggingUnit,
-    ServiceUnit,
+    SQLAlchemyMariaDBUnit,
+    MyFirstDatabaseUnit,
 )
-
 
 from . import config
 from . import singleton
 from . import views
 
+from petproject.common import models
 from petproject.common.service import othermodule as othermodule_service
+from petproject.othermodule import tasks
 
 
 class MyPrettyReplUnit(
     ConfigUnit,
     LoggerUnit,
     LoggingUnit,
-    ServiceUnit,
+    CeleryUnit,
+    StarletteUnit,
+    SQLAlchemyMariaDBUnit,
+    MyFirstDatabaseUnit,
     PrettyReplUnit,
     Unit,
 ):
@@ -101,7 +109,9 @@ class MyPrettyReplUnit(
         "views": views,
         "singleton": singleton,
         "config": config,
+        "models": models,
         "othermodule_service": othermodule_service,
+        "tasks": tasks,
     }
 
 

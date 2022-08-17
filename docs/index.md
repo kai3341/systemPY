@@ -151,7 +151,34 @@ and `After`. Yes, `systemPY` is a small `systemd`'s brother
 You can find more examples. Interesting `Target` example is a
 [daemon](examples/self-hosted/daemon.md) example
 
-Also look at the [REPL](examples/self-hosted/repl.md) example
+Also look at the [REPL](examples/self-hosted/repl.md) example. REPL is useful
+and handy, also example has the most canonical usage example
+
+### Method Relosve Ordering
+
+I'll exaplin on the part of [REPL](examples/self-hosted/repl.md) example:
+
+```python
+class MyPrettyReplUnit(
+    ConfigUnit,             # 1
+    LoggerUnit,             # 2
+    LoggingUnit,            # 3
+    CeleryUnit,             # 4
+    StarletteUnit,          # 5
+    SQLAlchemyMariaDBUnit,  # 6
+    MyFirstDatabaseUnit,    # 7
+    PrettyReplUnit,         # 8
+    Unit,                   # SKIPED
+):
+    ...
+```
+
+So, you may put `Unit` base class anywhere it's handy for you. It will be
+ignored
+
+Important: while you are implementing `Unit` mixins, remember NEVER call
+`super()` in lifecycle methods. These methods will be collected and called
+automatically
 
 ## Installing
 
