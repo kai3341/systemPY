@@ -151,6 +151,8 @@ and `After`. Yes, `systemPY` is a small `systemd`'s brother
 You can find more examples. Interesting `Target` example is a
 [daemon](examples/self-hosted/daemon.md) example
 
+Also look at the [REPL](examples/self-hosted/repl.md) example
+
 ## Installing
 
 Install `systemPY` from PyPI:

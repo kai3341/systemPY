@@ -1,4 +1,4 @@
-# Daemon
+# Daemon Example
 
 I suggest to make a daemon example with a bit complicated startup and shutdown
 to make it less boring. Just imagine your daemon have a lot of dependencies
@@ -43,7 +43,11 @@ Then you have to subclass this `Target`. Optionally you may add more mixins.
 Remember: combining a lot of `Target` mixins into current worker class is a
 default usage scenario of this library
 
+Create the file, for example, `my_daemon.py`
+
 ```python
+#!/usr/bin/env python
+
 import os
 import asyncio
 
@@ -103,7 +107,13 @@ if __name__ == "__main__":
     ExampleDaemon.launch()
 ```
 
-Now you can run your daemon.
+## Run
+
+Now you can run your daemon:
+
+```sh
+python my_daemon.py
+```
 
 ## Reload
 
