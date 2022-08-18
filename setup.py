@@ -2,7 +2,7 @@
 Python application component initialization system
 """
 
-from setuptools import setup
+from setuptools import setup  # type: ignore
 from inspect import cleandoc
 
 name_canonical = "systemPY"

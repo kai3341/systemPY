@@ -51,8 +51,8 @@ handles other applications. Such as Gunicorn/Uvicorn/... or Celery
 
 ## Basic principles
 
-There are 6 the most valueable lifecycle stages. Keep in mind we need in safe
-application reload. Just looks the
+There are 6 most significant stages of the application lifecycle. Keep in mind
+we need in safe application reload. Just looks the
 [code](https://github.com/kai3341/systemPY/blob/main/systempy/target.py):
 
 ```python
