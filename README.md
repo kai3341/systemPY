@@ -11,7 +11,8 @@ Python application component initialization system
 [![Documentation Status](https://readthedocs.org/projects/systempy/badge/?version=latest)](https://systempy.readthedocs.io/en/latest/?badge=latest)
 ![GitHub issues](https://img.shields.io/github/issues/kai3341/systemPY)
 
-Full documantation available at [![favicon](https://raw.githubusercontent.com/kai3341/systemPY/main/docs/images/favicon.png)readthedocs](https://systempy.readthedocs.io/en/latest/)
+Full documantation is available at
+[Read the Docs](https://systempy.readthedocs.io/en/latest/)
 
 ## The problem
 
