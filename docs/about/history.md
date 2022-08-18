@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.0.3]
+* Implement 90% of documentation
+
 ## [0.0.2]
 * Rename module. The lowerCamelCase makes me suffer. Current name is `systempy`
 * Write initial docs

@@ -159,16 +159,16 @@ and handy, also example has the most canonical usage example
 I'll exaplin on the part of [REPL](examples/self-hosted/repl.md) example:
 
 ```python
-class MyPrettyReplUnit(
-    ConfigUnit,             # 1
-    LoggerUnit,             # 2
-    LoggingUnit,            # 3
-    CeleryUnit,             # 4
-    StarletteUnit,          # 5
-    SQLAlchemyMariaDBUnit,  # 6
-    MyFirstDatabaseUnit,    # 7
-    PrettyReplUnit,         # 8
-    Unit,                   # SKIPED
+class MyPrettyReplUnit(     # INIT      # SHUTDOWN
+    ConfigUnit,             # 1         # 8
+    LoggerUnit,             # 2         # 7
+    LoggingUnit,            # 3         # 6
+    CeleryUnit,             # 4         # 5
+    StarletteUnit,          # 5         # 4
+    SQLAlchemyMariaDBUnit,  # 6         # 3
+    MyFirstDatabaseUnit,    # 7         # 2
+    PrettyReplUnit,         # 8         # 1
+    Unit,                   # SKIPED    # SKIPED
 ):
     ...
 ```
@@ -182,7 +182,7 @@ by `systemPY` in the right order
 
 ## Installing
 
-Install `systemPY` from PyPI:
+Install `systemPY` from [PyPI](https://pypi.org/project/systemPY/):
 
 ```
 pip install systemPY
