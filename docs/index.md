@@ -55,68 +55,72 @@ There are 6 most significant stages of the application lifecycle. Keep in mind
 we need in safe application reload. Just looks the
 [code](https://github.com/kai3341/systemPY/blob/main/systempy/target.py):
 
-```python
-@util.register_target
-class Target:
-    @util.register_target_method("forward")
-    def on_init(self) -> None: ...
+=== "Code"
 
-    @util.register_target_method("forward")
-    def pre_startup(self) -> None: ...
+    ```python
+    @util.register_target
+    class Target:
+        @util.register_target_method("forward")
+        def on_init(self) -> None: ...
 
-    @util.register_target_method("forward")
-    async def on_startup(self) -> None: ...
+        @util.register_target_method("forward")
+        def pre_startup(self) -> None: ...
 
-    @util.register_target_method("backward")
-    async def on_shutdown(self) -> None: ...
+        @util.register_target_method("forward")
+        async def on_startup(self) -> None: ...
 
-    @util.register_target_method("backward")
-    def post_shutdown(self) -> None: ...
+        @util.register_target_method("backward")
+        async def on_shutdown(self) -> None: ...
 
-    @util.register_target_method("backward")
-    def on_exit(self) -> None: ...
-```
+        @util.register_target_method("backward")
+        def post_shutdown(self) -> None: ...
 
-### Let's start from methods:
+        @util.register_target_method("backward")
+        def on_exit(self) -> None: ...
+    ```
 
-* `on_init` executes exactly once on application startup
+=== "Methods"
 
-* `pre_startup` is called before event loop startup
+    * `on_init` executes exactly once on application startup
 
-* `on_startup` is called exactly when event loop started
+    * `pre_startup` is called before event loop startup
 
-* `on_shutdown` is called when application is going shutdown or reload but
-event loop still working
+    * `on_startup` is called exactly when event loop started
 
-* `post_shutdown` is called after event loop stopped or drained. When
-application is going to reload, then it should be called `pre_startup`
+    * `on_shutdown` is called when application is going shutdown or reload but
+    event loop still working
 
-* `on_exit` executes exactly once when application is stopping
+    * `post_shutdown` is called after event loop stopped or drained. When
+    application is going to reload, then it should be called `pre_startup`
 
-### That are `Target`, `Unit`, `register_target` and `register_target_method`?
+    * `on_exit` executes exactly once when application is stopping
 
-Target idea is similar to `systemd`'s targets. Keep in mind such examples like
-`graphical.target` or `multi-user.target`. It means to achieve this target we
-have to reach all pre-required targets
+=== "Target & Unit"
 
-`Systemd`'s `Unit`s are bound to target. `Target` is a reason of `Unit`
-execution
+    Target idea is similar to `systemd`'s targets. Keep in mind such examples like
+    `graphical.target` or `multi-user.target`. It means to achieve this target we
+    have to reach all pre-required targets
 
-Now about `systemPY`. To bind `Unit` to `Target`, you have to subclass it.
-After subclassing IDE promting you in defining the `Unit` methods -- it's just
-overriding `Target`'s methods. It's similar to `abc`, but everything is
-optional.
+    `Systemd`'s `Unit`s are bound to target. `Target` is a reason of `Unit`
+    execution
 
-The last but not the least is `register_target_method`. It defines method's
-type and payload method execution order. When you define syncronous method,
-overriding it by asyncronous method will cause an error
+    Now about `systemPY`. To bind `Unit` to `Target`, you have to subclass it.
+    After subclassing IDE promting you in defining the `Unit` methods -- it's just
+    overriding `Target`'s methods. It's similar to `abc`, but everything is
+    optional.
 
-Payload execution order may be `"forward"`, `"backward"` and `"gather"`.
-Typically you should use `"forward"` on initialization and `"backward"` on
-shutdown
+=== "@register's"
 
-Also you may use `"gather"` direction. Registered callbacks will be handled by
-`asyncio.gather` and will be executed in arbitrary order
+    The last but not the least is `register_target_method`. It defines method's
+    type and payload method execution order. When you define syncronous method,
+    overriding it by asyncronous method will cause an error
+
+    Payload execution order may be `"forward"`, `"backward"` and `"gather"`.
+    Typically you should use `"forward"` on initialization and `"backward"` on
+    shutdown
+
+    Also you may use `"gather"` direction. Registered callbacks will be handled by
+    `asyncio.gather` and will be executed in arbitrary order
 
 ### That's all? Nope, it's really begin
 
@@ -124,29 +128,33 @@ You are able to register own `Target` with own
 lifecycle methods. The first such example is
 [already included](https://github.com/kai3341/systemPY/blob/main/systempy/ext/target_ext.py).
 
-```python
-@util.register_target
-class TargetExt(Target):
-    @util.register_hook_after(Target.on_startup)
-    @util.register_target_method("forward")
-    async def post_startup(self) -> None: ...
+=== "Code"
 
-    @util.register_hook_before(Target.on_shutdown)
-    @util.register_target_method("backward")
-    async def pre_shutdown(self) -> None: ...
-```
+    ```python
+    @util.register_target
+    class TargetExt(Target):
+        @util.register_hook_after(Target.on_startup)
+        @util.register_target_method("forward")
+        async def post_startup(self) -> None: ...
 
-Here there were registered two new lifecycle methods:
+        @util.register_hook_before(Target.on_shutdown)
+        @util.register_target_method("backward")
+        async def pre_shutdown(self) -> None: ...
+    ```
 
-* `post_startup` callbacks will be called exactly after finished
-`Target.on_startup` in `"forward"` order
+=== "Methods"
 
-* `pre_shutdown` callbacks will be called before running `Target.on_shutdown`
-in `"backward"` order
+    Here there were registered two new lifecycle methods:
+
+    * `post_startup` callbacks will be called exactly after finished
+    `Target.on_startup` in `"forward"` order
+
+    * `pre_shutdown` callbacks will be called before running `Target.on_shutdown`
+    in `"backward"` order
 
 You are able to define your own lifecycle stages without any limit binding them
 before or after already existing. It's like `systemd`'s `Unit` options `Before`
-and `After`. Yes, `systemPY` is a small `systemd`'s brother
+and `After`. Yes, [`systemPY` is a small `systemd`'s brother](https://telegra.ph/Why-does-it-systemPY-08-12)
 
 You can find more examples. Interesting `Target` example is a
 [daemon](examples/self-hosted/daemon.md) example

@@ -1,0 +1,8 @@
+.tabbed-set {
+  border: 1px dotted;
+}
+
+.tabbed-block > :not(.highlight,ul) {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}

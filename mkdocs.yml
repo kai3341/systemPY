@@ -55,3 +55,8 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.superfences
   - pymdownx.tilde
+  - pymdownx.tabbed:
+      alternate_style: true
+
+extra_css:
+  - mkdocs_overrides/styles.css
