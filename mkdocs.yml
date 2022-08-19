@@ -7,7 +7,6 @@ repo_url: https://github.com/kai3341/systemPY
 
 nav:
 - Home: index.md
-# - Installing: about/installing.md
 - Examples:
     - Secondary Application:
         - FastAPI / Starlette: examples/secondary/starlette.md
@@ -19,6 +18,7 @@ nav:
     - Primary Application:
         - No example yes: examples/primary/write-me.md
 - API Reference: api-reference.md
+- Roadmap: about/roadmap.md
 - History: about/history.md
 
 theme:
@@ -57,6 +57,8 @@ markdown_extensions:
   - pymdownx.tilde
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
 
 extra_css:
   - mkdocs_overrides/styles.css
