@@ -7,10 +7,10 @@ class PrettyReplUnit(ReplUnit):
         caller_globals = self.repl_caller_frame[0].f_globals
         package = caller_globals["__package__"]
 
-        filename = (self.repl_caller_frame.filename)
+        filename = self.repl_caller_frame.filename
         basename = path.basename(filename)
         extension_idx = basename.rfind(".")
-        
+
         if extension_idx > 0:
             basename = basename[:extension_idx]
 

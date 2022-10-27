@@ -10,6 +10,7 @@ register_addition_cfg_applier = create_dict_registerer(
 )
 
 register_direction = create_dict_registerer(
+    # ===
     constants.handler_by_direction
 )
 
@@ -35,10 +36,10 @@ def register_target_method(direction: TargetDirection):
 
         constants.lifecycle_registered_methods[func] = {
             "direction_name": direction,
-            "direction": constants.handler_by_direction[direction]
+            "direction": constants.handler_by_direction[direction],
         }
         return func
-    
+
     return inner
 
 
@@ -48,7 +49,7 @@ def register_target(cls):
     lifecycle_registered_methods = constants.lifecycle_registered_methods
     handler_by_iscoroutinefunction = constants.handler_by_iscoroutinefunction
     for target in cls.__dict__.values():
-        
+
         if not target in lifecycle_registered_methods:
             continue
 
@@ -75,7 +76,7 @@ def register_target(cls):
             constants.lifecycle_additional_configuration,
             cls,
         )
-        
+
         subconfig = get_key_or_create(
             current_cls_config,
             "stack_method",
@@ -120,7 +121,9 @@ def create_register_hook(lifecycle_hooks):
             lifecycle_hooks_parents[func] = lifecycle_method_parent
             registry.append(func)
             return func
+
         return inner
+
     return register_hook
 
 
@@ -130,10 +133,13 @@ register_hook_after = create_register_hook(constants.lifecycle_hooks_after)
 # === Just populate registries ===
 
 from . import extraction
+
 extraction.__package__
 
 from . import handler_type
+
 handler_type.__package__
 
-from  . import check
+from . import check
+
 check.__package__

@@ -4,9 +4,7 @@ from . import target
 
 
 class DaemonUnit(target.DaemonTargetABC):
-    reload_signals = (
-        signal.SIGHUP,
-    )
+    reload_signals = (signal.SIGHUP,)
 
     __reloading: bool
 

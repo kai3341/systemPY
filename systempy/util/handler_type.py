@@ -12,7 +12,7 @@ def handler_sync(cls, reason, callbacks):
     def handler(self, *args, **kwargs):
         for callback in callbacks_total:
             callback(self)
-    
+
     return handler
 
 
@@ -42,7 +42,6 @@ def handler_gather(cls, reason, callbacks):
                 yield callback(self)
             else:
                 callback(self)
-
 
     async def handler(self, *args, **kwargs):
         coroutines = handler_gather_iter(self, *args, **kwargs)

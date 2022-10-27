@@ -18,6 +18,10 @@ packages = [
     f"{name}.ext",
 ]
 
+package_data = {
+    name: ["py.typed"],
+}
+
 keywords = [
     "asyncio",
     "graceful",
@@ -58,6 +62,7 @@ setup(
     install_requires=requirements,
     license="MIT",
     packages=packages,
+    package_data=package_data,
     long_description=long_description,
     long_description_content_type="text/markdown",
     include_package_data=True,
@@ -65,6 +70,6 @@ setup(
     name=name_canonical,
     py_modules=py_modules,
     url="https://github.com/kai3341/systemPY",
-    version="0.0.3",
+    version="0.0.4",
     zip_safe=True,
 )

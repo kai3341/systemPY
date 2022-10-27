@@ -18,7 +18,7 @@ check_callback_signature__error_message = (
 
 def check_callback_signature(reason, func):
     reason_async = iscoroutinefunction(reason)
-    if (reason_async == iscoroutinefunction(func)):
+    if reason_async == iscoroutinefunction(func):
         return
 
     template = check_callback_signature__error_message[reason_async]

@@ -10,11 +10,12 @@ def create_dict_registerer(target_dict):
         def registerer(target):
             target_dict[name] = target
             return target
-        
+
         if passed_name:
             return registerer
         else:
             return registerer(name_or_target)
+
     return outer
 
 

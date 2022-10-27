@@ -9,6 +9,7 @@ readline_available = False
 
 try:
     import readline
+
     readline_available = True
 except ImportError:
     print("Module readline not available. No tab complete available")
@@ -44,8 +45,12 @@ class ReplUnit(Target, ProcessUnit):
     repl_variables: Dict[str, Any] = {}
 
     __repl_locals_keys_from_globals = (
-        '__name__', '__package__', '__loader__',
-        '__spec__', '__builtins__', '__file__',
+        "__name__",
+        "__package__",
+        "__loader__",
+        "__spec__",
+        "__builtins__",
+        "__file__",
     )
 
     def __setup_repl(self):
@@ -83,14 +88,14 @@ class ReplUnit(Target, ProcessUnit):
 
     @property
     def __repl_env_defaults(self):
-        return {'asyncio': asyncio, "unit": self}
+        return {"asyncio": asyncio, "unit": self}
 
     def __repl_env(self):
         repl_env = self.__repl_env_defaults
         repl_env.update(self.repl_variables)
         self.repl_env = repl_env
         self.repl_env_full = repl_env.copy()
-        
+
         env = self.repl_caller_frame[0].f_globals
 
         for key in self.__repl_locals_keys_from_globals:
@@ -112,7 +117,7 @@ class ReplUnit(Target, ProcessUnit):
             banner = self.repl_handle_banner(banner)
             exitmsg = self.repl_handle_exitmsg(exitmsg)
             return original_interact(banner, exitmsg)
-        
+
         self.console.interact = interact
 
     def __repr_console_runsource(self):
@@ -164,4 +169,5 @@ class ReplUnit(Target, ProcessUnit):
         )
         future.add_done_callback(self.__done_after_on_shutdown)
 
-    def reload(self): ...
+    def reload(self):
+        ...

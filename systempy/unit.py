@@ -1,6 +1,8 @@
 import atexit
 import traceback
 
+from typing import Optional, Type
+
 from . import target
 from . import util
 from .util import configuration as util_configuration
@@ -33,8 +35,18 @@ class Unit(target.Target):
     async def __aenter__(self):
         await self.on_startup()
 
-    async def __aexit__(self, exc_type, exc_value, traceback):
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[traceback.TracebackType],
+    ) -> bool:
         await self.on_shutdown()
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[traceback.TracebackType],
+    ) -> bool:
         self.post_shutdown()

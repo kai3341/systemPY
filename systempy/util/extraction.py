@@ -7,7 +7,9 @@ TypeIterable = Iterable[type]
 
 def extract_attrs(iterable: TypeIterable, name: str):
     return (
-        getattr(item, name) for item in iterable
+        # ===
+        getattr(item, name)
+        for item in iterable
         if name in item.__dict__
     )
 
@@ -30,10 +32,7 @@ def callbacks_reversed(iterable: TypeIterable, name: str):
 def extract_bases(cls: type):
     bases = cls.mro()
 
-    bases = [
-        Base for Base in bases
-        if Base not in constants.lifecycle_bases_blacklist
-    ]
+    bases = [Base for Base in bases if Base not in constants.lifecycle_bases_blacklist]
 
     lifecycle_disallowed_attrs = constants.lifecycle_disallowed_attrs
     for base in bases:

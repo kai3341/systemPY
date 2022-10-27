@@ -14,4 +14,4 @@ class CeleryUnit(Target):
         signals.worker_shutdown.connect(self.post_shutdown)
 
     def pre_startup(self) -> None:
-        self.celery_app.config_from_object(self.config['Celery'])
+        self.celery_app.config_from_object(self.config["Celery"])

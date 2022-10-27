@@ -18,9 +18,7 @@ sync_or_async = (
 )
 
 lifecycle_disallowed_attrs = [
-    ('__init__', "Use `on_init` instead"),
+    ("__init__", "Use `on_init` instead"),
 ]
 
-lifecycle_bases_blacklist = set((
-    object,
-))
+lifecycle_bases_blacklist = set((object,))
