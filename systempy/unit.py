@@ -2,6 +2,7 @@ import atexit
 import traceback
 
 from typing import Optional, Type
+from types import TracebackType
 
 from . import target
 from . import util
@@ -39,7 +40,7 @@ class Unit(target.Target):
         self,
         exc_type: Optional[Type[BaseException]],
         exc_val: Optional[BaseException],
-        exc_tb: Optional[traceback.TracebackType],
+        exc_tb: Optional[TracebackType],
     ) -> bool:
         await self.on_shutdown()
 
@@ -47,6 +48,6 @@ class Unit(target.Target):
         self,
         exc_type: Optional[Type[BaseException]],
         exc_val: Optional[BaseException],
-        exc_tb: Optional[traceback.TracebackType],
+        exc_tb: Optional[TracebackType],
     ) -> bool:
         self.post_shutdown()
