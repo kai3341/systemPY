@@ -1,24 +1,39 @@
-from .typing import LFTypeConfig
+from typing import Set, Dict, Type, Tuple
+from .systempy_dataclasses import LFMethodsRegistered
+from .systempy_typing import (
+    LFMethod,
+    LFTypeConfig,
+    DirectionHandler,
+    TargetTypeHandler,
+    CheckHandler,
+    # TargetType,
+)
 
 lifecycle_additional_configuration: LFTypeConfig = {}
 
-lifecycle_registered_methods = {}
-apply_additional_config__cfg = {}
+lifecycle_registered_methods: Dict[LFMethod, LFMethodsRegistered] = {}
+apply_additional_config__cfg: Dict[str, LFMethod] = {}
 
-lifecycle_hooks_parents = {}
-lifecycle_hooks_before = {}
-handler_by_iscoroutinefunction = {}
-lifecycle_hooks_after = {}
-handler_by_direction = {}
-on_register_check_method_type = {}
+# FIXME!!!!
+lifecycle_hooks_parents: Dict[str, None] = {}
+lifecycle_hooks_before: Dict[str, None] = {}
+lifecycle_hooks_after: Dict[str, None] = {}
 
-sync_or_async = (
+handler_by_iscoroutinefunction: Dict[str, TargetTypeHandler] = {}
+handler_by_direction: Dict[str, DirectionHandler] = {}
+on_register_check_method_type: Dict[str, CheckHandler] = {}
+
+sync_or_async: Tuple[str, ...] = (
     "sync",
     "async",
 )
+
+# sync_or_async = TargetType.__args__
+# "object" has no attribute "__args__"
+
 
 lifecycle_disallowed_attrs = [
     ("__init__", "Use `on_init` instead"),
 ]
 
-lifecycle_bases_blacklist = set((object,))
+lifecycle_bases_blacklist: Set[Type] = set((object,))

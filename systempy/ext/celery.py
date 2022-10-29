@@ -6,6 +6,7 @@ from ..target import Target
 
 class CeleryUnit(Target):
     celery_app: Union[Celery, Type[Celery]]
+    config: dict
 
     def on_init(self):
         signals.worker_init.connect(self.pre_startup)

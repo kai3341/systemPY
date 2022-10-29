@@ -1,17 +1,23 @@
-def create_dict_registerer(target_dict):
-    def outer(name_or_target):
-        passed_name = isinstance(name_or_target, str)
+from typing import Union, Callable, Type, TypeVar, Dict, Hashable, Any
 
-        if passed_name:
+T = TypeVar("T")
+Named = Union[Callable, Type]
+Inner = Callable[[Named], Named]
+Outer = Callable[[Union[str, Named]], Union[Inner, Named]]
+
+
+def create_dict_registerer(target_dict: Dict[str, Named]) -> Outer:
+    def outer(name_or_target: Union[str, Named]):
+        if isinstance(name_or_target, str):
             name = name_or_target
         else:
             name = name_or_target.__name__
 
-        def registerer(target):
+        def registerer(target: Named) -> Named:
             target_dict[name] = target
             return target
 
-        if passed_name:
+        if isinstance(name_or_target, str):
             return registerer
         else:
             return registerer(name_or_target)
@@ -19,7 +25,11 @@ def create_dict_registerer(target_dict):
     return outer
 
 
-def get_key_or_create(the_dict, key, default_factory=dict):
+def get_key_or_create(
+    the_dict: Dict,
+    key: Any,
+    default_factory=dict,
+) -> Dict:
     """
     Like DefaultDict
     """

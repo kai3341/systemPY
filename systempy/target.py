@@ -1,10 +1,15 @@
 import abc
+import atexit
 
 from . import util
 
 
 @util.register_target
 class Target:
+    def __post_init__(self):
+        atexit.register(self.on_exit)
+        self.on_init()
+
     @util.register_target_method("forward")
     def on_init(self) -> None:
         ...

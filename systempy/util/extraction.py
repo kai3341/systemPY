@@ -1,35 +1,34 @@
-from typing import Iterable
+from typing import Tuple
 from .register import register_direction
 from . import constants
 
-TypeIterable = Iterable[type]
+from .systempy_typing import LFMethodTuple, TypeIterable
 
 
 def extract_attrs(iterable: TypeIterable, name: str):
-    return (
+    return [
         # ===
         getattr(item, name)
         for item in iterable
         if name in item.__dict__
-    )
+    ]
 
 
 @register_direction("forward")
 @register_direction("gather")
-def callbacks_direct(iterable: TypeIterable, name: str):
+def callbacks_direct(iterable: TypeIterable, name: str) -> LFMethodTuple:
     callbacks = extract_attrs(iterable, name)
     return tuple(callbacks)
 
 
 @register_direction("backward")
-def callbacks_reversed(iterable: TypeIterable, name: str):
+def callbacks_reversed(iterable: TypeIterable, name: str) -> LFMethodTuple:
     callbacks = extract_attrs(iterable, name)
-    callbacks = list(callbacks)
     callbacks.reverse()
     return tuple(callbacks)
 
 
-def extract_bases(cls: type):
+def extract_bases(cls: type) -> Tuple[type, ...]:
     bases = cls.mro()
 
     bases = [Base for Base in bases if Base not in constants.lifecycle_bases_blacklist]

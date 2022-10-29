@@ -1,11 +1,11 @@
-from typing import Union, Type
+# from typing import Union, Type
 from starlette.applications import Starlette
 
 from ..target import Target
 
 
 class StarletteUnit(Target):
-    starlette_app: Union[Starlette, Type[Starlette]]
+    starlette_app: Starlette
 
     def on_init(self):
         add_event_handler = self.starlette_app.add_event_handler

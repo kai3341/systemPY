@@ -1,7 +1,9 @@
 from inspect import iscoroutinefunction
+from typing import Tuple
 
 from . import constants
 from . import register
+from .systempy_typing import LFMethod
 
 
 check_callback_error_message__template = (
@@ -10,7 +12,7 @@ check_callback_error_message__template = (
 
 reversed_sync_or_async = tuple(reversed(constants.sync_or_async))
 
-check_callback_signature__error_message = (
+check_callback_signature__error_message: Tuple[str, ...] = (
     check_callback_error_message__template % constants.sync_or_async,
     check_callback_error_message__template % reversed_sync_or_async,
 )
@@ -32,7 +34,7 @@ def check_callback_signature(reason, func):
 
 
 @register.register_check_method_type("gather")
-def check_direction(target):
+def check_direction(target: LFMethod) -> None:
     if not iscoroutinefunction(target):
         error_message = "Can not `asyncio.gather` syncronous method"
         raise ValueError(error_message, target)

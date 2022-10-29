@@ -1,7 +1,7 @@
-import atexit
 import traceback
 
-from typing import Optional, Type
+from dataclasses import dataclass
+from typing import Optional, Type, cast
 from types import TracebackType
 
 from . import target
@@ -9,32 +9,35 @@ from . import util
 from .util import configuration as util_configuration
 
 
+class UnitMeta(type):
+    def __new__(
+        cls: Type[type],
+        name: str,
+        bases: tuple,
+        classdict: dict,
+    ) -> "UnitMeta":
+        util_configuration.update_annotation(classdict, bases)
+        classdict["__slots__"] = tuple(classdict["__annotations__"])
+        new_cls = type.__new__(cls, name, bases, classdict)
+        util_configuration.apply_additional_configuration(new_cls)
+        new_cls = dataclass(new_cls)
+        return cast(UnitMeta, new_cls)
+
+
 @util.mark_as_target
-class Unit(target.Target):
+class Unit(target.Target, metaclass=UnitMeta):
     def lifecycle_exception_handler(self, error: Exception) -> None:
         traceback.print_exc()
-
-    # === __magic__ ===
-
-    def __init__(self, **kwargs):
-        atexit.register(self.on_exit)
-
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-        self.on_init()
-
-    def __init_subclass__(cls, **kwargs) -> None:
-        super().__init_subclass__(**kwargs)
-        util_configuration.apply_additional_configuration(cls)
 
     # === context management ===
 
     def __enter__(self):
         self.pre_startup()
+        return self
 
     async def __aenter__(self):
         await self.on_startup()
+        return self
 
     async def __aexit__(
         self,
@@ -43,6 +46,7 @@ class Unit(target.Target):
         exc_tb: Optional[TracebackType],
     ) -> bool:
         await self.on_shutdown()
+        return True
 
     def __exit__(
         self,
@@ -51,3 +55,4 @@ class Unit(target.Target):
         exc_tb: Optional[TracebackType],
     ) -> bool:
         self.post_shutdown()
+        return True

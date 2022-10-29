@@ -1,8 +1,10 @@
 from inspect import isfunction, iscoroutinefunction
+from typing import Type
 
 from . import constants
 from .misc import create_dict_registerer, get_key_or_create
-from .typing import TargetDirection
+from .systempy_typing import TargetDirection
+from .systempy_dataclasses import LFMethodsRegistered
 
 
 register_addition_cfg_applier = create_dict_registerer(
@@ -24,7 +26,7 @@ register_check_method_type = create_dict_registerer(
 )
 
 
-def mark_as_target(cls):
+def mark_as_target(cls: Type):
     constants.lifecycle_bases_blacklist.add(cls)
     return cls
 
@@ -34,39 +36,39 @@ def register_target_method(direction: TargetDirection):
         if not isfunction(func):
             raise ValueError(f"{func} is not a function")
 
-        constants.lifecycle_registered_methods[func] = {
-            "direction_name": direction,
-            "direction": constants.handler_by_direction[direction],
-        }
+        constants.lifecycle_registered_methods[func] = LFMethodsRegistered(
+            interface=None,
+            direction_name=direction,
+            direction=constants.handler_by_direction[direction],
+        )
         return func
 
     return inner
 
 
-def register_target(cls):
+def register_target(cls: type):
     mark_as_target(cls)
 
     lifecycle_registered_methods = constants.lifecycle_registered_methods
     handler_by_iscoroutinefunction = constants.handler_by_iscoroutinefunction
     for target in cls.__dict__.values():
+        if not callable(target):
+            continue
 
-        if not target in lifecycle_registered_methods:
+        if target not in lifecycle_registered_methods:
             continue
 
         lifecycle_registered_this_methods = lifecycle_registered_methods[target]
-        lifecycle_registered_this_methods["interface"] = cls
-        direction_handler = lifecycle_registered_this_methods["direction"]
-        direction_name = lifecycle_registered_this_methods["direction_name"]
+        lifecycle_registered_this_methods.interface = cls
+        direction_handler = lifecycle_registered_this_methods.direction
+        direction_name = lifecycle_registered_this_methods.direction_name
 
-        if direction_name in handler_by_iscoroutinefunction:
-            method_type_name = direction_name
-        else:
-            method_async = iscoroutinefunction(target)
-            method_type_name = constants.sync_or_async[method_async]
-
-        if method_type_name in constants.on_register_check_method_type:
-            checker = constants.on_register_check_method_type[method_type_name]
+        if direction_name in constants.on_register_check_method_type:
+            checker = constants.on_register_check_method_type[direction_name]
             checker(target)
+
+        method_async: bool = iscoroutinefunction(target)
+        method_type_name = constants.sync_or_async[method_async]
 
         method_type_handler = handler_by_iscoroutinefunction[method_type_name]
 

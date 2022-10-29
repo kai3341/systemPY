@@ -87,7 +87,7 @@ class ReplUnit(Target, ProcessUnit):
         self.__setup_repl()
 
     @property
-    def __repl_env_defaults(self):
+    def __repl_env_defaults(self) -> Dict[str, Any]:
         return {"asyncio": asyncio, "unit": self}
 
     def __repl_env(self):
