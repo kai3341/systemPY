@@ -106,8 +106,6 @@ def plugin(version: str) -> "TypingType[Plugin]":
 
 
 class SystemPYPlugin(Plugin):
-    ...
-
     def get_base_class_hook(
         self, fullname: str
     ) -> "Optional[Callable[[ClassDefContext], None]]":
@@ -130,10 +128,10 @@ class SystemPYPlugin(Plugin):
         return self._on_base_class_hook
 
     def _on_base_class_hook(self, ctx: ClassDefContext) -> None:
-        # init_arguments = [
-        #     Argument(Var("kwargs"), AnyType(TypeOfAny.explicit), None, ARG_STAR2)
-        # ]
-        # add_method(ctx, "__init__", init_arguments, NoneType())
+        init_arguments = [
+            Argument(Var("kwargs"), AnyType(TypeOfAny.explicit), None, ARG_STAR2)
+        ]
+        add_method(ctx, "__init__", init_arguments, NoneType())
         dataclasses.DataclassTransformer(ctx).transform()
 
 

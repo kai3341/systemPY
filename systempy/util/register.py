@@ -3,8 +3,8 @@ from typing import Type
 
 from . import constants
 from .misc import create_dict_registerer, get_key_or_create
-from .systempy_typing import TargetDirection
-from .systempy_dataclasses import LFMethodsRegistered
+from .typing import TargetDirection, T
+from .dataclasses import LFMethodsRegistered
 
 
 register_addition_cfg_applier = create_dict_registerer(
@@ -26,7 +26,7 @@ register_check_method_type = create_dict_registerer(
 )
 
 
-def mark_as_target(cls: Type):
+def mark_as_target(cls: T) -> T:
     constants.lifecycle_bases_blacklist.add(cls)
     return cls
 
@@ -46,7 +46,7 @@ def register_target_method(direction: TargetDirection):
     return inner
 
 
-def register_target(cls: type):
+def register_target(cls: Type[T]) -> Type[T]:
     mark_as_target(cls)
 
     lifecycle_registered_methods = constants.lifecycle_registered_methods
@@ -77,11 +77,13 @@ def register_target(cls: type):
         current_cls_config = get_key_or_create(
             constants.lifecycle_additional_configuration,
             cls,
+            dict,
         )
 
         subconfig = get_key_or_create(
             current_cls_config,
             "stack_method",
+            dict,
         )
 
         subconfig[method_name] = (
@@ -103,7 +105,7 @@ def create_register_hook(lifecycle_hooks):
     lifecycle_hooks_parents = constants.lifecycle_hooks_parents
 
     def register_hook(lifecycle_method):
-        registry = get_key_or_create(
+        registry: list = get_key_or_create(
             lifecycle_hooks,
             lifecycle_method,
             list,

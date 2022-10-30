@@ -1,6 +1,6 @@
-from typing import Set, Dict, Type, Tuple
-from .systempy_dataclasses import LFMethodsRegistered
-from .systempy_typing import (
+from typing import Set, Dict, Tuple
+from .dataclasses import LFMethodsRegistered
+from .typing import (
     LFMethod,
     LFTypeConfig,
     DirectionHandler,
@@ -36,4 +36,4 @@ lifecycle_disallowed_attrs = [
     ("__init__", "Use `on_init` instead"),
 ]
 
-lifecycle_bases_blacklist: Set[Type] = set((object,))
+lifecycle_bases_blacklist: Set = set((object,))

@@ -2,7 +2,6 @@
 Python application component initialization system
 """
 
-from genericpath import isfile
 import os
 from setuptools import setup  # type: ignore
 from inspect import cleandoc
@@ -55,52 +54,51 @@ py_modules = [
     name,
 ]
 
-names = [
-    "systempy/util/constants.py",
-    "systempy/util/extraction.py",
-    "systempy/util/configuration.py",
-    "systempy/util/check.py",
-    "systempy/util/systempy_typing.py",
-    "systempy/util/creation.py",
-    "systempy/util/callback_plan.py",
-    "systempy/util/misc.py",
-    "systempy/util/register.py",
-    "systempy/util/systempy_dataclasses.py",
-    "systempy/util/handler_type.py",
-    "systempy/target.py",
-    # "systempy/unit.py",
-    # "systempy/process.py",
-    # "systempy/repl.py",
-    # "systempy/mypy.py",
-    # "systempy/loop.py",
-    # "systempy/daemon.py",
-]
+
+mypycify_structure = {
+    name: {
+        None: (
+            "target.py",
+            # "unit_meta.py",
+            "unit.py",
+            # "process.py",
+            # "repl.py",
+            "mypy.py",
+            # "loop.py",
+            # "daemon.py",
+        ),
+        "util": {
+            None: (
+                "constants.py",
+                "extraction.py",
+                "configuration.py",
+                "check.py",
+                "typing.py",
+                "creation.py",
+                "callback_plan.py",
+                "misc.py",
+                "register.py",
+                "dataclasses.py",
+                "handler_type.py",
+            ),
+        },
+    },
+}
 
 
-# def mypycify_targets_iter(root: str):
-#     for entry in os.listdir(root):
-#         if entry.startswith("."):
-#             continue
-
-#         if entry.startswith("_"):
-#             continue
-
-#         path = os.path.join(root, entry)
-
-#         if os.path.isdir(path):
-#             if entry == "util":
-#                 continue
-#             yield from mypycify_targets_iter(path)
-
-#         if entry.endswith(".py"):
-#             # if entry == "setup.py"
-#             if os.path.isfile(path):
-#                 yield path
+def walk(struct: dict, root=None):
+    for key, value in struct.items():
+        if key is None:
+            for item in value:
+                yield os.path.join(root, item) if root else item
+        else:
+            next_root = os.path.join(root, key) if root else key
+            yield from walk(value, next_root)
 
 
-# ext_modules = mypycify_targets_iter(name)
-# ext_modules = list(ext_modules)
-ext_modules = mypycify(names)
+ext_modules = walk(mypycify_structure)
+ext_modules = list(ext_modules)
+ext_modules = mypycify(ext_modules)
 
 
 with open("README.md") as readme_file:

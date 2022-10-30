@@ -1,6 +1,6 @@
 from functools import partial, lru_cache
 from typing import Type, Iterable, Callable
-from .systempy_typing import T
+from .typing import T
 from . import extraction
 
 

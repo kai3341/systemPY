@@ -2,7 +2,7 @@ from typing import Hashable
 
 from .register import register_addition_cfg_applier
 from .creation import create_partial_handler_generic
-from .systempy_typing import SMConfig
+from .typing import SMConfig
 
 from . import constants
 from . import misc
@@ -29,7 +29,7 @@ def apply_additional_configuration(this_cls):
 
 
 def update_annotation(clsdict, bases):
-    annotations = misc.get_key_or_create(clsdict, "__annotations__")
+    annotations = misc.get_key_or_create(clsdict, "__annotations__", dict)
 
     for base in bases:
         basedict = base.__dict__

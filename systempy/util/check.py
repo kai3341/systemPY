@@ -3,7 +3,7 @@ from typing import Tuple
 
 from . import constants
 from . import register
-from .systempy_typing import LFMethod
+from .typing import LFMethod
 
 
 check_callback_error_message__template = (

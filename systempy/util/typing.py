@@ -1,6 +1,7 @@
 from typing import Type, Dict, Tuple, TypeVar, Callable, Iterable, Any, Literal
 
 T = TypeVar("T")
+
 LFConfig = Dict[str, Any]
 LFTypeConfig = Dict[type, LFConfig]
 TargetDirection = Literal["forward", "backward", "gather"]

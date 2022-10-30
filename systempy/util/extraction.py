@@ -2,7 +2,7 @@ from typing import Tuple
 from .register import register_direction
 from . import constants
 
-from .systempy_typing import LFMethodTuple, TypeIterable
+from .typing import LFMethodTuple, TypeIterable
 
 
 def extract_attrs(iterable: TypeIterable, name: str):

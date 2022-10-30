@@ -4,7 +4,7 @@ from typing import Type
 
 from .register import register_handler_by_iscoroutinefunction
 from .callback_plan import build_callback_plan, build_callback_plan_iter
-from .systempy_typing import LFMethod, LFMethodTuple
+from .typing import LFMethod, LFMethodTuple
 
 
 @register_handler_by_iscoroutinefunction("sync")

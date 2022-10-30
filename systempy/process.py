@@ -1,7 +1,7 @@
-from . import target
+from .target import ProcessTargetABC
 
 
-class ProcessUnit(target.ProcessTargetABC):
+class ProcessUnit(ProcessTargetABC):
     def run_sync(self):
         with self:
             self.main_sync()

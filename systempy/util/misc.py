@@ -1,4 +1,4 @@
-from typing import Union, Callable, Type, TypeVar, Dict, Hashable, Any
+from typing import Union, Callable, Type, TypeVar, Dict, Any
 
 T = TypeVar("T")
 Named = Union[Callable, Type]
@@ -28,8 +28,8 @@ def create_dict_registerer(target_dict: Dict[str, Named]) -> Outer:
 def get_key_or_create(
     the_dict: Dict,
     key: Any,
-    default_factory=dict,
-) -> Dict:
+    default_factory: Type[T],
+) -> T:
     """
     Like DefaultDict
     """
