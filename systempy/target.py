@@ -1,74 +1,121 @@
 import abc
 import atexit
 
-from . import util
+from typing import Optional, Type, TypeVar, Dict, Any
+from types import TracebackType
+from mypy_extensions import trait
 
 
-@util.register_target
+from .util import (
+    register_target,
+    register_target_method,
+    mark_as_target,
+)
+
+TargetT = TypeVar("TargetT", bound="Target")
+
+
+@register_target
+@trait
 class Target:
-    def __post_init__(self):
+    def __post_init__(self: TargetT) -> None:
         atexit.register(self.on_exit)
         self.on_init()
 
-    @util.register_target_method("forward")
-    def on_init(self) -> None:
-        ...
+    @register_target_method("forward")
+    def on_init(self: TargetT) -> None:
+        pass
 
-    @util.register_target_method("forward")
-    def pre_startup(self) -> None:
-        ...
+    @register_target_method("forward")
+    def pre_startup(self: TargetT) -> None:
+        pass
 
-    @util.register_target_method("forward")
-    async def on_startup(self) -> None:
-        ...
+    @register_target_method("forward")
+    async def on_startup(self: TargetT) -> None:
+        pass
 
-    @util.register_target_method("backward")
-    async def on_shutdown(self) -> None:
-        ...
+    @register_target_method("backward")
+    async def on_shutdown(self: TargetT) -> None:
+        pass
 
-    @util.register_target_method("backward")
-    def post_shutdown(self) -> None:
-        ...
+    @register_target_method("backward")
+    def post_shutdown(self: TargetT) -> None:
+        pass
 
-    @util.register_target_method("backward")
-    def on_exit(self) -> None:
-        ...
+    @register_target_method("backward")
+    def on_exit(self: TargetT) -> None:
+        pass
+
+    def __enter__(self: TargetT) -> TargetT:
+        self.pre_startup()
+        return self
+
+    def __exit__(
+        self: TargetT,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> bool:
+        self.post_shutdown()
+        return True
+
+    async def __aenter__(self: TargetT) -> TargetT:
+        await self.on_startup()
+        return self
+
+    async def __aexit__(
+        self: TargetT,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> bool:
+        await self.on_shutdown()
+        return True
 
 
-@util.mark_as_target
+# register_target(Target)  # XXX
+
+
+# @mark_as_target
+@trait
 class ProcessTargetABC(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def main_sync(self) -> None:
-        ...
+        pass
 
     @abc.abstractmethod
     def run_sync(self) -> None:
-        ...
+        pass
 
     @abc.abstractmethod
-    def reload(self, *args) -> None:
-        ...
+    def reload(self) -> None:
+        pass
 
     @classmethod
-    def launch(cls, **kwargs):
+    def launch(cls, **kwargs: Dict[str, Any]) -> None:
         self = cls(**kwargs)
         self.run_sync()
 
 
-@util.mark_as_target
-class DaemonTargetABC(ProcessTargetABC):
+mark_as_target(ProcessTargetABC)  # XXX
+
+# @mark_as_target
+@trait
+class DaemonTargetABC(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     async def main_async(self) -> None:
-        ...
+        pass
 
     @abc.abstractmethod
     async def run_async(self) -> None:
-        ...
+        pass
 
     @abc.abstractmethod
     def stop(self) -> None:
-        ...
+        pass
 
+
+mark_as_target(DaemonTargetABC)  # XXX
 
 __all__ = (
     "Target",

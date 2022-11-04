@@ -8,7 +8,7 @@ class CeleryUnit(Target):
     celery_app: Union[Celery, Type[Celery]]
     config: dict
 
-    def on_init(self):
+    def on_init(self) -> None:
         signals.worker_init.connect(self.pre_startup)
         signals.worker_ready.connect(self.pre_startup)
         signals.worker_shutting_down.connect(self.on_shutdown)

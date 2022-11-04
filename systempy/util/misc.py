@@ -1,33 +1,35 @@
-from typing import Union, Callable, Type, TypeVar, Dict, Any
-
-T = TypeVar("T")
-Named = Union[Callable, Type]
-Inner = Callable[[Named], Named]
-Outer = Callable[[Union[str, Named]], Union[Inner, Named]]
+from types import FunctionType
+from typing import Union, Type, Dict, Hashable
+from .typing import T, Named, Outer, Inner, Any, LFMethodT
 
 
-def create_dict_registerer(target_dict: Dict[str, Named]) -> Outer:
-    def outer(name_or_target: Union[str, Named]):
-        if isinstance(name_or_target, str):
-            name = name_or_target
-        else:
-            name = name_or_target.__name__
+named_types = (type, FunctionType)
 
-        def registerer(target: Named) -> Named:
+
+def create_dict_registerer(target_dict: Dict[Hashable, Any]) -> Outer:
+    def outer(named_or_hashable: Union[Hashable, Named]) -> Union[Inner, Named]:
+        name = (
+            named_or_hashable.__name__
+            if isinstance(named_or_hashable, named_types)
+            else named_or_hashable
+        )
+
+        def registerer(target: LFMethodT) -> LFMethodT:
             target_dict[name] = target
             return target
 
-        if isinstance(name_or_target, str):
-            return registerer
-        else:
-            return registerer(name_or_target)
+        return (
+            registerer(named_or_hashable)
+            if isinstance(named_or_hashable, named_types)
+            else registerer
+        )
 
     return outer
 
 
 def get_key_or_create(
-    the_dict: Dict,
-    key: Any,
+    the_dict: Dict[Hashable, T],
+    key: Hashable,
     default_factory: Type[T],
 ) -> T:
     """

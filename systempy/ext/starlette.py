@@ -7,7 +7,7 @@ from ..target import Target
 class StarletteUnit(Target):
     starlette_app: Starlette
 
-    def on_init(self):
+    def on_init(self) -> None:
         add_event_handler = self.starlette_app.add_event_handler
 
         add_event_handler("startup", self.pre_startup)

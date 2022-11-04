@@ -1,56 +1,75 @@
 from inspect import isfunction, iscoroutinefunction
-from typing import Type
+from typing import Callable
+from types import FunctionType
 
-from . import constants
 from .misc import create_dict_registerer, get_key_or_create
-from .typing import TargetDirection, T
+from .typing import (
+    TargetDirection,
+    LFMethod,
+    # LFMethodT,
+    LFHookRegistry,
+    Outer,
+    LFDecorator,
+)
 from .dataclasses import LFMethodsRegistered
 
-
-register_addition_cfg_applier = create_dict_registerer(
-    constants.apply_additional_config__cfg,
+from .constants import (
+    apply_additional_config__cfg,
+    handler_by_direction,
+    handler_by_iscoroutinefunction,
+    on_register_check_method_type,
+    lifecycle_bases_blacklist,
+    lifecycle_registered_methods,
+    lifecycle_additional_configuration,
+    lifecycle_hooks_parents,
+    lifecycle_hooks_before,
+    lifecycle_hooks_after,
+    sync_or_async,
 )
 
-register_direction = create_dict_registerer(
+
+register_addition_cfg_applier: Outer = create_dict_registerer(
+    apply_additional_config__cfg,
+)
+
+register_direction: Outer = create_dict_registerer(
     # ===
-    constants.handler_by_direction
+    handler_by_direction,
 )
 
-register_handler_by_iscoroutinefunction = create_dict_registerer(
-    constants.handler_by_iscoroutinefunction
-)
-
-
-register_check_method_type = create_dict_registerer(
-    constants.on_register_check_method_type,
+register_handler_by_iscoroutinefunction: Outer = create_dict_registerer(
+    handler_by_iscoroutinefunction,
 )
 
 
-def mark_as_target(cls: T) -> T:
-    constants.lifecycle_bases_blacklist.add(cls)
+register_check_method_type: Outer = create_dict_registerer(
+    on_register_check_method_type,
+)
+
+
+def mark_as_target(cls: type) -> type:
+    lifecycle_bases_blacklist.add(cls)
     return cls
 
 
-def register_target_method(direction: TargetDirection):
-    def inner(func):
+def register_target_method(direction: TargetDirection) -> LFDecorator:
+    def inner(func: FunctionType) -> FunctionType:
         if not isfunction(func):
             raise ValueError(f"{func} is not a function")
 
-        constants.lifecycle_registered_methods[func] = LFMethodsRegistered(
+        lifecycle_registered_methods[func] = LFMethodsRegistered(
             interface=None,
             direction_name=direction,
-            direction=constants.handler_by_direction[direction],
+            direction=handler_by_direction[direction],
         )
         return func
 
     return inner
 
 
-def register_target(cls: Type[T]) -> Type[T]:
+def register_target(cls: type) -> type:
     mark_as_target(cls)
 
-    lifecycle_registered_methods = constants.lifecycle_registered_methods
-    handler_by_iscoroutinefunction = constants.handler_by_iscoroutinefunction
     for target in cls.__dict__.values():
         if not callable(target):
             continue
@@ -63,19 +82,19 @@ def register_target(cls: Type[T]) -> Type[T]:
         direction_handler = lifecycle_registered_this_methods.direction
         direction_name = lifecycle_registered_this_methods.direction_name
 
-        if direction_name in constants.on_register_check_method_type:
-            checker = constants.on_register_check_method_type[direction_name]
+        if direction_name in on_register_check_method_type:
+            checker = on_register_check_method_type[direction_name]
             checker(target)
 
         method_async: bool = iscoroutinefunction(target)
-        method_type_name = constants.sync_or_async[method_async]
+        method_type_name = sync_or_async[method_async]
 
         method_type_handler = handler_by_iscoroutinefunction[method_type_name]
 
         method_name = target.__name__
 
         current_cls_config = get_key_or_create(
-            constants.lifecycle_additional_configuration,
+            lifecycle_additional_configuration,
             cls,
             dict,
         )
@@ -101,24 +120,27 @@ register_hook_invalid_template = (
 )
 
 
-def create_register_hook(lifecycle_hooks):
-    lifecycle_hooks_parents = constants.lifecycle_hooks_parents
+RegLFMethod = Callable[[LFMethod], LFMethod]
 
-    def register_hook(lifecycle_method):
+
+def create_register_hook(
+    lifecycle_hooks: LFHookRegistry,
+) -> Callable[[LFMethod], RegLFMethod]:
+    def register_hook(lifecycle_method: LFMethod) -> RegLFMethod:
         registry: list = get_key_or_create(
             lifecycle_hooks,
             lifecycle_method,
             list,
         )
 
-        if lifecycle_method in lifecycle_hooks_parents:
-            lifecycle_method_parent = lifecycle_hooks_parents[lifecycle_method]
-        else:
-            lifecycle_method_parent = lifecycle_method
+        lifecycle_method_parent = lifecycle_hooks_parents.get(
+            lifecycle_method,
+            lifecycle_method,
+        )
 
         parent_syncronous = not iscoroutinefunction(lifecycle_method_parent)
 
-        def inner(func):
+        def inner(func: LFMethod) -> LFMethod:
             if parent_syncronous and iscoroutinefunction(func):
                 raise ValueError(register_hook_invalid_template % func)
 
@@ -131,8 +153,8 @@ def create_register_hook(lifecycle_hooks):
     return register_hook
 
 
-register_hook_before = create_register_hook(constants.lifecycle_hooks_before)
-register_hook_after = create_register_hook(constants.lifecycle_hooks_after)
+register_hook_before = create_register_hook(lifecycle_hooks_before)
+register_hook_after = create_register_hook(lifecycle_hooks_after)
 
 # === Just populate registries ===
 

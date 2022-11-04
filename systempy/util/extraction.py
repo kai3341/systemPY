@@ -1,11 +1,11 @@
-from typing import Tuple
+from typing import Tuple, List, Any
 from .register import register_direction
 from . import constants
 
 from .typing import LFMethodTuple, TypeIterable
 
 
-def extract_attrs(iterable: TypeIterable, name: str):
+def extract_attrs(iterable: TypeIterable, name: str) -> List[Any]:
     return [
         # ===
         getattr(item, name)

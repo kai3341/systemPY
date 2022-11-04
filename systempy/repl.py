@@ -1,11 +1,19 @@
 import sys
 import asyncio
 import asyncio.__main__ as amain  # type: ignore
+import inspect
 
-from typing import Dict, Any
-import inspect  # type: ignore
+from typing import Dict, Tuple, Any
+
 
 readline_available = False
+newline = "\x03\n" + str(sys.ps1)
+
+
+def handle_interrupt__fallback() -> None:
+    sys.stdin.buffer.flush()
+    sys.stderr.write(newline)
+
 
 try:
     import readline
@@ -13,10 +21,6 @@ try:
     readline_available = True
 except ImportError:
     print("Module readline not available. No tab complete available")
-
-    def handle_interrupt():
-        sys.stdin.buffer.flush()
-        sys.stderr.write("\x03\n" + sys.ps1)
 
 else:
     import ctypes
@@ -29,7 +33,7 @@ else:
     rlcompleter.__package__
     readline.parse_and_bind("tab: complete")
 
-    def handle_interrupt():
+    def handle_interrupt__ok() -> None:
         sys.stderr.write("^C\n")
         rl.rl_kill_full_line()
         rl.rl_beg_of_line()
@@ -37,12 +41,17 @@ else:
         rl.rl_forced_update_display()
 
 
-from .target import Target
+handle_interrupt = (
+    handle_interrupt__fallback if readline_available else handle_interrupt__ok
+)
+
+# from .target import Target
 from .process import ProcessUnit
 
 
-class ReplUnit(Target, ProcessUnit):
-    repl_variables: Dict[str, Any] = {}
+class ReplUnit(ProcessUnit):
+    _repl_variables: Dict[str, Any] = {}
+    _repl_caller_frame: inspect.FrameInfo
 
     __repl_locals_keys_from_globals = (
         "__name__",
@@ -53,7 +62,7 @@ class ReplUnit(Target, ProcessUnit):
         "__file__",
     )
 
-    def __setup_repl(self):
+    def __setup_repl(self) -> None:
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
 
@@ -80,9 +89,9 @@ class ReplUnit(Target, ProcessUnit):
         self.repl_thread.daemon = True
         self.repl_thread.start()
 
-    def on_init(self):
+    def on_init(self) -> None:
         frames = inspect.stack()
-        self.repl_caller_frame = frames[3]
+        self._repl_caller_frame = frames[3]
 
         self.__setup_repl()
 
@@ -90,47 +99,51 @@ class ReplUnit(Target, ProcessUnit):
     def __repl_env_defaults(self) -> Dict[str, Any]:
         return {"asyncio": asyncio, "unit": self}
 
-    def __repl_env(self):
+    def __repl_env(self) -> None:
         repl_env = self.__repl_env_defaults
-        repl_env.update(self.repl_variables)
+        repl_env.update(self._repl_variables)
         self.repl_env = repl_env
         self.repl_env_full = repl_env.copy()
 
-        env = self.repl_caller_frame[0].f_globals
+        env = self._repl_caller_frame[0].f_globals
 
         for key in self.__repl_locals_keys_from_globals:
             self.repl_env_full[key] = env[key]
 
-    def repl_handle_banner(self, banner: str):
+    def repl_handle_banner(self, banner: str) -> str:
         return banner
 
-    def repl_handle_exitmsg(self, exitmsg: str):
+    def repl_handle_exitmsg(self, exitmsg: str) -> str:
         return exitmsg
 
-    async def repl_handle_code(self, code: str):
+    async def repl_handle_code(self, code: str) -> None:
         pass
 
-    def __repr_console_interact(self):
+    def __repr_console_interact(self) -> None:
         original_interact = self.console.interact
 
-        def interact(banner: str, exitmsg: str):
+        def interact(banner: str, exitmsg: str) -> None:
             banner = self.repl_handle_banner(banner)
             exitmsg = self.repl_handle_exitmsg(exitmsg)
-            return original_interact(banner, exitmsg)
+            original_interact(banner, exitmsg)
 
         self.console.interact = interact
 
-    def __repr_console_runsource(self):
+    def __repr_console_runsource(self) -> None:
         original_runsource = self.console.runsource
 
-        def runsource(source, *args, **kwargs):
+        def runsource(
+            source: str,
+            *args: Tuple[str, ...],
+            **kwargs: Dict[str, str],
+        ) -> Any:
             coro = self.repl_handle_code(source)
             asyncio.run_coroutine_threadsafe(coro, self.loop)
             return original_runsource(source, *args, **kwargs)
 
         self.console.runsource = runsource
 
-    def main_sync(self):
+    def main_sync(self) -> None:
         self.loop.create_task(self.on_startup())
         while True:
             try:
@@ -147,7 +160,7 @@ class ReplUnit(Target, ProcessUnit):
                 break
 
     # Experimental
-    def __done_after_shutdown_asyncgens(self, result):
+    def __done_after_shutdown_asyncgens(self, result: Any) -> None:
         self.loop.call_soon_threadsafe(self.post_shutdown)
         self.loop.call_soon_threadsafe(self.pre_startup)
         asyncio.ensure_future(
@@ -155,19 +168,19 @@ class ReplUnit(Target, ProcessUnit):
             loop=self.loop,
         )
 
-    def __done_after_on_shutdown(self, result):
+    def __done_after_on_shutdown(self, result: Any) -> None:
         future = asyncio.ensure_future(
             self.loop.shutdown_asyncgens(),
             loop=self.loop,
         )
         future.add_done_callback(self.__done_after_shutdown_asyncgens)
 
-    def reload_threadsafe(self):
+    def reload_threadsafe(self) -> None:
         future = asyncio.ensure_future(
             self.on_shutdown(),
             loop=self.loop,
         )
         future.add_done_callback(self.__done_after_on_shutdown)
 
-    def reload(self):
+    def reload(self, *args: Tuple[Any, ...]) -> None:
         ...

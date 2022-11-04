@@ -1,14 +1,26 @@
-from . import constants
+from typing import Generator, Dict, List, Tuple, Iterable
 from .check import check_callback_signature
 
+from .typing import LFMethodT
 
-def build_callback_plan_hook_iter(cls, reason, hook_registry):
-    lifecycle_registered_methods = constants.lifecycle_registered_methods
+from .constants import (
+    lifecycle_registered_methods,
+    lifecycle_hooks_before,
+    lifecycle_hooks_after,
+)
+
+
+def build_callback_plan_hook_iter(
+    cls: type,
+    reason: LFMethodT,
+    hook_registry: Dict[LFMethodT, List[LFMethodT]],
+) -> Generator[LFMethodT, None, None]:
     if reason in hook_registry:
         next_reasons = hook_registry[reason]
         for next_reason in next_reasons:
             next_registered_methods = lifecycle_registered_methods[next_reason]
-            next_reason_interface = next_registered_methods["interface"]
+            next_reason_interface = next_registered_methods.interface
+            assert next_reason_interface
 
             if issubclass(cls, next_reason_interface):
                 next_callback = getattr(cls, next_reason.__name__)
@@ -20,11 +32,15 @@ def build_callback_plan_hook_iter(cls, reason, hook_registry):
                 )
 
 
-def build_callback_plan_iter(cls, reason, callbacks=()):
+def build_callback_plan_iter(
+    cls: type,
+    reason: LFMethodT,
+    callbacks: Iterable[LFMethodT] = (),
+) -> Generator[LFMethodT, None, None]:
     yield from build_callback_plan_hook_iter(
         cls,
         reason,
-        constants.lifecycle_hooks_before,
+        lifecycle_hooks_before,
     )
 
     yield from callbacks
@@ -32,15 +48,17 @@ def build_callback_plan_iter(cls, reason, callbacks=()):
     yield from build_callback_plan_hook_iter(
         cls,
         reason,
-        constants.lifecycle_hooks_after,
+        lifecycle_hooks_after,
     )
 
 
-def build_callback_plan(cls, reason, callbacks):
+def build_callback_plan(
+    cls: type,
+    reason: LFMethodT,
+    callbacks: Iterable[LFMethodT],
+) -> Tuple[LFMethodT, ...]:
     for func in callbacks:
         check_callback_signature(reason, func)
 
     callbacks_total = build_callback_plan_iter(cls, reason, callbacks)
-    callbacks_total = tuple(callbacks_total)
-
-    return callbacks_total
+    return tuple(callbacks_total)

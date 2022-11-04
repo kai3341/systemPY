@@ -3,7 +3,7 @@ Python application component initialization system
 """
 
 import os
-from setuptools import setup  # type: ignore
+from setuptools import setup
 from inspect import cleandoc
 from mypyc.build import mypycify
 
@@ -58,14 +58,14 @@ py_modules = [
 mypycify_structure = {
     name: {
         None: (
+            "mypy.py",
             "target.py",
             # "unit_meta.py",
             "unit.py",
-            # "process.py",
-            # "repl.py",
-            "mypy.py",
-            # "loop.py",
-            # "daemon.py",
+            "process.py",
+            "daemon.py",
+            "repl.py",
+            "loop.py",
         ),
         "util": {
             None: (
@@ -82,18 +82,34 @@ mypycify_structure = {
                 "handler_type.py",
             ),
         },
+        "ext": {
+            None: (
+                "pretty_repl.py",
+                "target_ext.py",
+                "starlette.py",
+                "celery.py",
+            ),
+        },
     },
 }
 
 
 def walk(struct: dict, root=None):
-    for key, value in struct.items():
-        if key is None:
-            for item in value:
-                yield os.path.join(root, item) if root else item
-        else:
-            next_root = os.path.join(root, key) if root else key
-            yield from walk(value, next_root)
+    if root is None:
+        for key, value in struct.items():
+            if key is None:
+                for item in value:
+                    yield item
+            else:
+                yield from walk(value, key)
+    else:
+        for key, value in struct.items():
+            if key is None:
+                for item in value:
+                    yield os.path.join(root, item)
+            else:
+                next_root = os.path.join(root, key)
+                yield from walk(value, next_root)
 
 
 ext_modules = walk(mypycify_structure)

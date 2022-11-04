@@ -3,7 +3,7 @@ from typing import Tuple
 
 from . import constants
 from . import register
-from .typing import LFMethod
+from .typing import Named
 
 
 check_callback_error_message__template = (
@@ -18,10 +18,10 @@ check_callback_signature__error_message: Tuple[str, ...] = (
 )
 
 
-def check_callback_signature(reason, func):
+def check_callback_signature(reason: Named, func: Named) -> None:
     reason_async = iscoroutinefunction(reason)
     if reason_async == iscoroutinefunction(func):
-        return
+        return None
 
     template = check_callback_signature__error_message[reason_async]
 
@@ -34,7 +34,7 @@ def check_callback_signature(reason, func):
 
 
 @register.register_check_method_type("gather")
-def check_direction(target: LFMethod) -> None:
+def check_direction(target: Named) -> None:
     if not iscoroutinefunction(target):
         error_message = "Can not `asyncio.gather` syncronous method"
         raise ValueError(error_message, target)

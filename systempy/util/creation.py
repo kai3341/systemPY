@@ -1,17 +1,17 @@
 from functools import partial, lru_cache
-from typing import Type, Iterable, Callable
-from .typing import T
+from typing import Type, Callable
+from .typing import TypeIterable
 from . import extraction
 
 
 def create_handler_generic(
-    cls: T,
-    bases: Iterable[T],
+    cls: type,
+    bases: TypeIterable,
     name: str,
     reason: Callable,
     collect: Callable,
     compose: Callable,
-):
+) -> None:
     callbacks = collect(bases, name)
     handler = compose(cls, reason, callbacks)
     setattr(cls, name, handler)
