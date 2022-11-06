@@ -1,20 +1,20 @@
 from types import FunctionType
-from typing import Union, Type, Dict, Hashable
-from .typing import T, Named, Outer, Inner, Any, LFMethodT
+from typing import Union, Type, Dict
+from .typing import T, Named, Outer, Inner, Any, AnyHashable
 
 
 named_types = (type, FunctionType)
 
 
-def create_dict_registerer(target_dict: Dict[Hashable, Any]) -> Outer:
-    def outer(named_or_hashable: Union[Hashable, Named]) -> Union[Inner, Named]:
+def create_dict_registerer(target_dict: Dict[AnyHashable, Any]) -> Outer:
+    def outer(named_or_hashable: Union[AnyHashable, Named]) -> Union[Inner, Named]:
         name = (
             named_or_hashable.__name__
             if isinstance(named_or_hashable, named_types)
             else named_or_hashable
         )
 
-        def registerer(target: LFMethodT) -> LFMethodT:
+        def registerer(target: Named) -> Named:
             target_dict[name] = target
             return target
 
@@ -28,8 +28,8 @@ def create_dict_registerer(target_dict: Dict[Hashable, Any]) -> Outer:
 
 
 def get_key_or_create(
-    the_dict: Dict[Hashable, T],
-    key: Hashable,
+    the_dict: Dict[AnyHashable, T],
+    key: AnyHashable,
     default_factory: Type[T],
 ) -> T:
     """

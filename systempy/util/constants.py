@@ -1,5 +1,4 @@
-from typing import Set, Dict, Tuple, Hashable
-from .dataclasses import LFMethodsRegistered
+from typing import Set, Dict, Tuple
 from .typing import (
     LFMethod,
     # LFMethodT,
@@ -9,21 +8,24 @@ from .typing import (
     CheckHandler,
     LFHookRegistry,
     AddCFG,
+    AnyHashable,
     # TargetType,
 )
+
+from .dataclasses import LFMethodsRegistered
 
 lifecycle_additional_configuration: LFTypeConfig = {}
 
 lifecycle_registered_methods: Dict[LFMethod, LFMethodsRegistered] = {}
-apply_additional_config__cfg: Dict[Hashable, AddCFG] = {}
+apply_additional_config__cfg: Dict[AnyHashable, AddCFG] = {}
 
 lifecycle_hooks_parents: Dict[LFMethod, LFMethod] = {}
 lifecycle_hooks_before: LFHookRegistry = {}
 lifecycle_hooks_after: LFHookRegistry = {}
 
-handler_by_iscoroutinefunction: Dict[Hashable, TargetTypeHandler] = {}
-handler_by_direction: Dict[Hashable, DirectionHandler] = {}
-on_register_check_method_type: Dict[Hashable, CheckHandler] = {}
+handler_by_iscoroutinefunction: Dict[AnyHashable, TargetTypeHandler] = {}
+handler_by_direction: Dict[AnyHashable, DirectionHandler] = {}
+on_register_check_method_type: Dict[AnyHashable, CheckHandler] = {}
 
 sync_or_async: Tuple[str, str] = (
     "sync",

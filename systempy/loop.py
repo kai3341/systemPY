@@ -1,12 +1,14 @@
 import signal
 import asyncio
 
-from mypy_extensions import trait
+# from mypy_extensions import trait
 
 from .daemon import DaemonUnitBase
+from .util import mark_as_target
 
 
-@trait
+# @trait
+@mark_as_target
 class LoopUnit(DaemonUnitBase):
     loop: asyncio.AbstractEventLoop
     __main_async_task: asyncio.Task

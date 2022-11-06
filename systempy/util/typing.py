@@ -15,15 +15,13 @@ from typing import (
     # Optional,
 )
 
-from .. import target
-
 T = TypeVar("T")
 
-Self = TypeVar("Self", covariant=True)
+AnyHashable = Union[Hashable, str, bytes, int, bool, FunctionType, type]
 
 Named = Union[FunctionType, type, Any]
 Inner = Callable[[Named], Named]
-Outer = Callable[[Union[Hashable, Named]], Union[Inner, Named]]
+Outer = Callable[[Union[AnyHashable, Named]], Union[Inner, Named]]
 
 LFConfig = Dict[str, Any]
 LFTypeConfig = Dict[Any, LFConfig]
@@ -36,7 +34,6 @@ LFMethodSync = Callable[[Any], None]
 LFMethodAsync = Callable[[Any], Coroutine[Any, Any, None]]
 LFMethod = Union[LFMethodSync, LFMethodAsync]
 LFMethodT = TypeVar("LFMethodT", bound=LFMethod)
-# LFMethod = FunctionType
 LFMethodTuple = Tuple[LFMethodT, ...]
 LFHookRegistry = Dict[LFMethodT, List[LFMethodT]]
 LFDecorator = Callable[[LFMethodT], LFMethodT]

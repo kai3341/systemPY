@@ -7,7 +7,7 @@ from typing import Dict, Tuple, Any
 
 
 readline_available = False
-newline = "\x03\n" + str(sys.ps1)
+newline = "\x03\n" + str(getattr(sys, "ps1", ""))
 
 
 def handle_interrupt__fallback() -> None:
@@ -26,11 +26,12 @@ else:
     import ctypes
     import rlcompleter
 
+    rlcompleter.__package__
+
     rl_version: str = readline._READLINE_LIBRARY_VERSION  # type: ignore
     rl_library = f"libreadline.so.{rl_version}"
     rl = ctypes.CDLL(rl_library)
 
-    rlcompleter.__package__
     readline.parse_and_bind("tab: complete")
 
     def handle_interrupt__ok() -> None:
@@ -45,7 +46,6 @@ handle_interrupt = (
     handle_interrupt__fallback if readline_available else handle_interrupt__ok
 )
 
-# from .target import Target
 from .process import ProcessUnit
 
 

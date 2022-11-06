@@ -1,17 +1,14 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from . import typing as _typing
+from .typing import DirectionHandler, TargetDirection
 
 
 @dataclass()
 class LFMethodsRegistered:
-    direction: Optional["_typing.DirectionHandler"]
-    direction_name: Optional["_typing.TargetDirection"]
+    direction: Optional[DirectionHandler]
+    direction_name: Optional[TargetDirection]
     interface: Optional[type]
 
-    __slots__ = (
-        "direction",
-        "direction_name",
-        "interface",
-    )
+
+# LFMethodsRegistered.__slots__ = tuple(LFMethodsRegistered.__annotations__)

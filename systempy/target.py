@@ -3,7 +3,8 @@ import atexit
 
 from typing import Optional, Type, TypeVar, Dict, Any
 from types import TracebackType
-from mypy_extensions import trait
+
+# from mypy_extensions import trait
 
 
 from .util import (
@@ -15,8 +16,8 @@ from .util import (
 TargetT = TypeVar("TargetT", bound="Target")
 
 
+# @trait
 @register_target
-@trait
 class Target:
     def __post_init__(self: TargetT) -> None:
         atexit.register(self.on_exit)
@@ -73,11 +74,8 @@ class Target:
         return True
 
 
-# register_target(Target)  # XXX
-
-
-# @mark_as_target
-@trait
+# @trait
+@mark_as_target
 class ProcessTargetABC(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def main_sync(self) -> None:
@@ -97,10 +95,8 @@ class ProcessTargetABC(metaclass=abc.ABCMeta):
         self.run_sync()
 
 
-mark_as_target(ProcessTargetABC)  # XXX
-
-# @mark_as_target
-@trait
+# @trait
+@mark_as_target
 class DaemonTargetABC(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     async def main_async(self) -> None:
@@ -114,8 +110,6 @@ class DaemonTargetABC(metaclass=abc.ABCMeta):
     def stop(self) -> None:
         pass
 
-
-mark_as_target(DaemonTargetABC)  # XXX
 
 __all__ = (
     "Target",

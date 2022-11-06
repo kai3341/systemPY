@@ -10,7 +10,8 @@ exclude = [
     "^\\.venv",
     "^build",
     "^dist",
-    "^setup\\.py"
+    "^setup\\.py",
+    "^setup_mypycify\\.py"
 ]
 
 [[tool.mypy.overrides]]

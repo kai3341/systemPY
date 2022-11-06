@@ -1,17 +1,18 @@
-from inspect import isfunction, iscoroutinefunction
-from typing import Callable
-from types import FunctionType
+from inspect import iscoroutinefunction
+from typing import Callable, Type
 
-from .misc import create_dict_registerer, get_key_or_create
 from .typing import (
+    T,
     TargetDirection,
     LFMethod,
-    # LFMethodT,
+    LFMethodT,
     LFHookRegistry,
     Outer,
     LFDecorator,
 )
+
 from .dataclasses import LFMethodsRegistered
+from .misc import create_dict_registerer, get_key_or_create
 
 from .constants import (
     apply_additional_config__cfg,
@@ -47,27 +48,28 @@ register_check_method_type: Outer = create_dict_registerer(
 )
 
 
-def mark_as_target(cls: type) -> type:
+def mark_as_target(cls: Type[T]) -> Type[T]:
     lifecycle_bases_blacklist.add(cls)
     return cls
 
 
 def register_target_method(direction: TargetDirection) -> LFDecorator:
-    def inner(func: FunctionType) -> FunctionType:
-        if not isfunction(func):
-            raise ValueError(f"{func} is not a function")
+    def inner(func: LFMethodT) -> LFMethodT:
+        if not callable(func):
+            raise ValueError(f"{func} is not a callable")
 
         lifecycle_registered_methods[func] = LFMethodsRegistered(
             interface=None,
             direction_name=direction,
             direction=handler_by_direction[direction],
         )
+
         return func
 
     return inner
 
 
-def register_target(cls: type) -> type:
+def register_target(cls: Type[T]) -> Type[T]:
     mark_as_target(cls)
 
     for target in cls.__dict__.values():
