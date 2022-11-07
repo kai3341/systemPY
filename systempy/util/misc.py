@@ -1,9 +1,9 @@
-from types import FunctionType
+from types import FunctionType, MethodType
 from typing import Union, Type, Dict
 from .typing import T, Named, Outer, Inner, Any, AnyHashable
 
 
-named_types = (type, FunctionType)
+named_types = (type, FunctionType, MethodType)
 
 
 def create_dict_registerer(target_dict: Dict[AnyHashable, Any]) -> Outer:

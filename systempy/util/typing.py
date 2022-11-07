@@ -1,4 +1,4 @@
-from types import FunctionType
+from types import FunctionType, MethodType
 from typing import (
     Type,
     Dict,
@@ -12,14 +12,31 @@ from typing import (
     Union,
     Coroutine,
     Hashable,
+    Protocol,
     # Optional,
 )
 
 T = TypeVar("T")
 
-AnyHashable = Union[Hashable, str, bytes, int, bool, FunctionType, type]
 
-Named = Union[FunctionType, type, Any]
+class NamedP(Protocol):
+    __name__: str
+
+
+class LFMethodSync(NamedP):
+    def __call__(_, self: T) -> None:
+        pass
+
+
+class LFMethodAsync(NamedP):
+    async def __call__(_, self: T) -> None:
+        pass
+
+
+_Named = Union[MethodType, FunctionType, type]
+Named = Union[_Named, Any]
+AnyHashable = Union[Hashable, str, bytes, int, bool, _Named]
+
 Inner = Callable[[Named], Named]
 Outer = Callable[[Union[AnyHashable, Named]], Union[Inner, Named]]
 
@@ -30,11 +47,11 @@ TargetType = Literal["sync", "async"]
 
 TypeIterable = Iterable[type]
 
-LFMethodSync = Callable[[Any], None]
-LFMethodAsync = Callable[[Any], Coroutine[Any, Any, None]]
+# LFMethodSync = Callable[[Any], None]
+# LFMethodAsync = Callable[[Any], Coroutine[Any, Any, None]]
 LFMethod = Union[LFMethodSync, LFMethodAsync]
 LFMethodT = TypeVar("LFMethodT", bound=LFMethod)
-LFMethodTuple = Tuple[LFMethodT, ...]
+LFMethodTuple = Tuple[LFMethod, ...]
 LFHookRegistry = Dict[LFMethodT, List[LFMethodT]]
 LFDecorator = Callable[[LFMethodT], LFMethodT]
 

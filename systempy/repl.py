@@ -34,16 +34,24 @@ else:
 
     readline.parse_and_bind("tab: complete")
 
-    def handle_interrupt__ok() -> None:
+    rl_kill_full_line = rl.rl_kill_full_line
+    rl_beg_of_line = rl.rl_beg_of_line
+    rl_on_new_line = rl.rl_on_new_line
+    rl_forced_update_display = rl.rl_forced_update_display
+
+    def handle_interrupt__readline() -> None:
         sys.stderr.write("^C\n")
-        rl.rl_kill_full_line()
-        rl.rl_beg_of_line()
-        rl.rl_on_new_line()
-        rl.rl_forced_update_display()
+        rl_kill_full_line()
+        rl_beg_of_line()
+        rl_on_new_line()
+        rl_forced_update_display()
 
 
 handle_interrupt = (
-    handle_interrupt__fallback if readline_available else handle_interrupt__ok
+    # ===
+    handle_interrupt__fallback
+    if readline_available
+    else handle_interrupt__readline
 )
 
 from .process import ProcessUnit
@@ -182,5 +190,5 @@ class ReplUnit(ProcessUnit):
         )
         future.add_done_callback(self.__done_after_on_shutdown)
 
-    def reload(self, *args: Tuple[Any, ...]) -> None:
+    def reload(self) -> None:
         ...
