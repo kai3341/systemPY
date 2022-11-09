@@ -1,7 +1,7 @@
 from typing import Generator, Dict, List, Tuple, Iterable
 from .check import check_callback_signature
 
-from .typing import LFMethodT
+from .typing import FT
 
 from .constants import (
     lifecycle_registered_methods,
@@ -12,9 +12,9 @@ from .constants import (
 
 def build_callback_plan_hook_iter(
     cls: type,
-    reason: LFMethodT,
-    hook_registry: Dict[LFMethodT, List[LFMethodT]],
-) -> Generator[LFMethodT, None, None]:
+    reason: FT,
+    hook_registry: Dict[FT, List[FT]],
+) -> Generator[FT, None, None]:
     if reason in hook_registry:
         next_reasons = hook_registry[reason]
         for next_reason in next_reasons:
@@ -34,9 +34,9 @@ def build_callback_plan_hook_iter(
 
 def build_callback_plan_iter(
     cls: type,
-    reason: LFMethodT,
-    callbacks: Iterable[LFMethodT] = (),
-) -> Generator[LFMethodT, None, None]:
+    reason: FT,
+    callbacks: Iterable[FT] = (),
+) -> Generator[FT, None, None]:
     yield from build_callback_plan_hook_iter(
         cls,
         reason,
@@ -54,9 +54,9 @@ def build_callback_plan_iter(
 
 def build_callback_plan(
     cls: type,
-    reason: LFMethodT,
-    callbacks: Iterable[LFMethodT],
-) -> Tuple[LFMethodT, ...]:
+    reason: FT,
+    callbacks: Iterable[FT],
+) -> Tuple[FT, ...]:
     for func in callbacks:
         check_callback_signature(reason, func)
 

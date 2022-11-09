@@ -10,17 +10,17 @@ def create_dict_registerer(target_dict: Dict[AnyHashable, Any]) -> Outer:
     def outer(named_or_hashable: Union[AnyHashable, Named]) -> Union[Inner, Named]:
         name = (
             named_or_hashable.__name__
-            if isinstance(named_or_hashable, named_types)
+            if hasattr(named_or_hashable, "__name__")
             else named_or_hashable
         )
 
-        def registerer(target: Named) -> Named:
+        def registerer(target: Any) -> Any:
             target_dict[name] = target
             return target
 
         return (
             registerer(named_or_hashable)
-            if isinstance(named_or_hashable, named_types)
+            if hasattr(named_or_hashable, "__name__")
             else registerer
         )
 

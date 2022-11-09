@@ -4,9 +4,9 @@ from typing import Callable, Type
 from .typing import (
     T,
     TargetDirection,
-    LFMethod,
-    LFMethodT,
+    FT,
     LFHookRegistry,
+    Inner,
     Outer,
     LFDecorator,
 )
@@ -54,7 +54,7 @@ def mark_as_target(cls: Type[T]) -> Type[T]:
 
 
 def register_target_method(direction: TargetDirection) -> LFDecorator:
-    def inner(func: LFMethodT) -> LFMethodT:
+    def inner(func: FT) -> FT:
         if not callable(func):
             raise ValueError(f"{func} is not a callable")
 
@@ -122,13 +122,10 @@ register_hook_invalid_template = (
 )
 
 
-RegLFMethod = Callable[[LFMethod], LFMethod]
-
-
 def create_register_hook(
     lifecycle_hooks: LFHookRegistry,
-) -> Callable[[LFMethod], RegLFMethod]:
-    def register_hook(lifecycle_method: LFMethod) -> RegLFMethod:
+) -> Callable[[FT], Inner]:
+    def register_hook(lifecycle_method: FT) -> Inner:
         registry: list = get_key_or_create(
             lifecycle_hooks,
             lifecycle_method,
@@ -142,7 +139,7 @@ def create_register_hook(
 
         parent_syncronous = not iscoroutinefunction(lifecycle_method_parent)
 
-        def inner(func: LFMethod) -> LFMethod:
+        def inner(func: FT) -> FT:
             if parent_syncronous and iscoroutinefunction(func):
                 raise ValueError(register_hook_invalid_template % func)
 

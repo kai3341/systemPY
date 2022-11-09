@@ -2,7 +2,7 @@ from typing import Tuple, List, Any
 from .register import register_direction
 from . import constants
 
-from .typing import LFMethodTuple, TypeIterable
+from .typing import LFMethoduple, TypeIterable
 
 
 def extract_attrs(iterable: TypeIterable, name: str) -> List[Any]:
@@ -16,13 +16,13 @@ def extract_attrs(iterable: TypeIterable, name: str) -> List[Any]:
 
 @register_direction("forward")
 @register_direction("gather")
-def callbacks_direct(iterable: TypeIterable, name: str) -> LFMethodTuple:
+def callbacks_direct(iterable: TypeIterable, name: str) -> LFMethoduple:
     callbacks = extract_attrs(iterable, name)
     return tuple(callbacks)
 
 
 @register_direction("backward")
-def callbacks_reversed(iterable: TypeIterable, name: str) -> LFMethodTuple:
+def callbacks_reversed(iterable: TypeIterable, name: str) -> LFMethoduple:
     callbacks = extract_attrs(iterable, name)
     callbacks.reverse()
     return tuple(callbacks)

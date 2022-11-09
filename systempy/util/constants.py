@@ -1,7 +1,7 @@
 from typing import Set, Dict, Tuple
+from types import FunctionType
 from .typing import (
-    LFMethod,
-    # LFMethodT,
+    FT,
     LFTypeConfig,
     DirectionHandler,
     TargetTypeHandler,
@@ -16,10 +16,10 @@ from .dataclasses import LFMethodsRegistered
 
 lifecycle_additional_configuration: LFTypeConfig = {}
 
-lifecycle_registered_methods: Dict[LFMethod, LFMethodsRegistered] = {}
+lifecycle_registered_methods: Dict[FunctionType, LFMethodsRegistered] = {}
 apply_additional_config__cfg: Dict[AnyHashable, AddCFG] = {}
 
-lifecycle_hooks_parents: Dict[LFMethod, LFMethod] = {}
+lifecycle_hooks_parents: Dict[FunctionType, FunctionType] = {}
 lifecycle_hooks_before: LFHookRegistry = {}
 lifecycle_hooks_after: LFHookRegistry = {}
 

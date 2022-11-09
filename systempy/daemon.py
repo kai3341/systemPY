@@ -9,6 +9,8 @@ from .target import ProcessTargetABC, DaemonTargetABC, Target
 from .util import mark_as_target
 
 
+# DaemonUnitBaseT = TypeVar("DaemonUnitBaseT", bound="DaemonUnitBase")
+
 # @trait
 @mark_as_target
 class DaemonUnitBase(Target, DaemonTargetABC, ProcessTargetABC):

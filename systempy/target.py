@@ -2,6 +2,7 @@ import abc
 import atexit
 
 from typing import Optional, Type, TypeVar, Dict, Any
+
 from types import TracebackType
 
 # from mypy_extensions import trait
@@ -19,32 +20,32 @@ TargetT = TypeVar("TargetT", bound="Target")
 # @trait
 @register_target
 class Target:
-    def __post_init__(self: TargetT) -> None:
+    def __post_init__(self) -> None:
         atexit.register(self.on_exit)
         self.on_init()
 
     @register_target_method("forward")
-    def on_init(self: TargetT) -> None:
+    def on_init(self) -> None:
         pass
 
     @register_target_method("forward")
-    def pre_startup(self: TargetT) -> None:
+    def pre_startup(self) -> None:
         pass
 
     @register_target_method("forward")
-    async def on_startup(self: TargetT) -> None:
+    async def on_startup(self) -> None:
         pass
 
     @register_target_method("backward")
-    async def on_shutdown(self: TargetT) -> None:
+    async def on_shutdown(self) -> None:
         pass
 
     @register_target_method("backward")
-    def post_shutdown(self: TargetT) -> None:
+    def post_shutdown(self) -> None:
         pass
 
     @register_target_method("backward")
-    def on_exit(self: TargetT) -> None:
+    def on_exit(self) -> None:
         pass
 
     def __enter__(self: TargetT) -> TargetT:
@@ -52,7 +53,7 @@ class Target:
         return self
 
     def __exit__(
-        self: TargetT,
+        self,
         exc_type: Optional[Type[BaseException]],
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
@@ -65,7 +66,7 @@ class Target:
         return self
 
     async def __aexit__(
-        self: TargetT,
+        self,
         exc_type: Optional[Type[BaseException]],
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
