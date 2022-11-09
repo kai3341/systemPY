@@ -1,7 +1,7 @@
 import asyncio
 import signal
 
-# from mypy_extensions import trait
+from mypy_extensions import trait
 from typing import Optional
 from types import FrameType
 
@@ -9,9 +9,7 @@ from .target import ProcessTargetABC, DaemonTargetABC, Target
 from .util import mark_as_target
 
 
-# DaemonUnitBaseT = TypeVar("DaemonUnitBaseT", bound="DaemonUnitBase")
-
-# @trait
+@trait
 @mark_as_target
 class DaemonUnitBase(Target, DaemonTargetABC, ProcessTargetABC):
     reload_signals = (signal.SIGHUP,)
@@ -46,7 +44,7 @@ class DaemonUnitBase(Target, DaemonTargetABC, ProcessTargetABC):
                 break
 
 
-# @trait
+@trait
 @mark_as_target
 class DaemonUnit(DaemonUnitBase):
     async def run_async(self) -> None:

@@ -2,10 +2,9 @@ import abc
 import atexit
 
 from typing import Optional, Type, TypeVar, Dict, Any
-
 from types import TracebackType
 
-# from mypy_extensions import trait
+from mypy_extensions import trait
 
 
 from .util import (
@@ -17,7 +16,7 @@ from .util import (
 TargetT = TypeVar("TargetT", bound="Target")
 
 
-# @trait
+@trait
 @register_target
 class Target:
     def __post_init__(self) -> None:
@@ -75,7 +74,7 @@ class Target:
         return True
 
 
-# @trait
+@trait
 @mark_as_target
 class ProcessTargetABC(metaclass=abc.ABCMeta):
     @abc.abstractmethod
@@ -96,7 +95,7 @@ class ProcessTargetABC(metaclass=abc.ABCMeta):
         self.run_sync()
 
 
-# @trait
+@trait
 @mark_as_target
 class DaemonTargetABC(metaclass=abc.ABCMeta):
     @abc.abstractmethod
