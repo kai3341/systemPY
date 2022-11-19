@@ -1,7 +1,10 @@
 from os import path
 from ..repl import ReplUnit
 
+from mypy_extensions import trait
 
+
+@trait
 class PrettyReplUnit(ReplUnit):
     def repl_handle_banner(self, banner: str) -> str:
         caller_globals = self._repl_caller_frame[0].f_globals

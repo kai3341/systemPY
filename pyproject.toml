@@ -5,6 +5,7 @@ show_error_codes = true
 no_implicit_optional = true
 warn_return_any = true
 warn_unused_ignores = true
+custom_typeshed_dir = "~/Projects/typeshed"
 
 exclude = [
     "^\\.venv",
@@ -12,6 +13,10 @@ exclude = [
     "^dist",
     "^setup\\.py",
     "^setup_mypycify\\.py"
+]
+
+files = [
+    "pyproject.toml",
 ]
 
 [[tool.mypy.overrides]]

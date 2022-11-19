@@ -4,14 +4,14 @@ from typing import Type, Awaitable, Generator
 
 from .register import register_handler_by_iscoroutinefunction
 from .callback_plan import build_callback_plan
-from .typing import LFMethoduple, T, FT, LFMethodSync, LFMethodAsync
+from .typing import LFMethodTuple, T, CT, LFMethodSync, LFMethodAsync
 
 
 @register_handler_by_iscoroutinefunction("sync")
 def handler_sync(
     cls: Type,
-    reason: FT,
-    callbacks: LFMethoduple,
+    reason: CT,
+    callbacks: LFMethodTuple,
 ) -> LFMethodSync:
     callbacks_total = build_callback_plan(cls, reason, callbacks)
 
@@ -25,8 +25,8 @@ def handler_sync(
 @register_handler_by_iscoroutinefunction("async")
 def handler_async(
     cls: Type,
-    reason: FT,
-    callbacks: LFMethoduple,
+    reason: CT,
+    callbacks: LFMethodTuple,
 ) -> LFMethodAsync:
     callbacks_total = build_callback_plan(cls, reason, callbacks)
 
@@ -43,8 +43,8 @@ def handler_async(
 @register_handler_by_iscoroutinefunction("gather")
 def handler_gather(
     cls: Type,
-    reason: FT,
-    callbacks: LFMethoduple,
+    reason: CT,
+    callbacks: LFMethodTuple,
 ) -> LFMethodAsync:
     callbacks_total = build_callback_plan(cls, reason, callbacks)
 

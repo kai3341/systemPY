@@ -56,7 +56,10 @@ handle_interrupt = (
 
 from .process import ProcessUnit
 
+from mypy_extensions import trait
 
+
+@trait
 class ReplUnit(ProcessUnit):
     _repl_variables: Dict[str, Any] = {}
     _repl_caller_frame: inspect.FrameInfo

@@ -1,11 +1,11 @@
-from typing import Tuple, List, Any
+from typing import Tuple, List, Callable
 from .register import register_direction
 from . import constants
 
-from .typing import LFMethoduple, TypeIterable
+from .typing import LFMethodTuple, TypeIterable
 
 
-def extract_attrs(iterable: TypeIterable, name: str) -> List[Any]:
+def extract_attrs(iterable: TypeIterable, name: str) -> List[Callable]:
     return [
         # ===
         getattr(item, name)
@@ -16,13 +16,13 @@ def extract_attrs(iterable: TypeIterable, name: str) -> List[Any]:
 
 @register_direction("forward")
 @register_direction("gather")
-def callbacks_direct(iterable: TypeIterable, name: str) -> LFMethoduple:
+def callbacks_direct(iterable: TypeIterable, name: str) -> LFMethodTuple:
     callbacks = extract_attrs(iterable, name)
     return tuple(callbacks)
 
 
 @register_direction("backward")
-def callbacks_reversed(iterable: TypeIterable, name: str) -> LFMethoduple:
+def callbacks_reversed(iterable: TypeIterable, name: str) -> LFMethodTuple:
     callbacks = extract_attrs(iterable, name)
     callbacks.reverse()
     return tuple(callbacks)
@@ -31,12 +31,18 @@ def callbacks_reversed(iterable: TypeIterable, name: str) -> LFMethoduple:
 def extract_bases(cls: type) -> Tuple[type, ...]:
     bases = cls.mro()
 
-    bases = [Base for Base in bases if Base not in constants.lifecycle_bases_blacklist]
+    bases = [
+        # ===
+        Base
+        for Base in bases
+        if Base not in constants.lifecycle_bases_blacklist
+    ]
 
     lifecycle_disallowed_attrs = constants.lifecycle_disallowed_attrs
     for base in bases:
+        clsdict = vars(base)
         for check_attribute, description in lifecycle_disallowed_attrs:
-            if check_attribute in base.__dict__:
+            if check_attribute in clsdict:
                 message = f"Attribute {check_attribute} is not allowed"
 
                 if description:

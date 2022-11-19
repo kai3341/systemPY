@@ -1,4 +1,4 @@
-from types import FunctionType
+from types import FunctionType, BuiltinFunctionType
 from typing import (
     Type,
     Dict,
@@ -11,40 +11,47 @@ from typing import (
     Literal,
     Union,
     Coroutine,
-    Hashable,
-    Protocol,
-    # Optional,
+    AnyStr,
 )
 
+from . import dataclasses as _dataclasses
 
 T = TypeVar("T")
 
-Named = Union[FunctionType, type]
-AnyHashable = Union[Hashable, str, bytes, int, bool, FunctionType, type]
+function_types = (FunctionType, BuiltinFunctionType)
+named_types = (*function_types, type)
 
+Named = Union[Callable, Type]
+PrimitiveHashable = Union[AnyStr, int, float, bool]
+AnyHashable = Union[PrimitiveHashable, Named]
+
+CT = TypeVar("CT", bound=Callable)
 FT = TypeVar("FT", bound=FunctionType)
+BFT = TypeVar("BFT", bound=BuiltinFunctionType)
+TT = TypeVar("TT", bound=type)
+CFT = Union[CT, FT, BFT]
+CTFT = Union[CT, FT, BFT, TT]
+CF = Union[Callable, FunctionType, BuiltinFunctionType]
 
 LFMethodSync = Callable[[T], None]
 LFMethodAsync = Callable[[T], Coroutine[Any, Any, None]]
-
-Inner = Callable[[FT], FT]
-Outer = Callable[[Union[AnyHashable, FT]], Union[Inner, FT]]
+LFMethod = Union[LFMethodSync, LFMethodAsync]
 
 LFConfig = Dict[str, Any]
-LFTypeConfig = Dict[Any, LFConfig]
+LFTypeConfig = Dict[AnyHashable, LFConfig]
 TargetDirection = Literal["forward", "backward", "gather"]
 TargetType = Literal["sync", "async"]
 
 TypeIterable = Iterable[type]
 
-LFMethoduple = Tuple[FT, ...]
-LFHookRegistry = Dict[FT, List[FT]]
-LFDecorator = Callable[[FT], FT]
+LFMethodTuple = Tuple[LFMethod, ...]
+LFHookRegistry = Dict[CT, List[CT]]
+LFDecorator = Callable[[CT], CT]
 
-TargetTypeHandler = Callable[[Type, FT, LFMethoduple], FT]
-DirectionHandler = Callable[[TypeIterable, str], LFMethoduple]
-CheckHandler = Callable[[Named], None]
+TargetTypeHandler = Callable[[Type, CT, LFMethodTuple], CT]
+DirectionHandler = Callable[[TypeIterable, str], LFMethodTuple]
+CheckHandler = Callable[[CT], None]
 
-SMConfig = Dict[str, Tuple[FT, DirectionHandler, TargetTypeHandler]]
+SMConfig = Dict[str, "_dataclasses.GenericHandlerSettings"]
 
-AddCFG = Callable[[type, SMConfig], None]
+AddCFG = Callable[[PrimitiveHashable, SMConfig], None]

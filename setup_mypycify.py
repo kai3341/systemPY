@@ -10,8 +10,9 @@ TODO: It looks all util module may be built successfuly
 import os
 from mypyc.build import mypycify
 
-from setup_constants import name
+from setup_constants import name, pyproject
 
+mypy_config = pyproject.get("tool", {}).get("mypy", {})
 
 mypycify_structure = {
     name: {
@@ -72,6 +73,12 @@ def walk(struct: dict, root=None):
 
 ext_modules = walk(mypycify_structure)
 ext_modules = list(ext_modules)
+
+if "custom_typeshed_dir" in mypy_config:
+    custom_typeshed_dir = mypy_config["custom_typeshed_dir"]
+    custom_typeshed_dir = "--custom-typing-module='%s'" % custom_typeshed_dir
+    ext_modules.insert(0, custom_typeshed_dir)
+
 ext_modules = mypycify(ext_modules)
 
 

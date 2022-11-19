@@ -16,8 +16,8 @@ from .util import (
 TargetT = TypeVar("TargetT", bound="Target")
 
 
-@trait
 @register_target
+@trait
 class Target:
     def __post_init__(self) -> None:
         atexit.register(self.on_exit)
@@ -74,8 +74,8 @@ class Target:
         return True
 
 
-@trait
 @mark_as_target
+@trait
 class ProcessTargetABC(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def main_sync(self) -> None:
@@ -95,8 +95,8 @@ class ProcessTargetABC(metaclass=abc.ABCMeta):
         self.run_sync()
 
 
-@trait
 @mark_as_target
+@trait
 class DaemonTargetABC(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     async def main_async(self) -> None:

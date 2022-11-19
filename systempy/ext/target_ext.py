@@ -1,18 +1,23 @@
 from ..target import Target
-from .. import util
+from ..util import (
+    register_target,
+    register_hook_after,
+    register_hook_before,
+    register_target_method,
+)
+
+from mypy_extensions import trait
 
 
-# @util.register_target
+@register_target
+@trait
 class TargetExt(Target):
-    @util.register_hook_after(Target.on_startup)
-    @util.register_target_method("forward")
+    @register_hook_after(Target.on_startup)
+    @register_target_method("forward")
     async def post_startup(self) -> None:
         pass
 
-    @util.register_hook_before(Target.on_shutdown)
-    @util.register_target_method("backward")
+    @register_hook_before(Target.on_shutdown)
+    @register_target_method("backward")
     async def pre_shutdown(self) -> None:
         pass
-
-
-util.register_target(TargetExt)  # XXX

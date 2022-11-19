@@ -9,8 +9,8 @@ from .target import ProcessTargetABC, DaemonTargetABC, Target
 from .util import mark_as_target
 
 
-@trait
 @mark_as_target
+@trait
 class DaemonUnitBase(Target, DaemonTargetABC, ProcessTargetABC):
     reload_signals = (signal.SIGHUP,)
 
@@ -44,8 +44,8 @@ class DaemonUnitBase(Target, DaemonTargetABC, ProcessTargetABC):
                 break
 
 
-@trait
 @mark_as_target
+@trait
 class DaemonUnit(DaemonUnitBase):
     async def run_async(self) -> None:
         async with self:

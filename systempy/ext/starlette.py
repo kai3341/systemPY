@@ -1,9 +1,11 @@
 # from typing import Union, Type
 from starlette.applications import Starlette
+from mypy_extensions import trait
 
 from ..target import Target
 
 
+@trait
 class StarletteUnit(Target):
     starlette_app: Starlette
 

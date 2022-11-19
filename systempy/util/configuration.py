@@ -7,23 +7,21 @@ from .typing import SMConfig, TypeIterable
 
 from .misc import get_key_or_create
 
-from .constants import (
-    apply_additional_config__cfg,
-    lifecycle_additional_configuration,
-)
+from .constants import lifecycle_additional_configuration
+from .register import register_addition_cfg_applier
 
 
 @register_addition_cfg_applier
 def stack_method(cls: type, config: SMConfig) -> None:
     create = create_partial_handler_generic(cls)
 
-    for stage_name, stage_args in config.items():
-        create(stage_name, *stage_args)
+    for stage_name, stage_config in config.items():
+        create(stage_name, stage_config)
 
 
 def apply_additional_config(cls: type, config: Dict[str, Dict]) -> None:
     for key, value in config.items():
-        apply_cfg_handler = apply_additional_config__cfg[key]
+        apply_cfg_handler = register_addition_cfg_applier[key]
         apply_cfg_handler(cls, value)
 
 
@@ -45,7 +43,7 @@ def update_annotation(
     )
 
     for base in bases:
-        basedict = base.__dict__
+        basedict = vars(base)
 
         if "__annotations__" not in basedict:
             continue
