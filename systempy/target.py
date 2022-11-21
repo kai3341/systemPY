@@ -6,12 +6,8 @@ from types import TracebackType
 
 from mypy_extensions import trait
 
+from .util import register_target, register_target_method, mark_as_target
 
-from .util import (
-    register_target,
-    register_target_method,
-    mark_as_target,
-)
 
 TargetT = TypeVar("TargetT", bound="Target")
 
@@ -76,7 +72,7 @@ class Target:
 
 @mark_as_target
 @trait
-class ProcessTargetABC(metaclass=abc.ABCMeta):
+class ProcessTargetABC:  # (metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def main_sync(self) -> None:
         pass
@@ -97,7 +93,7 @@ class ProcessTargetABC(metaclass=abc.ABCMeta):
 
 @mark_as_target
 @trait
-class DaemonTargetABC(metaclass=abc.ABCMeta):
+class DaemonTargetABC:  # (metaclass=abc.ABCMeta):
     @abc.abstractmethod
     async def main_async(self) -> None:
         pass

@@ -1,14 +1,17 @@
-from typing import Union, Type, Callable, Dict, overload
+from inspect import iscoroutinefunction
+from typing import Union, Type, Callable, Dict, List, ClassVar, overload
 
 from .typing import (
     T,
+    KT,
+    VT,
     CT,
     TT,
     FT,
     BFT,
     CTFT,
-    AnyHashable,
     PrimitiveHashable,
+    FunctionTypes,
     named_types,
 )
 
@@ -28,10 +31,9 @@ class NamedRegistry:
     )
 
     def __init__(self) -> None:
-        registry: Dict[PrimitiveHashable, Callable] = {}
-        self.__registry = registry
-        self.__getitem__ = registry.__getitem__
-        self.__contains__ = registry.__contains__
+        self.__registry = {}
+        self.__getitem__ = self.__registry.__getitem__
+        self.__contains__ = self.__registry.__contains__
 
     @overload
     def __call__(self, named_or_hashable: FT) -> FT:
@@ -78,11 +80,60 @@ class NamedRegistry:
         return f"<{self.__class__.__name__} {self.__registry}>"
 
 
+class HookRegistry:
+    """
+    A little bit different then NamedRegistry:
+    * class variable `hook_parents`
+    * * TODO: It may be the same attribute as registry
+    * * * So, it may require 2 registries
+    * A little different registration logic
+    """
+
+    hook_parents: ClassVar[Dict[CTFT, CTFT]] = {}
+    __registry: Dict[FunctionTypes, List[CTFT]]
+    __getitem__: Callable
+    __contains__: Callable
+
+    _hook_invalid_template = (
+        "You are trying to register executing asyncronous hook %s on the stage "
+        "when event loop is not started or already stopped"
+    )
+
+    __slots__ = (
+        "__registry",
+        "__getitem__",
+        "__contains__",
+    )
+
+    def __init__(self) -> None:
+        self.__registry = {}
+        self.__getitem__ = self.__registry.__getitem__
+        self.__contains__ = self.__registry.__contains__
+
+    def __call__(self, reason: CTFT) -> Inner:
+        registry: list = get_key_or_create(self.__registry, reason, list)
+        lifecycle_method_parent = self.hook_parents.get(reason, reason)
+        parent_syncronous = not iscoroutinefunction(lifecycle_method_parent)
+
+        def inner(func: CTFT) -> CTFT:
+            if parent_syncronous and iscoroutinefunction(func):
+                raise ValueError(self._hook_invalid_template % func)
+
+            self.hook_parents[func] = lifecycle_method_parent
+            registry.append(func)
+            return func
+
+        return inner
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} {self.__registry}>"
+
+
 def get_key_or_create(
-    the_dict: Dict[AnyHashable, T],
-    key: AnyHashable,
-    default_factory: Type[T],
-) -> T:
+    the_dict: Dict[KT, VT],
+    key: KT,
+    default_factory: Type[VT],
+) -> VT:
     """
     Like DefaultDict
     """

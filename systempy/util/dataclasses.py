@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Callable
+from typing import Optional, Callable, Tuple
 
 from . import typing as _typing
 
@@ -16,3 +16,9 @@ class GenericHandlerSettings:
     reason: Callable
     collect: Callable[["_typing.TypeIterable", str], "_typing.LFMethodTuple"]
     compose: Callable[[type, Callable, "_typing.LFMethodTuple"], Callable]
+
+
+@dataclass()
+class SeparatedLFMethods:
+    callbacks_sync: Tuple["_typing.LFMethodSync", ...]
+    callbacks_async: Tuple["_typing.LFMethodAsync", ...]

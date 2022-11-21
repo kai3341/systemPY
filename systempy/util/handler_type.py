@@ -1,13 +1,14 @@
 from asyncio import gather
 from inspect import iscoroutinefunction
-from typing import Type, Awaitable, Generator
+from typing import Type
 
-from .register import register_handler_by_iscoroutinefunction
+from .extraction import separate_sync_async
+from .register import register_handler_by_aio
 from .callback_plan import build_callback_plan
 from .typing import LFMethodTuple, T, CT, LFMethodSync, LFMethodAsync
 
 
-@register_handler_by_iscoroutinefunction("sync")
+@register_handler_by_aio("sync")
 def handler_sync(
     cls: Type,
     reason: CT,
@@ -22,7 +23,7 @@ def handler_sync(
     return handler
 
 
-@register_handler_by_iscoroutinefunction("async")
+@register_handler_by_aio("async")
 def handler_async(
     cls: Type,
     reason: CT,
@@ -40,7 +41,7 @@ def handler_async(
     return handler
 
 
-@register_handler_by_iscoroutinefunction("gather")
+@register_handler_by_aio("gather")
 def handler_gather(
     cls: Type,
     reason: CT,
@@ -48,15 +49,35 @@ def handler_gather(
 ) -> LFMethodAsync:
     callbacks_total = build_callback_plan(cls, reason, callbacks)
 
-    def handler_gather_iter(self: T) -> Generator[Awaitable, None, None]:
-        for callback in callbacks_total:
-            if iscoroutinefunction(callback):
-                yield callback(self)
-            else:
-                callback(self)
+    separated = separate_sync_async(callbacks_total)
 
-    async def handler(self: T) -> None:
-        coroutines = handler_gather_iter(self)
-        await gather(*coroutines)
+    if separated.callbacks_sync and separated.callbacks_async:
 
-    return handler
+        async def handler__having_both(self: T) -> None:
+            for cb in separated.callbacks_sync:
+                cb(self)
+            await gather(cb(self) for cb in separated.callbacks_async)
+
+        return handler__having_both
+
+    elif separated.callbacks_async:
+
+        async def handler__having_async(self: T) -> None:
+            await gather(cb(self) for cb in separated.callbacks_async)
+
+        return handler__having_async
+
+    elif separated.callbacks_sync:
+
+        async def handler__having_sync(self: T) -> None:
+            for cb in separated.callbacks_sync:
+                cb(self)
+
+        return handler__having_sync
+
+    else:
+
+        async def handler__having_none(self: T) -> None:
+            pass
+
+        return handler__having_none

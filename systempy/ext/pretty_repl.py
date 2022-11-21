@@ -1,9 +1,11 @@
 from os import path
 from ..repl import ReplUnit
+from ..util import mark_as_target
 
 from mypy_extensions import trait
 
 
+@mark_as_target
 @trait
 class PrettyReplUnit(ReplUnit):
     def repl_handle_banner(self, banner: str) -> str:

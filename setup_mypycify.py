@@ -16,16 +16,16 @@ mypy_config = pyproject.get("tool", {}).get("mypy", {})
 
 mypycify_structure = {
     name: {
-        None: (
-            # "mypy.py",
-            "target.py",
-            # "unit_meta.py",
-            "unit.py",
-            "process.py",
-            "daemon.py",
-            "repl.py",
-            "loop.py",
-        ),
+        # None: (
+        #     # "mypy.py",
+        #     "target.py",
+        #     # "unit_meta.py",
+        #     "unit.py",
+        #     "process.py",
+        #     "daemon.py",
+        #     "repl.py",
+        #     "loop.py",
+        # ),
         "util": {
             None: (
                 "typing.py",
@@ -41,14 +41,14 @@ mypycify_structure = {
                 "handler_type.py",
             ),
         },
-        "ext": {
-            None: (
-                "pretty_repl.py",
-                "target_ext.py",
-                "starlette.py",
-                "celery.py",
-            ),
-        },
+        # "ext": {
+        #     None: (
+        #         "pretty_repl.py",
+        #         "target_ext.py",
+        #         "starlette.py",
+        #         "celery.py",
+        #     ),
+        # },
     },
 }
 

@@ -48,4 +48,9 @@ def update_annotation(
         if "__annotations__" not in basedict:
             continue
 
-        annotations.update(basedict["__annotations__"])
+        target_annotations: dict[str, Any] = basedict["__annotations__"]
+        annotations.update(target_annotations)
+
+        for key, value in target_annotations.items():
+            if key in basedict:
+                clsdict[key] = value

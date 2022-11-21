@@ -17,8 +17,11 @@ from typing import (
 from . import dataclasses as _dataclasses
 
 T = TypeVar("T")
+KT = TypeVar("KT")
+VT = TypeVar("VT")
 
 function_types = (FunctionType, BuiltinFunctionType)
+FunctionTypes = Union[FunctionType, BuiltinFunctionType]
 named_types = (*function_types, type)
 
 Named = Union[Callable, Type]
@@ -31,7 +34,6 @@ BFT = TypeVar("BFT", bound=BuiltinFunctionType)
 TT = TypeVar("TT", bound=type)
 CFT = Union[CT, FT, BFT]
 CTFT = Union[CT, FT, BFT, TT]
-CF = Union[Callable, FunctionType, BuiltinFunctionType]
 
 LFMethodSync = Callable[[T], None]
 LFMethodAsync = Callable[[T], Coroutine[Any, Any, None]]
@@ -45,12 +47,12 @@ TargetType = Literal["sync", "async"]
 TypeIterable = Iterable[type]
 
 LFMethodTuple = Tuple[LFMethod, ...]
-LFHookRegistry = Dict[CT, List[CT]]
-LFDecorator = Callable[[CT], CT]
+LFHookRegistry = Dict[CFT, List[CFT]]
+LFDecorator = Callable[[CFT], CFT]
 
 TargetTypeHandler = Callable[[Type, CT, LFMethodTuple], CT]
 DirectionHandler = Callable[[TypeIterable, str], LFMethodTuple]
-CheckHandler = Callable[[CT], None]
+CheckHandler = Callable[[CFT], None]
 
 SMConfig = Dict[str, "_dataclasses.GenericHandlerSettings"]
 

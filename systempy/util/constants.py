@@ -2,7 +2,7 @@ from typing import Set, Dict, Tuple, Callable
 
 from .typing import (
     LFTypeConfig,
-    LFHookRegistry,
+    # LFHookRegistry,
 )
 
 from .dataclasses import LFMethodsRegistered
@@ -11,9 +11,9 @@ lifecycle_additional_configuration: LFTypeConfig = {}
 
 lifecycle_registered_methods: Dict[Callable, LFMethodsRegistered] = {}
 
-lifecycle_hooks_parents: Dict[Callable, Callable] = {}
-lifecycle_hooks_before: LFHookRegistry = {}
-lifecycle_hooks_after: LFHookRegistry = {}
+# lifecycle_hooks_parents: Dict[Callable, Callable] = {}
+# lifecycle_hooks_before: LFHookRegistry = {}
+# lifecycle_hooks_after: LFHookRegistry = {}
 
 
 sync_or_async: Tuple[str, ...] = (

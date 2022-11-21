@@ -1,4 +1,3 @@
-# from typing import Union, Type
 from starlette.applications import Starlette
 from mypy_extensions import trait
 

@@ -1,8 +1,16 @@
+from inspect import iscoroutinefunction
 from typing import Tuple, List, Callable
 from .register import register_direction
 from . import constants
 
-from .typing import LFMethodTuple, TypeIterable
+from .typing import (
+    LFMethodTuple,
+    TypeIterable,
+    LFMethodSync,
+    LFMethodAsync,
+    function_types,
+)
+from .dataclasses import SeparatedLFMethods
 
 
 def extract_attrs(iterable: TypeIterable, name: str) -> List[Callable]:
@@ -53,3 +61,20 @@ def extract_bases(cls: type) -> Tuple[type, ...]:
     first = bases.pop(0)
     bases.append(first)
     return tuple(bases)
+
+
+def separate_sync_async(iterable: LFMethodTuple) -> SeparatedLFMethods:
+    callbacks_sync: List[LFMethodSync] = []
+    callbacks_async: List[LFMethodAsync] = []
+
+    for callback in iterable:
+        assert isinstance(callback, function_types)
+        if iscoroutinefunction(callback):
+            callbacks_async.append(callback)
+        else:
+            callbacks_sync.append(callback)
+
+    return SeparatedLFMethods(
+        callbacks_sync=tuple(callbacks_sync),
+        callbacks_async=tuple(callbacks_async),
+    )
