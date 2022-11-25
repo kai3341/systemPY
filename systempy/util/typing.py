@@ -12,6 +12,7 @@ from typing import (
     Union,
     Coroutine,
     AnyStr,
+    TypedDict,
 )
 
 from . import dataclasses as _dataclasses
@@ -39,8 +40,6 @@ LFMethodSync = Callable[[T], None]
 LFMethodAsync = Callable[[T], Coroutine[Any, Any, None]]
 LFMethod = Union[LFMethodSync, LFMethodAsync]
 
-LFConfig = Dict[str, Any]
-LFTypeConfig = Dict[AnyHashable, LFConfig]
 TargetDirection = Literal["forward", "backward", "gather"]
 TargetType = Literal["sync", "async"]
 
@@ -55,5 +54,4 @@ DirectionHandler = Callable[[TypeIterable, str], LFMethodTuple]
 CheckHandler = Callable[[CFT], None]
 
 SMConfig = Dict[str, "_dataclasses.GenericHandlerSettings"]
-
-AddCFG = Callable[[PrimitiveHashable, SMConfig], None]
+LFTypeConfig = Dict[TT, "_dataclasses.ClsCFG"]

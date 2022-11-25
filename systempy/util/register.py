@@ -6,9 +6,10 @@ from .typing import (
     CFT,
     LFDecorator,
     function_types,
+    SMConfig,
 )
 
-from .dataclasses import LFMethodsRegistered, GenericHandlerSettings
+from .dataclasses import LFMethodsRegistered, GenericHandlerSettings, ClsCFG
 from .misc import NamedRegistry, HookRegistry, get_key_or_create
 
 from .constants import (
@@ -22,6 +23,9 @@ register_addition_cfg_applier = NamedRegistry()
 register_direction = NamedRegistry()
 register_handler_by_aio = NamedRegistry()
 register_check_method_type = NamedRegistry()
+
+register_hook_before = HookRegistry()
+register_hook_after = HookRegistry()
 
 
 def mark_as_target(cls: TT) -> TT:
@@ -80,19 +84,13 @@ def register_target(cls: TT) -> TT:
 
         method_name = target.__name__
 
-        current_cls_config = get_key_or_create(
+        clscfg = get_key_or_create(
             lifecycle_additional_configuration,
             cls,
-            dict,
+            ClsCFG,
         )
 
-        subconfig: dict = get_key_or_create(
-            current_cls_config,
-            "stack_method",
-            dict,
-        )
-
-        subconfig[method_name] = GenericHandlerSettings(
+        clscfg.stack_method[method_name] = GenericHandlerSettings(
             target,
             direction_handler,
             method_type_handler,
@@ -100,9 +98,6 @@ def register_target(cls: TT) -> TT:
 
     return cls
 
-
-register_hook_before = HookRegistry()
-register_hook_after = HookRegistry()
 
 # === Just populate registries ===
 

@@ -1,60 +1,13 @@
-import sys
 import asyncio
 import asyncio.__main__ as amain  # type: ignore
 import inspect
-
+import rlcompleter
 from typing import Dict, Tuple, Any
 
-
-readline_available = False
-newline = "\x03\n" + str(getattr(sys, "ps1", ""))
+from .handle_interrupt import handle_interrupt, setup_completer
 
 
-def handle_interrupt__fallback() -> None:
-    sys.stdin.buffer.flush()
-    sys.stderr.write(newline)
-
-
-try:
-    import readline
-
-    readline_available = True
-except ImportError:
-    print("Module readline not available. No tab complete available")
-
-else:
-    import ctypes
-    import rlcompleter
-
-    rlcompleter.__package__
-
-    rl_version: str = readline._READLINE_LIBRARY_VERSION  # type: ignore
-    rl_library = f"libreadline.so.{rl_version}"
-    rl = ctypes.CDLL(rl_library)
-
-    readline.parse_and_bind("tab: complete")
-
-    rl_kill_full_line = rl.rl_kill_full_line
-    rl_beg_of_line = rl.rl_beg_of_line
-    rl_on_new_line = rl.rl_on_new_line
-    rl_forced_update_display = rl.rl_forced_update_display
-
-    def handle_interrupt__readline() -> None:
-        sys.stderr.write("^C\n")
-        rl_kill_full_line()
-        rl_beg_of_line()
-        rl_on_new_line()
-        rl_forced_update_display()
-
-
-handle_interrupt = (
-    # ===
-    handle_interrupt__fallback
-    if readline_available
-    else handle_interrupt__readline
-)
-
-from .process import ProcessUnit
+from ..process import ProcessUnit
 
 from mypy_extensions import trait
 
@@ -63,6 +16,11 @@ from mypy_extensions import trait
 class ReplUnit(ProcessUnit):
     _repl_variables: Dict[str, Any] = {}
     _repl_caller_frame: inspect.FrameInfo
+    loop: asyncio.AbstractEventLoop
+    console: amain.AsyncIOInteractiveConsole
+    repl_completer: rlcompleter.Completer
+    repl_thread: amain.REPLThread
+    repl_env_full: Dict[str, Any]
 
     __repl_locals_keys_from_globals = (
         "__name__",
@@ -73,15 +31,21 @@ class ReplUnit(ProcessUnit):
         "__file__",
     )
 
+    __slots__ = (
+        "loop",
+        "console",
+        "repl_env_full",
+        "repl_completer",
+        "repl_thread",
+    )
+
     def __setup_repl(self) -> None:
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
 
         self.__repl_env()
 
-        if readline_available:
-            self.repl_completer = rlcompleter.Completer(self.repl_env_full)
-            readline.set_completer(self.repl_completer.complete)
+        setup_completer(self)
 
         self.console = amain.AsyncIOInteractiveConsole(
             self.repl_env_full,
@@ -160,7 +124,7 @@ class ReplUnit(ProcessUnit):
             try:
                 self.loop.run_forever()
             except KeyboardInterrupt:
-                handle_interrupt()
+                handle_interrupt(self)
                 if amain.repl_future and not amain.repl_future.done():
                     amain.repl_future.cancel()
                     amain.repl_future_interrupted = True

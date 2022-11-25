@@ -26,6 +26,15 @@ mypycify_structure = {
         #     "repl.py",
         #     "loop.py",
         # ),
+        # "repl": {
+        #     None: (
+        #         " __init__.py",
+        #         "handle_interrupt.py",
+        #         "repl.py",
+        #         "typing.py",
+        #         "util.py",
+        #     )
+        # },
         "util": {
             None: (
                 "typing.py",

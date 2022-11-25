@@ -1,8 +1,16 @@
 from inspect import iscoroutinefunction
-from typing import Union, Type, Callable, Dict, List, ClassVar, overload
+from typing import (
+    Union,
+    Type,
+    Callable,
+    Dict,
+    MutableMapping,
+    List,
+    ClassVar,
+    overload,
+)
 
 from .typing import (
-    T,
     KT,
     VT,
     CT,
@@ -130,7 +138,7 @@ class HookRegistry:
 
 
 def get_key_or_create(
-    the_dict: Dict[KT, VT],
+    the_dict: MutableMapping[KT, VT],
     key: KT,
     default_factory: Type[VT],
 ) -> VT:

@@ -1,8 +1,10 @@
+from dataclasses import fields
 from typing import Dict, Any
 
 from .register import register_addition_cfg_applier
 from .creation import create_partial_handler_generic
 from .typing import SMConfig, TypeIterable
+from .dataclasses import ClsCFG
 
 
 from .misc import get_key_or_create
@@ -19,8 +21,10 @@ def stack_method(cls: type, config: SMConfig) -> None:
         create(stage_name, stage_config)
 
 
-def apply_additional_config(cls: type, config: Dict[str, Dict]) -> None:
-    for key, value in config.items():
+def apply_additional_config(cls: type, config: ClsCFG) -> None:
+    for clscfg_field in fields(config):
+        key = clscfg_field.name
+        value = getattr(config, key)
         apply_cfg_handler = register_addition_cfg_applier[key]
         apply_cfg_handler(cls, value)
 

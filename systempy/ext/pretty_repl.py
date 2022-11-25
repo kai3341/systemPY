@@ -8,6 +8,8 @@ from mypy_extensions import trait
 @mark_as_target
 @trait
 class PrettyReplUnit(ReplUnit):
+    __slots__ = ReplUnit.__slots__
+
     def repl_handle_banner(self, banner: str) -> str:
         caller_globals = self._repl_caller_frame[0].f_globals
         package = caller_globals["__package__"]

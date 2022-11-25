@@ -7,11 +7,10 @@ from .util.configuration import (
     apply_additional_configuration,
 )
 
-unit_meta_dataclass_kwargs: Dict[str, Any] = {}
+default_dataclass_kwargs: Dict[str, Any] = {}
 
 if version_info >= (3, 10):
-    unit_meta_dataclass_kwargs["slots"] = True
-    unit_meta_dataclass_kwargs["kw_only"] = True
+    default_dataclass_kwargs["slots"] = True
 
 
 class UnitMeta(type):
@@ -29,5 +28,5 @@ class UnitMeta(type):
         # if hasattr(new_cls, "__annotations__"):
         # new_cls.__slots__ = tuple(new_cls.__annotations__)
         apply_additional_configuration(new_cls)
-        new_cls = dataclass(**unit_meta_dataclass_kwargs)(new_cls)
+        new_cls = dataclass(**default_dataclass_kwargs)(new_cls)
         return cast(UnitMeta, new_cls)

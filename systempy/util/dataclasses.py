@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, Callable, Tuple
 
 from . import typing as _typing
@@ -22,3 +22,8 @@ class GenericHandlerSettings:
 class SeparatedLFMethods:
     callbacks_sync: Tuple["_typing.LFMethodSync", ...]
     callbacks_async: Tuple["_typing.LFMethodAsync", ...]
+
+
+@dataclass()
+class ClsCFG:
+    stack_method: "_typing.SMConfig" = field(default_factory=dict)
