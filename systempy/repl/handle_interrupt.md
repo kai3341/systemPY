@@ -14,7 +14,7 @@
 - - Windows uses `ReadConsoleW` API. Stackoverflow tells it's possible, but I
     haven't check it
 - I tried to write `\n` directly into process stdin, but it has no effect
-- - On Linux it's simple because if `procfs`
+- - On Linux it's simple because of `procfs`
 - - MacOS does not have `procfs`
 - - Windows have different API
 - I tried to simulate key press via ctypes and X11, but got solution becomes a
