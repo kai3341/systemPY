@@ -7,10 +7,16 @@
 
 - I tried to send exception to REPL thread:
 - - Exception happens **after** pressing `Enter` in REPL
-- - Commend line between pressing `Ctrl+C` and `Enter` is ignoring / dropping
+- - Command line between pressing `Ctrl+C` and `Enter` is ignoring / dropping
 - I tried to send signal to REPL thread, but it closes immediately
-- I tried to find any API to clear input buffer via ctypes, but I don't see it
-  is possible
+- I tried to find any API to clear input buffer via ctypes, but:
+- - Linux uses `fgets` libc API. I don't see it's possible to clear the buffer
+- - Windows uses `ReadConsoleW` API. Stackoverflow tells it's possible, but I
+    haven't check it
+- I tried to write `\n` directly into process stdin, but it has no effect
+- - On Linux it's simple because if `procfs`
+- - MacOS does not have `procfs`
+- - Windows have different API
 - I tried to simulate key press via ctypes and X11, but got solution becomes a
   monster:
 - - X11 is Linux-specific back-end
