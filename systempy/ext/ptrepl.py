@@ -1,13 +1,15 @@
 import sys
 from os import path
 from systempy import LoopUnit
-from systempy.repl.repl import _ReplLocalsMixin
+from systempy.repl.mixins import ReplLocalsMixin
 from ptpython.repl import embed  # type: ignore
 
 from typing import Optional
+from mypy_extensions import trait
 
 
-class PTRepl(_ReplLocalsMixin, LoopUnit):
+@trait
+class PTRepl(ReplLocalsMixin, LoopUnit):
     def on_init(self) -> None:
         self._setup_repl_caller_frame()
         self._setup_repl_env()
@@ -18,6 +20,11 @@ class PTRepl(_ReplLocalsMixin, LoopUnit):
         package = caller_globals["__package__"]
         filename = self._repl_caller_frame.filename
         basename = path.basename(filename)
+
+        extension_idx = basename.rfind(".")
+
+        if extension_idx > 0:
+            basename = basename[:extension_idx]
 
         if package:
             self._module_qualname = f"{package}.{basename}"
