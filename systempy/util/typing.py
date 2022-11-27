@@ -1,4 +1,4 @@
-from types import FunctionType
+from types import FunctionType, BuiltinFunctionType
 from typing import (
     Type,
     Dict,
@@ -11,37 +11,47 @@ from typing import (
     Literal,
     Union,
     Coroutine,
-    Hashable,
-    # Optional,
+    AnyStr,
+    TypedDict,
 )
 
+from . import dataclasses as _dataclasses
+
 T = TypeVar("T")
+KT = TypeVar("KT")
+VT = TypeVar("VT")
 
-AnyHashable = Union[Hashable, str, bytes, int, bool, FunctionType, type]
+function_types = (FunctionType, BuiltinFunctionType)
+FunctionTypes = Union[FunctionType, BuiltinFunctionType]
+named_types = (*function_types, type)
 
-Named = Union[FunctionType, type, Any]
-Inner = Callable[[Named], Named]
-Outer = Callable[[Union[AnyHashable, Named]], Union[Inner, Named]]
+Named = Union[Callable, Type]
+PrimitiveHashable = Union[AnyStr, int, float, bool]
+AnyHashable = Union[PrimitiveHashable, Named]
 
-LFConfig = Dict[str, Any]
-LFTypeConfig = Dict[Any, LFConfig]
+CT = TypeVar("CT", bound=Callable)
+FT = TypeVar("FT", bound=FunctionType)
+BFT = TypeVar("BFT", bound=BuiltinFunctionType)
+TT = TypeVar("TT", bound=type)
+CFT = Union[CT, FT, BFT]
+CTFT = Union[CT, FT, BFT, TT]
+
+LFMethodSync = Callable[[T], None]
+LFMethodAsync = Callable[[T], Coroutine[Any, Any, None]]
+LFMethod = Union[LFMethodSync, LFMethodAsync]
+
 TargetDirection = Literal["forward", "backward", "gather"]
 TargetType = Literal["sync", "async"]
 
 TypeIterable = Iterable[type]
 
-LFMethodSync = Callable[[Any], None]
-LFMethodAsync = Callable[[Any], Coroutine[Any, Any, None]]
-LFMethod = Union[LFMethodSync, LFMethodAsync]
-LFMethodT = TypeVar("LFMethodT", bound=LFMethod)
-LFMethodTuple = Tuple[LFMethodT, ...]
-LFHookRegistry = Dict[LFMethodT, List[LFMethodT]]
-LFDecorator = Callable[[LFMethodT], LFMethodT]
+LFMethodTuple = Tuple[LFMethod, ...]
+LFHookRegistry = Dict[CFT, List[CFT]]
+LFDecorator = Callable[[CFT], CFT]
 
-TargetTypeHandler = Callable[[Type, LFMethodT, LFMethodTuple], LFMethodT]
+TargetTypeHandler = Callable[[Type, CT, LFMethodTuple], CT]
 DirectionHandler = Callable[[TypeIterable, str], LFMethodTuple]
-CheckHandler = Callable[[Named], None]
+CheckHandler = Callable[[CFT], None]
 
-SMConfig = Dict[str, Tuple[LFMethodT, DirectionHandler, TargetTypeHandler]]
-
-AddCFG = Callable[[type, SMConfig], None]
+SMConfig = Dict[str, "_dataclasses.GenericHandlerSettings"]
+LFTypeConfig = Dict[TT, "_dataclasses.ClsCFG"]

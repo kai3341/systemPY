@@ -6,15 +6,17 @@ Python application component initialization system
 from setuptools import setup
 from inspect import cleandoc
 
-from setup_constants import name_canonical, name
+from setup_constants import name_canonical, name, version
 
 # from setup_mypycify import ext_modules
+ext_modules = []
+
 
 description = cleandoc(__doc__)
 
-requirements = []
-ext_modules = []
-
+requirements = [
+    "mypy-extensions",
+]
 
 packages = [
     name,
@@ -75,6 +77,6 @@ setup(
     py_modules=py_modules,
     ext_modules=ext_modules,
     url="https://github.com/kai3341/systemPY",
-    version="0.0.4",
+    version=version,
     zip_safe=True,
 )

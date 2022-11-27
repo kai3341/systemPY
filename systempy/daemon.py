@@ -1,7 +1,7 @@
-import asyncio
 import signal
+from dataclasses import field
 
-# from mypy_extensions import trait
+from mypy_extensions import trait
 from typing import Optional
 from types import FrameType
 
@@ -9,12 +9,11 @@ from .target import ProcessTargetABC, DaemonTargetABC, Target
 from .util import mark_as_target
 
 
-# @trait
-@mark_as_target
+@trait
 class DaemonUnitBase(Target, DaemonTargetABC, ProcessTargetABC):
     reload_signals = (signal.SIGHUP,)
 
-    __reloading: bool
+    __reloading: bool = field(init=False)
 
     def on_init(self) -> None:
         for reload_signal in self.reload_signals:
@@ -34,19 +33,17 @@ class DaemonUnitBase(Target, DaemonTargetABC, ProcessTargetABC):
 
     def run_sync(self) -> None:
         while True:
-            try:
-                with self:
-                    self.main_sync()
-            except asyncio.CancelledError:
-                if self.__reloading:
-                    self.__reloading = False
-                    continue
-                break
+            with self:
+                self.main_sync()
+            if self.__reloading:
+                self.__reloading = False
+                continue
+            break
 
 
-# @trait
 @mark_as_target
-class DaemonUnit(DaemonUnitBase):
+@trait
+class DaemonUnit(DaemonUnitBase, metaclass=type):
     async def run_async(self) -> None:
         async with self:
             await self.main_async()

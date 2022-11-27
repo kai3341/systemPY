@@ -1,29 +1,31 @@
+from dataclasses import fields
 from typing import Dict, Any
 
 from .register import register_addition_cfg_applier
 from .creation import create_partial_handler_generic
 from .typing import SMConfig, TypeIterable
+from .dataclasses import ClsCFG
 
 
 from .misc import get_key_or_create
 
-from .constants import (
-    apply_additional_config__cfg,
-    lifecycle_additional_configuration,
-)
+from .constants import lifecycle_additional_configuration
+from .register import register_addition_cfg_applier
 
 
 @register_addition_cfg_applier
 def stack_method(cls: type, config: SMConfig) -> None:
     create = create_partial_handler_generic(cls)
 
-    for stage_name, stage_args in config.items():
-        create(stage_name, *stage_args)
+    for stage_name, stage_config in config.items():
+        create(stage_name, stage_config)
 
 
-def apply_additional_config(cls: type, config: Dict[str, Dict]) -> None:
-    for key, value in config.items():
-        apply_cfg_handler = apply_additional_config__cfg[key]
+def apply_additional_config(cls: type, config: ClsCFG) -> None:
+    for clscfg_field in fields(config):
+        key = clscfg_field.name
+        value = getattr(config, key)
+        apply_cfg_handler = register_addition_cfg_applier[key]
         apply_cfg_handler(cls, value)
 
 
@@ -45,9 +47,14 @@ def update_annotation(
     )
 
     for base in bases:
-        basedict = base.__dict__
+        basedict = vars(base)
 
         if "__annotations__" not in basedict:
             continue
 
-        annotations.update(basedict["__annotations__"])
+        target_annotations: dict[str, Any] = basedict["__annotations__"]
+        annotations.update(target_annotations)
+
+        for key, value in target_annotations.items():
+            if key in basedict:
+                clsdict[key] = value

@@ -1,39 +1,25 @@
-from typing import Set, Dict, Tuple
+from typing import Set, Dict, Tuple, Callable
+
 from .typing import (
-    LFMethod,
-    # LFMethodT,
     LFTypeConfig,
-    DirectionHandler,
-    TargetTypeHandler,
-    CheckHandler,
-    LFHookRegistry,
-    AddCFG,
-    AnyHashable,
-    # TargetType,
+    # LFHookRegistry,
 )
 
 from .dataclasses import LFMethodsRegistered
 
 lifecycle_additional_configuration: LFTypeConfig = {}
 
-lifecycle_registered_methods: Dict[LFMethod, LFMethodsRegistered] = {}
-apply_additional_config__cfg: Dict[AnyHashable, AddCFG] = {}
+lifecycle_registered_methods: Dict[Callable, LFMethodsRegistered] = {}
 
-lifecycle_hooks_parents: Dict[LFMethod, LFMethod] = {}
-lifecycle_hooks_before: LFHookRegistry = {}
-lifecycle_hooks_after: LFHookRegistry = {}
+# lifecycle_hooks_parents: Dict[Callable, Callable] = {}
+# lifecycle_hooks_before: LFHookRegistry = {}
+# lifecycle_hooks_after: LFHookRegistry = {}
 
-handler_by_iscoroutinefunction: Dict[AnyHashable, TargetTypeHandler] = {}
-handler_by_direction: Dict[AnyHashable, DirectionHandler] = {}
-on_register_check_method_type: Dict[AnyHashable, CheckHandler] = {}
 
-sync_or_async: Tuple[str, str] = (
+sync_or_async: Tuple[str, ...] = (
     "sync",
     "async",
 )
-
-# sync_or_async = TargetType.__args__
-# "object" has no attribute "__args__"
 
 
 lifecycle_disallowed_attrs = [

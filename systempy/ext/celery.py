@@ -3,7 +3,10 @@ from celery import Celery, signals  # type: ignore
 
 from ..target import Target
 
+from mypy_extensions import trait
 
+
+@trait
 class CeleryUnit(Target):
     celery_app: Union[Celery, Type[Celery]]
     config: dict
