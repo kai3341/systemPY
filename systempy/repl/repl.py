@@ -6,22 +6,22 @@ from typing import Dict, Tuple, Any
 
 from .handle_interrupt import handle_interrupt, setup_completer
 
-
 from ..process import ProcessUnit
 
 from mypy_extensions import trait
 
 
 @trait
-class ReplUnit(ProcessUnit):
-    _repl_variables: Dict[str, Any] = {}
-    _repl_caller_frame: inspect.FrameInfo
-    loop: asyncio.AbstractEventLoop
-    console: amain.AsyncIOInteractiveConsole
-    repl_completer: rlcompleter.Completer
-    repl_thread: amain.REPLThread
-    repl_env_full: Dict[str, Any]
+class _ReplLocalsMixin:
+    __slots__ = (
+        "_repl_caller_frame",
+        "repl_env_full",
+        "repl_env",
+    )
 
+    _repl_caller_frame: inspect.FrameInfo
+    repl_env_full: Dict[str, Any]
+    _repl_variables: Dict[str, Any] = {}
     __repl_locals_keys_from_globals = (
         "__name__",
         "__package__",
@@ -31,7 +31,37 @@ class ReplUnit(ProcessUnit):
         "__file__",
     )
 
-    __slots__ = (
+    def _repl_env_defaults(self) -> Dict[str, Any]:
+        return {"asyncio": asyncio, "unit": self}
+
+    def _setup_repl_env(self) -> None:
+        repl_env = self._repl_env_defaults()
+        repl_env.update(self._repl_variables)
+        self.repl_env = repl_env
+        self.repl_env_full = repl_env.copy()
+
+        env = self._repl_caller_frame[0].f_globals
+
+        for key in self.__repl_locals_keys_from_globals:
+            self.repl_env_full[key] = env[key]
+
+    def _setup_repl_caller_frame(self) -> None:
+        "Firstly"
+        frames = inspect.stack()
+        self._repl_caller_frame = frames[-1]
+
+
+@trait
+class ReplUnit(_ReplLocalsMixin, ProcessUnit):
+    _repl_variables: Dict[str, Any] = {}
+    _repl_caller_frame: inspect.FrameInfo
+    loop: asyncio.AbstractEventLoop
+    console: amain.AsyncIOInteractiveConsole
+    repl_completer: rlcompleter.Completer
+    repl_thread: amain.REPLThread
+    repl_env_full: Dict[str, Any]
+
+    __slots__ = _ReplLocalsMixin.__slots__ + (
         "loop",
         "console",
         "repl_env_full",
@@ -43,7 +73,7 @@ class ReplUnit(ProcessUnit):
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
 
-        self.__repl_env()
+        self._setup_repl_env()
 
         setup_completer(self)
 
@@ -65,25 +95,8 @@ class ReplUnit(ProcessUnit):
         self.repl_thread.start()
 
     def on_init(self) -> None:
-        frames = inspect.stack()
-        self._repl_caller_frame = frames[3]
-
+        self._setup_repl_caller_frame()
         self.__setup_repl()
-
-    @property
-    def __repl_env_defaults(self) -> Dict[str, Any]:
-        return {"asyncio": asyncio, "unit": self}
-
-    def __repl_env(self) -> None:
-        repl_env = self.__repl_env_defaults
-        repl_env.update(self._repl_variables)
-        self.repl_env = repl_env
-        self.repl_env_full = repl_env.copy()
-
-        env = self._repl_caller_frame[0].f_globals
-
-        for key in self.__repl_locals_keys_from_globals:
-            self.repl_env_full[key] = env[key]
 
     def repl_handle_banner(self, banner: str) -> str:
         return banner

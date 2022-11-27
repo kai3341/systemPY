@@ -1,5 +1,5 @@
 from os import path
-from ..repl import ReplUnit
+from ..repl.repl import ReplUnit
 from ..util import mark_as_target
 
 from mypy_extensions import trait
@@ -21,11 +21,14 @@ class PrettyReplUnit(ReplUnit):
         if extension_idx > 0:
             basename = basename[:extension_idx]
 
-        module_qualname = f"{package}.{basename}"
+        if package:
+            self._module_qualname = f"{package}.{basename}"
+        else:
+            self._module_qualname = basename
 
         banner_lines = banner.split("\n")
         banner_lines.pop(-1)
         banner_lines.append("")
-        banner_lines.append(f"Working on {module_qualname}")
+        banner_lines.append(f"Working on {self._module_qualname}")
         banner_lines.append(f"Variables: {sorted(self.repl_env)}")
         return "\n".join(banner_lines)
