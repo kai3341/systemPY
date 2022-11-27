@@ -14,10 +14,6 @@ exclude = [
     "^setup_mypycify\\.py"
 ]
 
-files = [
-    "pyproject.toml",
-]
-
 [[tool.mypy.overrides]]
 module = [
     'systempy'
