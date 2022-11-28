@@ -137,7 +137,7 @@ if __name__ == '__main__':
 
 This is drop-in replacement of
 [PrettyReplUnit Extension](#prettyreplunit-extension), but it implemented in
-absolutelly different way and relien on
+absolutelly different way and relies on
 [ptpython](https://github.com/prompt-toolkit/ptpython) library.
 It works fine on Linux, MacOS and Windows, and I like it's hints and syntax
 highliting. Before starting you have to install this requirement:

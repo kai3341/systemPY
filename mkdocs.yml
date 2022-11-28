@@ -6,47 +6,50 @@ site_author: Anton Kavalevich (kai3341)
 repo_url: https://github.com/kai3341/systemPY
 
 nav:
-- Home: index.md
-- Examples:
-    - Secondary Application:
-        - FastAPI / Starlette: examples/secondary/starlette.md
-        - Celery: examples/secondary/celery.md
-    - Self hosted App:
-        - Daemon: examples/self-hosted/daemon.md
-        - Script: examples/self-hosted/script.md
-        - REPL: examples/self-hosted/repl.md
-    - Primary Application:
-        - No example yes: examples/primary/write-me.md
-- API Reference: api-reference.md
-- Roadmap: about/roadmap.md
-- History: about/history.md
+  - Home: index.md
+  - Examples:
+      - Secondary Application:
+          - FastAPI / Starlette: examples/secondary/starlette.md
+          - Celery: examples/secondary/celery.md
+      - Self hosted App:
+          - Daemon: examples/self-hosted/daemon.md
+          - Script: examples/self-hosted/script.md
+          - REPL: examples/self-hosted/repl.md
+      - Primary Application:
+          - No example yes: examples/primary/write-me.md
+  - API Reference: api-reference.md
+  - About:
+      - Roadmap: about/roadmap.md
+      - History: about/history.md
+      - Marginal Notes:
+          - REPL Pain: about/marginal_notes/repl_pain.md
 
 theme:
-    locale: en
-    name: material
-    custom_dir: docs/mkdocs_overrides
+  locale: en
+  name: material
+  custom_dir: docs/mkdocs_overrides
 
-    palette:
-    -   media: "(prefers-color-scheme: light)"
-        scheme: default
-        toggle:
-            icon: material/brightness-7
-            name: Switch to dark mode
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
 
-    -   media: "(prefers-color-scheme: dark)"
-        scheme: slate
-        toggle:
-            icon: material/brightness-2
-            name: Switch to light mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-2
+        name: Switch to light mode
 
-    features:
+  features:
     - navigation.instant
     # - navigation.tracking
     - navigation.sections
     # - navigation.indexes
     - navigation.expand
 
-    favicon: images/favicon.png
+  favicon: images/favicon.png
 
 markdown_extensions:
   - pymdownx.highlight:

@@ -30,3 +30,10 @@
 But what for? Just install `readline` and enjoy
 
 So, I don't have a good solution in fallback mode
+
+UPD: I asked people how does default `asyncio` REPL work on different platforms
+and found that on Windows `Ctrl+C` stops REPL process. It's awful, and I
+can't fix it
+
+UPD2: That's why I added
+[PTRepl Extension](/examples/self-hosted/repl/#ptrepl-extension)
