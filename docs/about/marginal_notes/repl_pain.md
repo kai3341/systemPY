@@ -36,4 +36,4 @@ and found that on Windows `Ctrl+C` stops REPL process. It's awful, and I
 can't fix it
 
 UPD2: That's why I added
-[PTRepl Extension](/examples/self-hosted/repl/#ptrepl-extension)
+[PTRepl Extension](../../../examples/self-hosted/repl/#ptrepl-extension)

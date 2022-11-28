@@ -6,9 +6,9 @@
 - - Tested building via `mypyc`. It's almost ready
 - Refactor and split REPL code
 - - I found REPL have a lot of problems and
-    [tried to fix it](/about/marginal_notes/repl_pain)
+    [tried to fix it](../marginal_notes/repl_pain)
 - Add [ptpython](https://github.com/prompt-toolkit/ptpython) REPL.
-  [More about it](/examples/self-hosted/repl#ptrepl-extension)
+  [More about it](../../examples/self-hosted/repl#ptrepl-extension)
 - Got an idea how to test
 
 ### [0.0.4]
