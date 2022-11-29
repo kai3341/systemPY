@@ -1,5 +1,9 @@
 ## Changelog
 
+### [0.0.6]
+
+- Fix invalid package build
+
 ### [0.0.5]
 
 - Refactor systempy's typing

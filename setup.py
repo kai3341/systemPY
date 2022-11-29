@@ -22,6 +22,7 @@ packages = [
     name,
     f"{name}.util",
     f"{name}.ext",
+    f"{name}.repl",
 ]
 
 package_data = {
