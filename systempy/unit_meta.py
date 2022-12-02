@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from sys import version_info
+
+# from sys import version_info
 from typing import Type, Dict, Any, Tuple, cast
 
 from .util.configuration import (
@@ -9,8 +10,8 @@ from .util.configuration import (
 
 default_dataclass_kwargs: Dict[str, Any] = {}
 
-if version_info >= (3, 10):
-    default_dataclass_kwargs["slots"] = True
+# if version_info >= (3, 10):
+#     default_dataclass_kwargs["slots"] = True
 
 
 class UnitMeta(type):
