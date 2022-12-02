@@ -1,7 +1,7 @@
 from functools import partial, lru_cache
 from typing import Type, Callable
-from .typing import TypeIterable
-from .dataclasses import GenericHandlerSettings
+from .local_typing import TypeIterable
+from .local_dataclasses import GenericHandlerSettings
 from . import extraction
 
 

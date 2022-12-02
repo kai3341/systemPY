@@ -3,8 +3,8 @@ from typing import Dict, Any
 
 from .register import register_addition_cfg_applier
 from .creation import create_partial_handler_generic
-from .typing import SMConfig, TypeIterable
-from .dataclasses import ClsCFG
+from .local_typing import SMConfig, TypeIterable
+from .local_dataclasses import ClsCFG
 
 
 from .misc import get_key_or_create

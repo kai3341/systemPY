@@ -7,11 +7,11 @@ from mypy_extensions import trait
 
 @trait
 class ReplLocalsMixin:
-    __slots__ = (
-        "_repl_caller_frame",
-        "repl_env_full",
-        "repl_env",
-    )
+    # __slots__ = (
+    #     "_repl_caller_frame",
+    #     "repl_env_full",
+    #     "repl_env",
+    # )
 
     _repl_caller_frame: inspect.FrameInfo
     repl_env_full: Dict[str, Any]

@@ -1,5 +1,5 @@
 from typing import Generator, Tuple, Iterable
-from .typing import CTFT, function_types
+from .local_typing import CTFT, function_types
 
 from .check import check_callback_signature
 from .misc import HookRegistry

@@ -1,11 +1,11 @@
 from typing import Set, Dict, Tuple, Callable
 
-from .typing import (
+from .local_typing import (
     LFTypeConfig,
     # LFHookRegistry,
 )
 
-from .dataclasses import LFMethodsRegistered
+from .local_dataclasses import LFMethodsRegistered
 
 lifecycle_additional_configuration: LFTypeConfig = {}
 

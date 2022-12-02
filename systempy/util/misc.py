@@ -10,7 +10,7 @@ from typing import (
     overload,
 )
 
-from .typing import (
+from .local_typing import (
     KT,
     VT,
     CT,

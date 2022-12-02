@@ -20,13 +20,13 @@ class ReplUnit(ReplLocalsMixin, ProcessUnit):
     repl_thread: amain.REPLThread
     repl_env_full: Dict[str, Any]
 
-    __slots__ = ReplLocalsMixin.__slots__ + (
-        "loop",
-        "console",
-        "repl_env_full",
-        "repl_completer",
-        "repl_thread",
-    )
+    # __slots__ = ReplLocalsMixin.__slots__ + (
+    #     "loop",
+    #     "console",
+    #     "repl_env_full",
+    #     "repl_completer",
+    #     "repl_thread",
+    # )
 
     def __setup_repl(self) -> None:
         self.loop = asyncio.new_event_loop()

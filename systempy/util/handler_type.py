@@ -5,7 +5,7 @@ from typing import Type
 from .extraction import separate_sync_async
 from .register import register_handler_by_aio
 from .callback_plan import build_callback_plan
-from .typing import LFMethodTuple, T, CT, LFMethodSync, LFMethodAsync
+from .local_typing import LFMethodTuple, T, CT, LFMethodSync, LFMethodAsync
 
 
 @register_handler_by_aio("sync")

@@ -1,16 +1,20 @@
 from inspect import iscoroutinefunction
 
-from .typing import (
+from .misc import NamedRegistry, HookRegistry, get_key_or_create
+
+from .local_typing import (
     TargetDirection,
     TT,
     CFT,
     LFDecorator,
     function_types,
-    SMConfig,
 )
 
-from .dataclasses import LFMethodsRegistered, GenericHandlerSettings, ClsCFG
-from .misc import NamedRegistry, HookRegistry, get_key_or_create
+from .local_dataclasses import (
+    LFMethodsRegistered,
+    GenericHandlerSettings,
+    ClsCFG,
+)
 
 from .constants import (
     lifecycle_bases_blacklist,

@@ -12,10 +12,10 @@ from typing import (
     Union,
     Coroutine,
     AnyStr,
-    TypedDict,
+    # TypedDict,
 )
 
-from . import dataclasses as _dataclasses
+from . import local_dataclasses
 
 T = TypeVar("T")
 KT = TypeVar("KT")
@@ -53,5 +53,5 @@ TargetTypeHandler = Callable[[Type, CT, LFMethodTuple], CT]
 DirectionHandler = Callable[[TypeIterable, str], LFMethodTuple]
 CheckHandler = Callable[[CFT], None]
 
-SMConfig = Dict[str, "_dataclasses.GenericHandlerSettings"]
-LFTypeConfig = Dict[TT, "_dataclasses.ClsCFG"]
+SMConfig = Dict[str, "local_dataclasses.GenericHandlerSettings"]
+LFTypeConfig = Dict[TT, "local_dataclasses.ClsCFG"]

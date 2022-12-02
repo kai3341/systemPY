@@ -2,7 +2,7 @@ from inspect import iscoroutinefunction
 from typing import Tuple
 
 from . import constants
-from .typing import CT, LFMethod, function_types
+from .local_typing import CT, LFMethod, function_types
 from .register import register_check_method_type
 
 

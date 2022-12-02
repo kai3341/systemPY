@@ -3,14 +3,14 @@ from typing import Tuple, List, Callable
 from .register import register_direction
 from . import constants
 
-from .typing import (
+from .local_typing import (
     LFMethodTuple,
     TypeIterable,
     LFMethodSync,
     LFMethodAsync,
     function_types,
 )
-from .dataclasses import SeparatedLFMethods
+from .local_dataclasses import SeparatedLFMethods
 
 
 def extract_attrs(iterable: TypeIterable, name: str) -> List[Callable]:
