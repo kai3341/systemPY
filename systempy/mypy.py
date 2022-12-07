@@ -68,7 +68,7 @@ from mypy.types import (
     Type,
     TypeOfAny,
     TypeType,
-    # TypeVarType,
+    TypeVarType,
     # UnionType,
     # get_proper_type,
 )
@@ -77,13 +77,13 @@ from mypy.typevars import fill_typevars
 from mypy.util import get_unique_redefinition_name
 from mypy.version import __version__ as mypy_version
 
-try:
-    from mypy.types import TypeVarDef  # type: ignore[attr-defined]
-except ImportError:  # pragma: no cover
-    # Backward-compatible with TypeVarDef from Mypy 0.910.
-    from mypy.types import TypeVarType as TypeVarDef
+# try:
+#     from mypy.types import TypeVarDef  # type: ignore[attr-defined]
+# except ImportError:  # pragma: no cover
+#     # Backward-compatible with TypeVarDef from Mypy 0.910.
+#     from mypy.types import TypeVarType as TypeVarDef
 
-UNITMETA_FULLNAME = "systempy.unit.UnitMeta"
+UNITMETA_FULLNAME = "systempy.unit_meta.UnitMeta"
 
 
 def parse_mypy_version(version: str) -> Tuple[int, ...]:
@@ -124,6 +124,8 @@ class SystemPYPlugin(Plugin):
         if declared_metaclass.type.fullname != UNITMETA_FULLNAME:
             return None
 
+        print(declared_metaclass)
+
         return self._on_base_class_hook
 
     def _on_base_class_hook(self, ctx: ClassDefContext) -> None:
@@ -143,7 +145,7 @@ def add_method(
     args: List[Argument],
     return_type: Type,
     self_type: Optional[Type] = None,
-    tvar_def: Optional[TypeVarDef] = None,
+    tvar_def: Optional[TypeVarType] = None,
     is_classmethod: bool = False,
     is_new: bool = False,
     # is_staticmethod: bool = False,

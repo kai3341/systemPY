@@ -1,10 +1,18 @@
 ## Changelog
 
-### [0.0.6]
+### 0.0.9
+
+- Fix an error in mypy plugin to make it working
+
+### 0.0.7 &#151 0.0.8
+
+- A lot of small fixes around `__slots__` and dataclasses on python >= 3.10
+
+### 0.0.6
 
 - Fix invalid package build
 
-### [0.0.5]
+### 0.0.5
 
 - Refactor systempy's typing
 - - Tested building via `mypyc`. It's almost ready
@@ -15,22 +23,22 @@
   [More about it](../../examples/self-hosted/repl#ptrepl-extension)
 - Got an idea how to test
 
-### [0.0.4]
+### 0.0.4
 
 - Reformat code using black
 - Add `py.typed` package hint
 - Add some type hints
 
-### [0.0.3]
+### 0.0.3
 
 - Implement 90% of documentation
 
-### [0.0.2]
+### 0.0.2
 
 - Rename module. The lowerCamelCase makes me suffer. Current name is `systempy`
 - Write initial docs
 
-### [0.0.1]
+### 0.0.1
 
 - Implementation complete. Library is installable and tested on my pet project
 - No documentation yet. All in my mind
@@ -44,7 +52,7 @@
     logs. Anyway it's better then via socket and works good everywhere
 - No examples yet (except my pet project which is closedsource, haha)
 
-### [0.0.0]
+### 0.0.0
 
 - Unfortunally, the name `lifecycle` is already used. Choosing the new name
 - - New name is `systemPY`
@@ -57,7 +65,7 @@
 
 Fossil area. Be careful, don't trample the bones
 
-### [-0.1.0]
+### -0.1.0
 
 - By the impression of systemd refactor the library, drop hardcoded stages,
   make implementation ultimately soft. Now all lifecycle stages are custom.
@@ -66,12 +74,12 @@ Fossil area. Be careful, don't trample the bones
 - Implement `gather` direction as arbitrary, handled by `asyncio.gather` core
 - Implement experimental `reload_threadsafe`
 
-### [-0.2.0]
+### -0.2.0
 
 - Drop `call super()` (anti)pattern. Right now while you are implementing the
   component you don't care about other components
 - Implement basic daemon reload
 
-### [-0.3.0]
+### -0.3.0
 
 - Initial idea, named `lifecycle`. You can find a lot of mentions in the code
