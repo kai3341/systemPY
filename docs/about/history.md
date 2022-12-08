@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.0.10 &#151 0.0.12
+
+- A lot of fixes to make library running on MacOS
+
 ### 0.0.9
 
 - Fix an error in mypy plugin to make it working

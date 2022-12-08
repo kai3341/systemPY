@@ -4,7 +4,7 @@ from .unit import Unit
 from .process import ProcessUnit
 from .daemon import DaemonUnit
 from .loop import LoopUnit
-from .repl import ReplUnit
+from .repl.repl import ReplUnit
 
 
 __all__ = [

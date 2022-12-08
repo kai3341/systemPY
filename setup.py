@@ -57,6 +57,7 @@ classifiers = [
 
 py_modules = [
     name,
+    "setup_constants",
 ]
 
 with open("README.md") as readme_file:
