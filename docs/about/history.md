@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.0.13
+
+- Somewhy it supressed exception happened inside event loop
+
 ### 0.0.10 &#151 0.0.12
 
 - A lot of fixes to make library running on MacOS

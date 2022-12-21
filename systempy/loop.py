@@ -1,4 +1,6 @@
 from typing import Coroutine, Any
+from traceback import print_exc
+from sys import stderr
 
 from dataclasses import field
 from asyncio import CancelledError, run
@@ -18,8 +20,12 @@ class LoopUnit(DaemonUnitBase):
 
     async def run_async(self) -> None:
         async with self:
-            self.__main_async_coro = self.main_async()
-            await self.__main_async_coro
+            try:
+                self.__main_async_coro = self.main_async()
+                await self.__main_async_coro
+            except Exception:
+                print_exc(file=stderr)
+                raise
 
     def stop(self) -> None:
         self.__main_async_coro.throw(CancelledError)
