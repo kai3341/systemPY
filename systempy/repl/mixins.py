@@ -1,22 +1,17 @@
 import asyncio
 import inspect
-from typing import Dict, Any
+from dataclasses import field
+from typing import ClassVar, Dict, Tuple, Any
 
 from mypy_extensions import trait
 
 
 @trait
 class ReplLocalsMixin:
-    # __slots__ = (
-    #     "_repl_caller_frame",
-    #     "repl_env_full",
-    #     "repl_env",
-    # )
-
-    _repl_caller_frame: inspect.FrameInfo
-    repl_env_full: Dict[str, Any]
-    repl_variables: Dict[str, Any] = {}
-    __repl_locals_keys_from_globals = (
+    _repl_caller_frame: inspect.FrameInfo = field(init=False)
+    repl_env_full: Dict[str, Any] = field(init=False)
+    repl_variables: ClassVar[Dict[str, Any]] = {}
+    __repl_locals_keys_from_globals: ClassVar[Tuple[str, ...]] = (
         "__name__",
         "__package__",
         "__loader__",

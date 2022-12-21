@@ -1,87 +1,48 @@
-# import sys
-# from configparser import ConfigParser
 from typing import (
-    # Any,
     Callable,
-    # Dict,
     List,
     Optional,
-    # Set,
     Tuple,
     Type as TypingType,
-    # Union,
 )
 
-# from mypy.errorcodes import ErrorCode
 from mypy.nodes import (
-    # ARG_NAMED,
-    # ARG_NAMED_OPT,
-    # ARG_OPT,
     ARG_POS,
     ARG_STAR2,
     MDEF,
     Argument,
-    # AssignmentStmt,
     Block,
-    # CallExpr,
-    # ClassDef,
-    # Context,
     Decorator,
-    # EllipsisExpr,
-    # FuncBase,
     FuncDef,
-    # JsonDict,
-    # MemberExpr,
     NameExpr,
     PassStmt,
-    # PlaceholderNode,
-    # RefExpr,
-    # StrExpr,
-    # SymbolNode,
     SymbolTableNode,
-    # TempNode,
     TypeInfo,
-    # TypeVarExpr,
     Var,
 )
 
-# from mypy.options import Options
 from mypy.plugin import (
-    # CheckerPluginInterface,
     ClassDefContext,
-    # FunctionContext,
-    # MethodContext,
     Plugin,
-    # SemanticAnalyzerPluginInterface,
 )
 
 from mypy.plugins import dataclasses
 from mypy.semanal import set_callable_name
 
-# from mypy.server.trigger import make_wildcard_trigger
 from mypy.types import (
     AnyType,
     CallableType,
-    # Instance,
     NoneType,
-    # Overloaded,
     Type,
     TypeOfAny,
     TypeType,
     TypeVarType,
-    # UnionType,
-    # get_proper_type,
 )
 
 from mypy.typevars import fill_typevars
 from mypy.util import get_unique_redefinition_name
 from mypy.version import __version__ as mypy_version
 
-# try:
-#     from mypy.types import TypeVarDef  # type: ignore[attr-defined]
-# except ImportError:  # pragma: no cover
-#     # Backward-compatible with TypeVarDef from Mypy 0.910.
-#     from mypy.types import TypeVarType as TypeVarDef
 
 UNITMETA_FULLNAME = "systempy.unit_meta.UnitMeta"
 
@@ -123,8 +84,6 @@ class SystemPYPlugin(Plugin):
 
         if declared_metaclass.type.fullname != UNITMETA_FULLNAME:
             return None
-
-        print(declared_metaclass)
 
         return self._on_base_class_hook
 
@@ -169,8 +128,6 @@ def add_method(
         first = [
             Argument(Var("_cls"), TypeType.make_normalized(self_type), None, ARG_POS)
         ]
-    # elif is_staticmethod:
-    #     first = []
     else:
         self_type = self_type or fill_typevars(info)
         first = [Argument(Var("__pydantic_self__"), self_type, None, ARG_POS)]

@@ -2,7 +2,7 @@ import signal
 from dataclasses import field
 
 from mypy_extensions import trait
-from typing import Optional
+from typing import Optional, ClassVar, Tuple
 from types import FrameType
 
 from .target import ProcessTargetABC, DaemonTargetABC, Target
@@ -11,7 +11,10 @@ from .util import mark_as_target
 
 @trait
 class DaemonUnitBase(Target, DaemonTargetABC, ProcessTargetABC):
-    reload_signals = (signal.SIGHUP,)
+    reload_signals: ClassVar[Tuple[signal.Signals, ...]] = (
+        # signal.Signals
+        signal.SIGHUP,
+    )
 
     __reloading: bool = field(init=False)
 
@@ -43,7 +46,7 @@ class DaemonUnitBase(Target, DaemonTargetABC, ProcessTargetABC):
 
 @mark_as_target
 @trait
-class DaemonUnit(DaemonUnitBase, metaclass=type):
+class DaemonUnit(DaemonUnitBase):
     async def run_async(self) -> None:
         async with self:
             await self.main_async()
