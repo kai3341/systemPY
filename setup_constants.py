@@ -1,6 +1,6 @@
 import os, tomli
 
-version = "0.0.13"
+version = "0.0.14"
 name_canonical = "systemPY"
 name = name_canonical.lower()
 

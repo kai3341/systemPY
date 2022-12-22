@@ -37,7 +37,7 @@ def apply_additional_configuration(this_cls: type) -> None:
 
 
 def update_annotation(
-    clsdict: Dict[Any, Any],
+    clsdict: Dict[str, Any],
     bases: TypeIterable,
 ) -> None:
     annotations: Dict[str, Any] = get_key_or_create(
@@ -52,9 +52,9 @@ def update_annotation(
         if "__annotations__" not in basedict:
             continue
 
-        target_annotations: dict[str, Any] = basedict["__annotations__"]
+        target_annotations: Dict[str, Any] = basedict["__annotations__"]
         annotations.update(target_annotations)
 
-        for key, value in target_annotations.items():
+        for key in target_annotations:
             if key in basedict:
-                clsdict[key] = value
+                clsdict[key] = basedict[key]

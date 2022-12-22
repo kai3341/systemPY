@@ -1,5 +1,10 @@
 ## Changelog
 
+### 0.0.14
+
+- Improve type hints of `ClassVar`
+- Fix bug at `update_annotations`
+
 ### 0.0.13
 
 - Somewhy it supressed exception happened inside event loop
