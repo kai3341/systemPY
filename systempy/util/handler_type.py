@@ -1,6 +1,7 @@
 from asyncio import gather
 from inspect import iscoroutinefunction
 from typing import Type
+from traceback import print_exc
 
 from .extraction import separate_sync_async
 from .register import register_handler_by_aio
@@ -18,7 +19,10 @@ def handler_sync(
 
     def handler(self: T) -> None:
         for callback in callbacks_total:
-            callback(self)
+            try:
+                callback(self)
+            except:
+                print_exc()
 
     return handler
 
@@ -34,9 +38,15 @@ def handler_async(
     async def handler(self: T) -> None:
         for callback in callbacks_total:
             if iscoroutinefunction(callback):
-                await callback(self)
+                try:
+                    await callback(self)
+                except:
+                    print_exc()
             else:
-                callback(self)
+                try:
+                    callback(self)
+                except:
+                    print_exc()
 
     return handler
 
@@ -55,7 +65,11 @@ def handler_gather(
 
         async def handler__having_both(self: T) -> None:
             for cb in separated.callbacks_sync:
-                cb(self)
+                try:
+                    cb(self)
+                except:
+                    print_exc()
+
             await gather(cb(self) for cb in separated.callbacks_async)
 
         return handler__having_both
@@ -71,7 +85,10 @@ def handler_gather(
 
         async def handler__having_sync(self: T) -> None:
             for cb in separated.callbacks_sync:
-                cb(self)
+                try:
+                    cb(self)
+                except:
+                    print_exc()
 
         return handler__having_sync
 

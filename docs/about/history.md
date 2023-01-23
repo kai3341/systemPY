@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.0.15
+
+- HotFix exception handling. I don't have better idea
+
 ### 0.0.14
 
 - Improve type hints of `ClassVar`
