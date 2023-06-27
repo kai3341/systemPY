@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.0.16
+
+- Actualize mypy plugin, it works with mypy>1.4.0
+
 ### 0.0.15
 
 - HotFix exception handling. I don't have better idea

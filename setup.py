@@ -15,6 +15,7 @@ ext_modules = []
 description = cleandoc(__doc__)
 
 requirements = [
+    "typing-extensions",
     "mypy-extensions",
 ]
 

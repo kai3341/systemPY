@@ -1,22 +1,32 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field, Field
 
 # from sys import version_info
-from typing import Type, Dict, Any, Tuple, cast
+from typing import TypeVar, Type, Dict, Any, Tuple, cast
+
+from typing_extensions import dataclass_transform
 
 from .util.configuration import (
     update_annotation,
     apply_additional_configuration,
 )
 
-default_dataclass_kwargs: Dict[str, Any] = {}
+MetaClassType = Type[type]
+
+default_dataclass_kwargs: Dict[str, Any] = {
+    "kw_only": True,
+}
 
 # if version_info >= (3, 10):
 #     default_dataclass_kwargs["slots"] = True
 
 
+@dataclass_transform(
+    field_specifiers=(Field, field),
+    kw_only_default=True,
+)
 class UnitMeta(type):
     def __new__(
-        cls: Type[type],
+        cls: MetaClassType,
         name: str,
         bases: Tuple[type, ...],
         classdict: Dict[str, Any],

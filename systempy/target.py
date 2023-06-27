@@ -1,18 +1,17 @@
 import abc
 import atexit
 
-from typing import Optional, Type, TypeVar, Dict, Any
+from typing import Optional, Type, Dict, Any
 from types import TracebackType
 
 from mypy_extensions import trait
+from typing_extensions import Self, dataclass_transform
 
 from .util import register_target, register_target_method, mark_as_target
 
 
-TargetT = TypeVar("TargetT", bound="Target")
-
-
 @register_target
+@dataclass_transform()
 @trait
 class Target:
     def __post_init__(self) -> None:
@@ -43,7 +42,7 @@ class Target:
     def on_exit(self) -> None:
         pass
 
-    def __enter__(self: TargetT) -> TargetT:
+    def __enter__(self: Self) -> Self:
         self.pre_startup()
         return self
 
@@ -56,7 +55,7 @@ class Target:
         self.post_shutdown()
         return True
 
-    async def __aenter__(self: TargetT) -> TargetT:
+    async def __aenter__(self: Self) -> Self:
         await self.on_startup()
         return self
 
