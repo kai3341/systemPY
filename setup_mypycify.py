@@ -12,33 +12,39 @@ from mypyc.build import mypycify
 
 from setup_constants import name, pyproject
 
+from typing import Dict, Tuple, Union, Literal, Generator
+
+STRUCT_LEAF = Tuple[str, ...]
+STRUCT_LEAF_NODE = Dict[Literal[None], STRUCT_LEAF]
+STRUCT = Union[STRUCT_LEAF_NODE, Dict[str, "STRUCT"]]
+
 mypy_config = pyproject.get("tool", {}).get("mypy", {})
 
-mypycify_structure = {
+mypycify_structure: STRUCT = {
     name: {
-        # None: (
-        #     # "mypy.py",
-        #     "target.py",
-        #     # "unit_meta.py",
-        #     "unit.py",
-        #     "process.py",
-        #     "daemon.py",
-        #     "repl.py",
-        #     "loop.py",
-        # ),
-        # "repl": {
-        #     None: (
-        #         " __init__.py",
-        #         "handle_interrupt.py",
-        #         "repl.py",
-        #         "typing.py",
-        #         "util.py",
-        #     )
-        # },
+        None: (
+            "mypy.py",
+            # "target.py",
+            # "unit_meta.py",
+            # "unit.py",
+            # "process.py",
+            # "daemon.py",
+            # "loop.py",
+        ),
+        "repl": {
+            None: (
+                # " __init__.py",
+                "handle_interrupt.py",
+                # "mixins.py",
+                # "repl.py",
+                "repl_typing.py",
+                "util.py",
+            )
+        },
         "util": {
             None: (
-                "typing.py",
-                "dataclasses.py",
+                "local_typing.py",
+                "local_dataclasses.py",
                 "constants.py",
                 "extraction.py",
                 "configuration.py",
@@ -62,22 +68,27 @@ mypycify_structure = {
 }
 
 
-def walk(struct: dict, root=None):
-    if root is None:
-        for key, value in struct.items():
-            if key is None:
-                for item in value:
-                    yield item
-            else:
-                yield from walk(value, key)
-    else:
-        for key, value in struct.items():
-            if key is None:
-                for item in value:
-                    yield os.path.join(root, item)
-            else:
-                next_root = os.path.join(root, key)
-                yield from walk(value, next_root)
+def _walk_next(struct: STRUCT, root: str) -> Generator[str, None, None]:
+    for key, value in struct.items():
+        if key is None:
+            value_leaf: STRUCT_LEAF = value
+            for item in value_leaf:
+                yield os.path.join(root, item)
+        else:
+            value_struct: STRUCT = value
+            next_root = os.path.join(root, key)
+            yield from _walk_next(value_struct, next_root)
+
+
+def walk(struct: STRUCT) -> Generator[str, None, None]:
+    for key, value in struct.items():
+        if key is None:
+            value_leaf: STRUCT_LEAF = value
+            for item in value_leaf:
+                yield item
+        else:
+            value_struct: STRUCT = value
+            yield from _walk_next(value_struct, key)
 
 
 ext_modules = walk(mypycify_structure)

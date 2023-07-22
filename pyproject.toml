@@ -1,5 +1,5 @@
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.11"
 disallow_untyped_defs = true
 show_error_codes = true
 no_implicit_optional = true
@@ -10,8 +10,13 @@ exclude = [
     "^\\.venv",
     "^build",
     "^dist",
+    "^systemPY.egg-info",
+    # ===
     "^setup\\.py",
-    "^setup_mypycify\\.py"
+    "^setup_mypycify\\.py",
+    "^setup_constants\\.py",
+    # ===
+    "^systempy/ext"
 ]
 
 [[tool.mypy.overrides]]

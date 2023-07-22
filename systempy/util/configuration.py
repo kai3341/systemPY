@@ -40,7 +40,7 @@ def update_annotation(
     clsdict: Dict[str, Any],
     bases: TypeIterable,
 ) -> None:
-    annotations: Dict[str, Any] = get_key_or_create(
+    annotations: Dict[str, type] = get_key_or_create(
         clsdict,
         "__annotations__",
         dict,
@@ -52,7 +52,7 @@ def update_annotation(
         if "__annotations__" not in basedict:
             continue
 
-        target_annotations: Dict[str, Any] = basedict["__annotations__"]
+        target_annotations: Dict[str, type] = basedict["__annotations__"]
         annotations.update(target_annotations)
 
         for key in target_annotations:

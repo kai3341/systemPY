@@ -1,4 +1,4 @@
-import os, tomli
+import os, tomllib
 
 version = "0.0.16"
 name_canonical = "systemPY"
@@ -8,6 +8,6 @@ name = name_canonical.lower()
 pyproject_config = "pyproject.toml"
 if os.path.isfile(pyproject_config):
     with open(pyproject_config, "rb") as ppfile:
-        pyproject = tomli.load(ppfile)
+        pyproject = tomllib.load(ppfile)
 else:
     pyproject = {}

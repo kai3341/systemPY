@@ -70,14 +70,14 @@ def handler_gather(
                 except:
                     print_exc()
 
-            await gather(cb(self) for cb in separated.callbacks_async)
+            await gather(*(cb(self) for cb in separated.callbacks_async))
 
         return handler__having_both
 
     elif separated.callbacks_async:
 
         async def handler__having_async(self: T) -> None:
-            await gather(cb(self) for cb in separated.callbacks_async)
+            await gather(*(cb(self) for cb in separated.callbacks_async))
 
         return handler__having_async
 

@@ -1,5 +1,6 @@
 from inspect import iscoroutinefunction
 from typing import Tuple, List, Callable
+
 from .register import register_direction
 from . import constants
 

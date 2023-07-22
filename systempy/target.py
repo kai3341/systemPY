@@ -1,7 +1,7 @@
-import abc
+# import abc
 import atexit
 
-from typing import Optional, Type, Dict, Any
+from typing import Optional, Type
 from types import TracebackType
 
 from mypy_extensions import trait
@@ -12,12 +12,7 @@ from .util import register_target, register_target_method, mark_as_target
 
 @register_target
 @dataclass_transform()
-@trait
-class Target:
-    def __post_init__(self) -> None:
-        atexit.register(self.on_exit)
-        self.on_init()
-
+class TargetInterface:
     @register_target_method("forward")
     def on_init(self) -> None:
         pass
@@ -42,6 +37,18 @@ class Target:
     def on_exit(self) -> None:
         pass
 
+
+@mark_as_target
+@trait
+class _TargetInit(TargetInterface):
+    def __post_init__(self) -> None:
+        atexit.register(self.on_exit)
+        self.on_init()
+
+
+@mark_as_target
+@trait
+class _TargetCtxMgrSync(TargetInterface):
     def __enter__(self: Self) -> Self:
         self.pre_startup()
         return self
@@ -55,6 +62,10 @@ class Target:
         self.post_shutdown()
         return True
 
+
+@mark_as_target
+@trait
+class _TargetCtxMgrAsync(TargetInterface):
     async def __aenter__(self: Self) -> Self:
         await self.on_startup()
         return self
@@ -70,40 +81,36 @@ class Target:
 
 
 @mark_as_target
-@trait
-class ProcessTargetABC:  # (metaclass=abc.ABCMeta):
-    @abc.abstractmethod
-    def main_sync(self) -> None:
-        pass
-
-    @abc.abstractmethod
-    def run_sync(self) -> None:
-        pass
-
-    @abc.abstractmethod
-    def reload(self) -> None:
-        pass
-
-    @classmethod
-    def launch(cls, **kwargs: Dict[str, Any]) -> None:
-        self = cls(**kwargs)
-        self.run_sync()
+class Target(_TargetInit, _TargetCtxMgrSync, _TargetCtxMgrAsync):
+    ...
 
 
 @mark_as_target
-@trait
-class DaemonTargetABC:  # (metaclass=abc.ABCMeta):
-    @abc.abstractmethod
+class ProcessTargetABC(Target):
+    "Unfortunally `abc` can not be used because can not use 2 metaclasses"
+
+    def main_sync(self) -> None:
+        raise NotImplementedError()
+
+    def run_sync(self) -> None:
+        raise NotImplementedError()
+
+    def reload(self) -> None:
+        raise NotImplementedError()
+
+
+@mark_as_target
+class DaemonTargetABC(Target):
+    "Unfortunally `abc` can not be used because can not use 2 metaclasses"
+
     async def main_async(self) -> None:
-        pass
+        raise NotImplementedError()
 
-    @abc.abstractmethod
     async def run_async(self) -> None:
-        pass
+        raise NotImplementedError()
 
-    @abc.abstractmethod
     def stop(self) -> None:
-        pass
+        raise NotImplementedError()
 
 
 __all__ = (

@@ -12,7 +12,7 @@ from .daemon import DaemonUnitBase
 
 @trait
 class LoopUnit(DaemonUnitBase):
-    __main_async_coro: Coroutine[Any, Any, None] = field(init=False)
+    _main_async_coro: Coroutine[Any, Any, None] = field(init=False, repr=False)
 
     def main_sync(self) -> None:
         run_coroutine = self.run_async()
@@ -21,11 +21,11 @@ class LoopUnit(DaemonUnitBase):
     async def run_async(self) -> None:
         async with self:
             try:
-                self.__main_async_coro = self.main_async()
-                await self.__main_async_coro
+                self._main_async_coro = self.main_async()
+                await self._main_async_coro
             except Exception:
                 print_exc(file=stderr)
                 raise
 
     def stop(self) -> None:
-        self.__main_async_coro.throw(CancelledError)
+        self._main_async_coro.throw(CancelledError)

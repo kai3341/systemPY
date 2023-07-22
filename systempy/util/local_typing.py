@@ -1,5 +1,6 @@
 from types import FunctionType, BuiltinFunctionType
 from typing import (
+    TYPE_CHECKING,
     Type,
     Dict,
     Tuple,
@@ -15,7 +16,8 @@ from typing import (
     # TypedDict,
 )
 
-from . import local_dataclasses
+if TYPE_CHECKING:
+    from . import local_dataclasses
 
 T = TypeVar("T")
 KT = TypeVar("KT")
@@ -55,3 +57,5 @@ CheckHandler = Callable[[CFT], None]
 
 SMConfig = Dict[str, "local_dataclasses.GenericHandlerSettings"]
 LFTypeConfig = Dict[TT, "local_dataclasses.ClsCFG"]
+
+DisallowedAttrInfo = Tuple[str, str]

@@ -8,8 +8,9 @@ from inspect import cleandoc
 
 from setup_constants import name_canonical, name, version
 
-# from setup_mypycify import ext_modules
-ext_modules = []
+from setup_mypycify import ext_modules
+
+# ext_modules = []
 
 
 description = cleandoc(__doc__)
@@ -39,15 +40,26 @@ keywords = [
     "manager",
 ]
 
+classifiers__python_versions = (
+    "3 :: Only",
+    "3.7",
+    "3.8",
+    "3.9",
+    "3.10",
+    "3.11",
+)
+
+classifiers__programming_language = tuple(
+    "Programming Language :: Python :: " + i
+    # ===
+    for i in classifiers__python_versions
+)
+
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
-    # Programming Language
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
+    *classifiers__programming_language,
     # Topic
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
