@@ -1,23 +1,19 @@
 import asyncio
-import asyncio.__main__ as amain  # type: ignore
+import asyncio.__main__ as amain  # type:ignore[import-not-found]
 import rlcompleter
-from typing import Dict, Tuple, Any
+from typing import Any
 
+from ..process import ProcessUnit
 from .handle_interrupt import handle_interrupt, setup_completer
 from .mixins import ReplLocalsMixin
 
-from ..process import ProcessUnit
 
-from mypy_extensions import trait
-
-
-@trait
-class ReplUnit(ReplLocalsMixin, ProcessUnit):
+class ReplUnit(ReplLocalsMixin, ProcessUnit, final=False):
     loop: asyncio.AbstractEventLoop
     console: amain.AsyncIOInteractiveConsole
     repl_completer: rlcompleter.Completer
     repl_thread: amain.REPLThread
-    repl_env_full: Dict[str, Any]
+    repl_env_full: dict[str, Any]
 
     def __setup_repl(self) -> None:
         self.loop = asyncio.new_event_loop()
@@ -60,9 +56,12 @@ class ReplUnit(ReplLocalsMixin, ProcessUnit):
     def __repr_console_interact(self) -> None:
         original_interact = self.console.interact
 
-        def interact(banner: str, exitmsg: str) -> None:
-            banner = self.repl_handle_banner(banner)
-            exitmsg = self.repl_handle_exitmsg(exitmsg)
+        def interact(
+            banner: str | None = None,
+            exitmsg: str | None = None,
+        ) -> None:
+            banner = banner and self.repl_handle_banner(banner)
+            exitmsg = exitmsg and self.repl_handle_exitmsg(exitmsg)
             original_interact(banner, exitmsg)
 
         self.console.interact = interact
@@ -70,13 +69,9 @@ class ReplUnit(ReplLocalsMixin, ProcessUnit):
     def __repr_console_runsource(self) -> None:
         original_runsource = self.console.runsource
 
-        def runsource(
-            source: str,
-            *args: Tuple[str, ...],
-            **kwargs: Dict[str, str],
-        ) -> Any:
+        def runsource(source: str, *args: str, **kwargs: str) -> bool:
             coro = self.repl_handle_code(source)
-            asyncio.run_coroutine_threadsafe(coro, self.loop)
+            asyncio.run_coroutine_threadsafe(coro=coro, loop=self.loop)
             return original_runsource(source, *args, **kwargs)
 
         self.console.runsource = runsource
@@ -98,15 +93,15 @@ class ReplUnit(ReplLocalsMixin, ProcessUnit):
                 break
 
     # Experimental
-    def __done_after_shutdown_asyncgens(self, result: Any) -> None:
+    def __done_after_shutdown_asyncgens(self, _result: Any) -> None:
         self.loop.call_soon_threadsafe(self.post_shutdown)
         self.loop.call_soon_threadsafe(self.pre_startup)
-        asyncio.ensure_future(
+        asyncio.ensure_future(  # noqa: RUF006
             self.on_startup(),
             loop=self.loop,
         )
 
-    def __done_after_on_shutdown(self, result: Any) -> None:
+    def __done_after_on_shutdown(self, _result: Any) -> None:
         future = asyncio.ensure_future(
             self.loop.shutdown_asyncgens(),
             loop=self.loop,
@@ -120,5 +115,4 @@ class ReplUnit(ReplLocalsMixin, ProcessUnit):
         )
         future.add_done_callback(self.__done_after_on_shutdown)
 
-    def reload(self) -> None:
-        ...
+    def reload(self) -> None: ...

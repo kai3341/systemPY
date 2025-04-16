@@ -1,120 +1,119 @@
-# import abc
 import atexit
-
-from typing import Optional, Type
+from collections.abc import Iterator
+from dataclasses import Field, dataclass, fields
 from types import TracebackType
+from typing import Self
 
-from mypy_extensions import trait
-from typing_extensions import Self, dataclass_transform
-
-from .util import register_target, register_target_method, mark_as_target
+from .target_meta import TargetMeta
+from .util import CONST, mark_as_target, register_target, register_target_method
 
 
 @register_target
-@dataclass_transform()
-class TargetInterface:
-    @register_target_method("forward")
-    def on_init(self) -> None:
-        pass
+class TargetInterface(metaclass=TargetMeta):
+    @register_target_method(CONST.FORWARD)
+    def on_init(self) -> None: ...
 
-    @register_target_method("forward")
-    def pre_startup(self) -> None:
-        pass
+    @register_target_method(CONST.FORWARD)
+    def pre_startup(self) -> None: ...
 
-    @register_target_method("forward")
-    async def on_startup(self) -> None:
-        pass
+    @register_target_method(CONST.FORWARD)
+    async def on_startup(self) -> None: ...
 
-    @register_target_method("backward")
-    async def on_shutdown(self) -> None:
-        pass
+    @register_target_method(CONST.BACKWARD)
+    async def on_shutdown(self) -> None: ...
 
-    @register_target_method("backward")
-    def post_shutdown(self) -> None:
-        pass
+    @register_target_method(CONST.BACKWARD)
+    def post_shutdown(self) -> None: ...
 
-    @register_target_method("backward")
-    def on_exit(self) -> None:
-        pass
+    @register_target_method(CONST.BACKWARD)
+    def on_exit(self) -> None: ...
 
 
 @mark_as_target
-@trait
-class _TargetInit(TargetInterface):
+class _TargetInit(TargetInterface, final=False):
     def __post_init__(self) -> None:
         atexit.register(self.on_exit)
         self.on_init()
 
 
 @mark_as_target
-@trait
-class _TargetCtxMgrSync(TargetInterface):
-    def __enter__(self: Self) -> Self:
+class _TargetCtxMgrSync(TargetInterface, final=False):
+    def __enter__(self) -> Self:
         self.pre_startup()
         return self
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
-    ) -> bool:
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> bool | None:
         self.post_shutdown()
-        return True
 
 
 @mark_as_target
-@trait
-class _TargetCtxMgrAsync(TargetInterface):
-    async def __aenter__(self: Self) -> Self:
+@dataclass()
+class _TargetFieldIter(TargetInterface, final=False):
+    def __iter__(self) -> Iterator[Field]:
+        yield from fields(self)
+
+
+@mark_as_target
+class _TargetCtxMgrAsync(TargetInterface, final=False):
+    async def __aenter__(self) -> Self:
         await self.on_startup()
         return self
 
     async def __aexit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
-    ) -> bool:
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> bool | None:
         await self.on_shutdown()
-        return True
 
 
 @mark_as_target
-class Target(_TargetInit, _TargetCtxMgrSync, _TargetCtxMgrAsync):
-    ...
+class Target(
+    _TargetInit,
+    _TargetCtxMgrSync,
+    _TargetCtxMgrAsync,
+    _TargetFieldIter,
+    final=False,
+):
+    pass
 
 
 @mark_as_target
-class ProcessTargetABC(Target):
+class ProcessTargetABC(Target, final=False):
     "Unfortunally `abc` can not be used because can not use 2 metaclasses"
 
     def main_sync(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def run_sync(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def reload(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 @mark_as_target
-class DaemonTargetABC(Target):
+class DaemonTargetABC(Target, final=False):
     "Unfortunally `abc` can not be used because can not use 2 metaclasses"
 
     async def main_async(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     async def run_async(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def stop(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 __all__ = (
-    "Target",
-    "ProcessTargetABC",
     "DaemonTargetABC",
+    "ProcessTargetABC",
+    "Target",
 )

@@ -1,24 +1,25 @@
+from collections.abc import Callable
 from inspect import iscoroutinefunction
-from typing import Tuple
 
-from . import constants
-from .local_typing import CT, LFMethod, function_types
+from .constants import sync_or_async
+from .enums import CONST
+from .local_typing import function_types
 from .register import register_check_method_type
 
+sync_or_async_names = tuple(i.value for i in sync_or_async)
+sync_or_async_names_rev = tuple(reversed(sync_or_async_names))
 
-check_callback_error_message__template = (
+CHECK_CALLBACK_ERROR_MESSAGE__TEMPLATE = (
     "{name} must be %sronous function, but {func} is %sronous"
 )
 
-reversed_sync_or_async = tuple(reversed(constants.sync_or_async))
-
-check_callback_signature__error_message: Tuple[str, ...] = (
-    check_callback_error_message__template % constants.sync_or_async,
-    check_callback_error_message__template % reversed_sync_or_async,
+check_callback_signature__error_message: tuple[str, ...] = (
+    CHECK_CALLBACK_ERROR_MESSAGE__TEMPLATE % sync_or_async_names,
+    CHECK_CALLBACK_ERROR_MESSAGE__TEMPLATE % sync_or_async_names_rev,
 )
 
 
-def check_callback_signature(reason: LFMethod, func: LFMethod) -> None:
+def check_callback_signature(reason: Callable, func: Callable) -> None:
     """
     When `reason` is syncronous, `func` have to be syncronous too
     Asyncronous `reason` executors may to execute both `func` types
@@ -44,8 +45,8 @@ def check_callback_signature(reason: LFMethod, func: LFMethod) -> None:
     raise ValueError(error_message)
 
 
-@register_check_method_type("gather")
-def gather(target: CT) -> None:
+@register_check_method_type(CONST.GATHER)
+def gather(target: Callable) -> None:
     if not iscoroutinefunction(target):
         error_message = "Can not `asyncio.gather` syncronous method"
         raise ValueError(error_message, target)

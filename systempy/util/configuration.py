@@ -1,32 +1,28 @@
 from dataclasses import fields
-from typing import Dict, Any
-
-from .register import register_addition_cfg_applier
-from .creation import create_partial_handler_generic
-from .local_typing import SMConfig, TypeIterable
-from .local_dataclasses import ClsCFG
-
-
-from .misc import get_key_or_create
+from typing import Any
 
 from .constants import lifecycle_additional_configuration
+from .creation import create_partial_handler_generic
+from .local_dataclasses import ClsCFG
+from .local_typing import TypeIterable
+from .misc import get_key_or_create
 from .register import register_addition_cfg_applier
 
 
 @register_addition_cfg_applier
-def stack_method(cls: type, config: SMConfig) -> None:
+def stack_method(cls: type, config: ClsCFG) -> None:
+    sm_cfg = config.stack_method
     create = create_partial_handler_generic(cls)
 
-    for stage_name, stage_config in config.items():
+    for stage_name, stage_config in sm_cfg.items():
         create(stage_name, stage_config)
 
 
 def apply_additional_config(cls: type, config: ClsCFG) -> None:
     for clscfg_field in fields(config):
         key = clscfg_field.name
-        value = getattr(config, key)
         apply_cfg_handler = register_addition_cfg_applier[key]
-        apply_cfg_handler(cls, value)
+        apply_cfg_handler(cls, config)
 
 
 def apply_additional_configuration(this_cls: type) -> None:
@@ -37,10 +33,10 @@ def apply_additional_configuration(this_cls: type) -> None:
 
 
 def update_annotation(
-    clsdict: Dict[str, Any],
+    clsdict: dict[str, Any],
     bases: TypeIterable,
 ) -> None:
-    annotations: Dict[str, type] = get_key_or_create(
+    annotations: dict[str, type] = get_key_or_create(
         clsdict,
         "__annotations__",
         dict,
@@ -52,7 +48,7 @@ def update_annotation(
         if "__annotations__" not in basedict:
             continue
 
-        target_annotations: Dict[str, type] = basedict["__annotations__"]
+        target_annotations: dict[str, type] = basedict["__annotations__"]
         annotations.update(target_annotations)
 
         for key in target_annotations:

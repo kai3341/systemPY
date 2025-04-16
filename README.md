@@ -10,6 +10,8 @@ Python application component initialization system
 ![format](https://img.shields.io/pypi/format/systemPY)
 [![Documentation Status](https://readthedocs.org/projects/systempy/badge/?version=latest)](https://systempy.readthedocs.io/en/latest/?badge=latest)
 ![GitHub issues](https://img.shields.io/github/issues/kai3341/systemPY)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
 Full documantation is available at
 [Read the Docs](https://systempy.readthedocs.io/en/latest/)
@@ -43,19 +45,19 @@ and pass dependencies as keyword arguments. In case it's daemon run
 
 There are 6 most significant stages of the application lifecycle:
 
-* `on_init` executes exactly once on application startup
+- `on_init` executes exactly once on application startup
 
-* `pre_startup` is called before event loop startup
+- `pre_startup` is called before event loop startup
 
-* `on_startup` is called exactly when event loop started
+- `on_startup` is called exactly when event loop started
 
-* `on_shutdown` is called when application is going shutdown or reload but
-event loop still working
+- `on_shutdown` is called when application is going shutdown or reload but
+  event loop still working
 
-* `post_shutdown` is called after event loop stopped or drained. When
-application is going to reload, then it should be called `pre_startup`
+- `post_shutdown` is called after event loop stopped or drained. When
+  application is going to reload, then it should be called `pre_startup`
 
-* `on_exit` executes exactly once when application is stopping
+- `on_exit` executes exactly once when application is stopping
 
 You may to create `Unit` classes for each your application component where you
 may put your code. Then you may combine these `Unit` class mixins into the

@@ -1,61 +1,39 @@
-from types import FunctionType, BuiltinFunctionType
+from collections.abc import Callable, Coroutine, Iterable
+from types import BuiltinFunctionType, FunctionType
 from typing import (
     TYPE_CHECKING,
-    Type,
-    Dict,
-    Tuple,
-    List,
+    ParamSpec,
+    TypeAlias,
     TypeVar,
-    Callable,
-    Iterable,
-    Any,
-    Literal,
-    Union,
-    Coroutine,
-    AnyStr,
-    # TypedDict,
 )
 
 if TYPE_CHECKING:
     from . import local_dataclasses
 
 T = TypeVar("T")
+R = TypeVar("R")
+P = ParamSpec("P")
+A = ParamSpec("A")
 KT = TypeVar("KT")
 VT = TypeVar("VT")
 
 function_types = (FunctionType, BuiltinFunctionType)
-FunctionTypes = Union[FunctionType, BuiltinFunctionType]
-named_types = (*function_types, type)
 
-Named = Union[Callable, Type]
-PrimitiveHashable = Union[AnyStr, int, float, bool]
-AnyHashable = Union[PrimitiveHashable, Named]
+Named = Callable | type
+PrimitiveHashable = str | bytes | int | float | bool
 
-CT = TypeVar("CT", bound=Callable)
-FT = TypeVar("FT", bound=FunctionType)
-BFT = TypeVar("BFT", bound=BuiltinFunctionType)
-TT = TypeVar("TT", bound=type)
-CFT = Union[CT, FT, BFT]
-CTFT = Union[CT, FT, BFT, TT]
-
-LFMethodSync = Callable[[T], None]
-LFMethodAsync = Callable[[T], Coroutine[Any, Any, None]]
-LFMethod = Union[LFMethodSync, LFMethodAsync]
-
-TargetDirection = Literal["forward", "backward", "gather"]
-TargetType = Literal["sync", "async"]
+TT = TypeVar("TT", bound=type)  # pylint: disable=C0103
 
 TypeIterable = Iterable[type]
 
-LFMethodTuple = Tuple[LFMethod, ...]
-LFHookRegistry = Dict[CFT, List[CFT]]
-LFDecorator = Callable[[CFT], CFT]
+CTuple = tuple[Callable[P, R], ...]
+Decorator = Callable[[Callable[P, R]], Callable[P, R]]
 
-TargetTypeHandler = Callable[[Type, CT, LFMethodTuple], CT]
-DirectionHandler = Callable[[TypeIterable, str], LFMethodTuple]
-CheckHandler = Callable[[CFT], None]
+DirectionHandler = Callable[[TypeIterable, str], CTuple[P, R]]
 
-SMConfig = Dict[str, "local_dataclasses.GenericHandlerSettings"]
-LFTypeConfig = Dict[TT, "local_dataclasses.ClsCFG"]
+SMConfig = dict[str, "local_dataclasses.GenericHandlerSettings"]
+LFTypeConfig = dict[TT, "local_dataclasses.ClsCFG"]
+LFRegistered = dict[Callable, "local_dataclasses.LFMethodsRegistered"]
+MaybeCoro: TypeAlias = R | Coroutine[R, None, None]
 
-DisallowedAttrInfo = Tuple[str, str]
+DisallowedAttrInfo = tuple[str, str]

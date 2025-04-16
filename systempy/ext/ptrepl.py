@@ -1,21 +1,23 @@
 import sys
+from dataclasses import field
 from os import path
-from systempy import LoopUnit
+
+from ptpython.repl import embed
+
+from systempy import ProcessUnit
 from systempy.repl.mixins import ReplLocalsMixin
-from ptpython.repl import embed  # type: ignore
-
-from typing import Optional
-from mypy_extensions import trait
 
 
-@trait
-class PTRepl(ReplLocalsMixin, LoopUnit):
+class PTRepl(ReplLocalsMixin, ProcessUnit, final=False):
+    _module_qualname: str = field(init=False)
+    _banner: str = field(init=False)
+
     def on_init(self) -> None:
         self._setup_repl_caller_frame()
         self._setup_repl_env()
         self._setup_banner()
 
-    def _setup_banner(self, head: Optional[str] = None) -> None:
+    def _setup_banner(self, head: str | None = None) -> None:
         caller_globals = self._repl_caller_frame[0].f_globals
         package = caller_globals["__package__"]
         filename = self._repl_caller_frame.filename
@@ -42,7 +44,7 @@ class PTRepl(ReplLocalsMixin, LoopUnit):
         self._banner = "\n".join(banner_lines)
 
     async def main_async(self) -> None:
-        print(self._banner, file=sys.stderr)
+        print(self._banner, file=sys.stderr)  # noqa: T201
         await embed(
             globals=self.repl_env_full,
             title=self._module_qualname,

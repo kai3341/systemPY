@@ -1,9 +1,9 @@
-from functools import partial, lru_cache
-from typing import Type, Callable
+from collections.abc import Callable
+from functools import cache, partial
 
-from .local_typing import TypeIterable
-from .local_dataclasses import GenericHandlerSettings
 from . import extraction
+from .local_dataclasses import GenericHandlerSettings
+from .local_typing import TypeIterable
 
 
 def create_handler_generic(
@@ -17,9 +17,9 @@ def create_handler_generic(
     setattr(cls, name, handler)
 
 
-@lru_cache(maxsize=None)
+@cache
 def create_partial_handler_generic(
-    cls: Type,
+    cls: type,
 ) -> Callable[[str, GenericHandlerSettings], None]:
     bases = extraction.extract_bases(cls)
     return partial(create_handler_generic, cls, bases)

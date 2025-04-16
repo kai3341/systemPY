@@ -1,19 +1,21 @@
-# from mypy_extensions import trait
+from typing import TYPE_CHECKING, Generic
 
 from .target import ProcessTargetABC
 from .util import mark_as_target
-
-from typing import Any
+from .util.local_typing import A
 
 
 @mark_as_target
-# @trait
-class ProcessUnit(ProcessTargetABC):
+class ProcessUnit(ProcessTargetABC, Generic[A], final=False):
     def run_sync(self) -> None:
         with self:
             self.main_sync()
 
+    if TYPE_CHECKING:
+
+        def __init__(self, *args: A.args, **kwargs: A.kwargs) -> None: ...
+
     @classmethod
-    def launch(cls, **kwargs: Any) -> None:
-        self = cls(**kwargs)
+    def launch(cls, *args: A.args, **kwargs: A.kwargs) -> None:
+        self = cls(*args, **kwargs)
         self.run_sync()

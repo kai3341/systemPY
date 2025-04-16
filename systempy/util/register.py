@@ -1,35 +1,39 @@
+from collections.abc import Callable
 from inspect import iscoroutinefunction
 
-from .misc import NamedRegistry, HookRegistry, get_key_or_create
-
-from .local_typing import (
-    TargetDirection,
-    TT,
-    CFT,
-    LFDecorator,
-    function_types,
-)
-
-from .local_dataclasses import (
-    LFMethodsRegistered,
-    GenericHandlerSettings,
-    ClsCFG,
-)
-
 from .constants import (
+    lifecycle_additional_configuration,
     lifecycle_bases_blacklist,
     lifecycle_registered_methods,
-    lifecycle_additional_configuration,
     sync_or_async,
 )
+from .enums import CONST
+from .local_dataclasses import (
+    ClsCFG,
+    GenericHandlerSettings,
+    HookRegistry,
+    LFMethodsRegistered,
+    NamedRegistry,
+)
+from .local_typing import (
+    TT,
+    CTuple,
+    Decorator,
+    T,
+    TypeIterable,
+    function_types,
+)
+from .misc import get_key_or_create
 
-register_addition_cfg_applier = NamedRegistry()
-register_direction = NamedRegistry()
-register_handler_by_aio = NamedRegistry()
-register_check_method_type = NamedRegistry()
+register_addition_cfg_applier: NamedRegistry[[type, ClsCFG], None] = NamedRegistry()
+register_direction: NamedRegistry[[TypeIterable, str], CTuple] = NamedRegistry()
+register_handler_by_aio: NamedRegistry[[type, Callable, CTuple], Callable] = (
+    NamedRegistry()
+)
+register_check_method_type: NamedRegistry[[Callable], None] = NamedRegistry()
 
-register_hook_before = HookRegistry()
-register_hook_after = HookRegistry()
+register_hook_before: HookRegistry = HookRegistry()
+register_hook_after: HookRegistry = HookRegistry()
 
 
 def mark_as_target(cls: TT) -> TT:
@@ -37,27 +41,25 @@ def mark_as_target(cls: TT) -> TT:
     return cls
 
 
-def register_target_method(direction: TargetDirection) -> LFDecorator:
+def register_target_method(direction: CONST) -> Decorator:
     direction_handler = register_direction[direction]
 
-    def inner(func: CFT) -> CFT:
+    def inner(func: Callable) -> Callable:
         if not callable(func):
-            raise ValueError(f"{func} is not a callable")
+            raise TypeError(f"{func} is not a callable")  # noqa: EM102, TRY003
 
-        registered_method = LFMethodsRegistered(
+        lifecycle_registered_methods[func] = LFMethodsRegistered(
             interface=None,
             direction_name=direction,
             direction=direction_handler,
         )
-
-        lifecycle_registered_methods[func] = registered_method
 
         return func
 
     return inner
 
 
-def register_target(cls: TT) -> TT:
+def register_target(cls: type[T]) -> type[T]:
     mark_as_target(cls)
 
     clsdict = vars(cls)
@@ -81,12 +83,11 @@ def register_target(cls: TT) -> TT:
             checker = register_check_method_type[direction_name]
             checker(target)
 
-        method_async = iscoroutinefunction(target)
-        method_type_name = sync_or_async[method_async]
-
-        method_type_handler = register_handler_by_aio[method_type_name]
-
-        method_name = target.__name__
+        # register_handler_by_aio: GATHER or (A)SYNC
+        method_type_handler = register_handler_by_aio.get_or_raise(
+            direction_name,
+            sync_or_async[iscoroutinefunction(target)],
+        )
 
         clscfg = get_key_or_create(
             lifecycle_additional_configuration,
@@ -94,7 +95,14 @@ def register_target(cls: TT) -> TT:
             ClsCFG,
         )
 
-        clscfg.stack_method[method_name] = GenericHandlerSettings(
+        clscfg_stack_method = clscfg.stack_method
+        target_name = target.__name__
+
+        # I think it would be good enough to crash on developer's machine but
+        # don't do this check on the production
+        assert target_name not in clscfg_stack_method, "It's not allowed to "
+
+        clscfg_stack_method[target_name] = GenericHandlerSettings(
             target,
             direction_handler,
             method_type_handler,
@@ -104,27 +112,16 @@ def register_target(cls: TT) -> TT:
 
 
 # === Just populate registries ===
-
-from . import extraction
-
-extraction.__package__
-
-from . import handler_type
-
-handler_type.__package__
-
-from . import check
-
-check.__package__
+from . import check, extraction, handler_type  # noqa: E402, F401
 
 __all__ = (
+    "mark_as_target",
     "register_addition_cfg_applier",
+    "register_check_method_type",
     "register_direction",
     "register_handler_by_aio",
-    "register_check_method_type",
-    "mark_as_target",
-    "register_target_method",
-    "register_target",
-    "register_hook_before",
     "register_hook_after",
+    "register_hook_before",
+    "register_target",
+    "register_target_method",
 )

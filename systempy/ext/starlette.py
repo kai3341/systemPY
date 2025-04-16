@@ -1,11 +1,9 @@
 from starlette.applications import Starlette
-from mypy_extensions import trait
 
 from ..target import Target
 
 
-@trait
-class StarletteUnit(Target):
+class StarletteUnit(Target, final=False):
     starlette_app: Starlette
 
     def on_init(self) -> None:

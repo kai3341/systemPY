@@ -1,21 +1,14 @@
-from typing import Set, Dict, Tuple, Callable, List
-
-from .local_typing import LFTypeConfig, DisallowedAttrInfo
-from .local_dataclasses import LFMethodsRegistered
-
+from .enums import TYPE as _TYPE
+from .local_typing import DisallowedAttrInfo, LFRegistered, LFTypeConfig
 
 lifecycle_additional_configuration: LFTypeConfig = {}
-lifecycle_registered_methods: Dict[Callable, LFMethodsRegistered] = {}
-lifecycle_bases_blacklist: Set[type] = set((object,))
+lifecycle_registered_methods: LFRegistered = {}
+lifecycle_bases_blacklist: set[type] = {object}
+
+sync_or_async = (_TYPE.SYNC, _TYPE.ASYNC)
 
 
-sync_or_async: Tuple[str, ...] = (
-    "sync",
-    "async",
-)
-
-
-lifecycle_disallowed_attrs: List[DisallowedAttrInfo] = [
+lifecycle_disallowed_attrs: list[DisallowedAttrInfo] = [
     ("__init__", "Use `on_init` instead"),
     ("__post_init__", "Use `on_init` instead"),
 ]

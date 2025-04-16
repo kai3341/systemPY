@@ -1,34 +1,28 @@
-"""
-Python application component initialization system
-"""
-
+from os import environ
 
 from setuptools import setup
-from inspect import cleandoc
 
-from setup_constants import name_canonical, name, version
+from setup_constants import DESCRIPTION, NAME, NAME_CANONICAL, VERSION
 
-from setup_mypycify import ext_modules
+if "NO_MYPYC" in environ:
+    ext_modules = []
+else:
+    from setup_mypycify import ext_modules
 
-# ext_modules = []
 
+requirements = []
 
-description = cleandoc(__doc__)
-
-requirements = [
-    "typing-extensions",
-    "mypy-extensions",
-]
+requirements_build = []
 
 packages = [
-    name,
-    f"{name}.util",
-    f"{name}.ext",
-    f"{name}.repl",
+    NAME,
+    f"{NAME}.util",
+    f"{NAME}.ext",
+    f"{NAME}.repl",
 ]
 
 package_data = {
-    name: ["py.typed"],
+    NAME: ["py.typed"],
 }
 
 keywords = [
@@ -42,15 +36,16 @@ keywords = [
 
 classifiers__python_versions = (
     "3 :: Only",
-    "3.7",
-    "3.8",
     "3.9",
     "3.10",
     "3.11",
+    "3.12",
+    "3.13",
+    "3.14",
 )
 
 classifiers__programming_language = tuple(
-    "Programming Language :: Python :: " + i
+    f"Programming Language :: Python :: {i}"
     # ===
     for i in classifiers__python_versions
 )
@@ -69,18 +64,21 @@ classifiers = [
 ]
 
 py_modules = [
-    name,
-    "setup_constants",
+    NAME,
+    # "setup_constants",
 ]
 
-with open("README.md") as readme_file:
+with open("README.md", encoding="utf-8") as readme_file:  # noqa: PTH123
     long_description = readme_file.read()
 
 
 setup(
     classifiers=classifiers,
-    description=description,
+    description=DESCRIPTION,
     install_requires=requirements,
+    extras_require={
+        "dev": requirements_build,
+    },
     license="MIT",
     packages=packages,
     package_data=package_data,
@@ -88,10 +86,10 @@ setup(
     long_description_content_type="text/markdown",
     include_package_data=True,
     keywords=keywords,
-    name=name_canonical,
+    name=NAME_CANONICAL,
     py_modules=py_modules,
     ext_modules=ext_modules,
     url="https://github.com/kai3341/systemPY",
-    version=version,
+    version=VERSION,
     zip_safe=True,
 )

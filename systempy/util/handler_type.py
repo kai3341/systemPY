@@ -1,100 +1,83 @@
 from asyncio import gather
+from collections.abc import Callable, Coroutine
 from inspect import iscoroutinefunction
-from typing import Type
-from traceback import print_exc
 
-from .extraction import separate_sync_async
-from .register import register_handler_by_aio
 from .callback_plan import build_callback_plan
-from .local_typing import LFMethodTuple, T, CT, LFMethodSync, LFMethodAsync
+from .enums import CONST, TYPE
+from .extraction import separate_sync_async
+from .local_typing import CTuple, MaybeCoro, P
+from .register import register_handler_by_aio
 
 
-@register_handler_by_aio("sync")
+@register_handler_by_aio(TYPE.SYNC)
 def handler_sync(
-    cls: Type,
-    reason: CT,
-    callbacks: LFMethodTuple,
-) -> LFMethodSync:
+    cls: type,
+    reason: Callable[P, None],
+    callbacks: CTuple[P, None],
+) -> Callable[P, None]:
     callbacks_total = build_callback_plan(cls, reason, callbacks)
 
-    def handler(self: T) -> None:
+    def handler(*args: P.args, **kwargs: P.kwargs) -> None:
         for callback in callbacks_total:
-            try:
-                callback(self)
-            except:
-                print_exc()
+            callback(*args, **kwargs)
 
     return handler
 
 
-@register_handler_by_aio("async")
+@register_handler_by_aio(TYPE.ASYNC)
 def handler_async(
-    cls: Type,
-    reason: CT,
-    callbacks: LFMethodTuple,
-) -> LFMethodAsync:
+    cls: type,
+    reason: Callable[P, MaybeCoro[None]],
+    callbacks: CTuple[P, MaybeCoro[None]],
+) -> Callable[P, Coroutine[None, None, None]]:
     callbacks_total = build_callback_plan(cls, reason, callbacks)
 
-    async def handler(self: T) -> None:
+    async def handler(*args: P.args, **kwargs: P.kwargs) -> None:
         for callback in callbacks_total:
             if iscoroutinefunction(callback):
-                try:
-                    await callback(self)
-                except:
-                    print_exc()
+                await callback(*args, **kwargs)
             else:
-                try:
-                    callback(self)
-                except:
-                    print_exc()
+                callback(*args, **kwargs)
 
     return handler
 
 
-@register_handler_by_aio("gather")
+@register_handler_by_aio(CONST.GATHER)
 def handler_gather(
-    cls: Type,
-    reason: CT,
-    callbacks: LFMethodTuple,
-) -> LFMethodAsync:
+    cls: type,
+    reason: Callable[P, MaybeCoro[None]],
+    callbacks: CTuple[P, MaybeCoro[None]],
+) -> Callable[P, Coroutine[None, None, None]]:
     callbacks_total = build_callback_plan(cls, reason, callbacks)
 
     separated = separate_sync_async(callbacks_total)
 
     if separated.callbacks_sync and separated.callbacks_async:
 
-        async def handler__having_both(self: T) -> None:
+        async def handler__having_both(*args: P.args, **kwargs: P.kwargs) -> None:
             for cb in separated.callbacks_sync:
-                try:
-                    cb(self)
-                except:
-                    print_exc()
+                cb(*args, **kwargs)
 
-            await gather(*(cb(self) for cb in separated.callbacks_async))
+            await gather(*[cb(*args, **kwargs) for cb in separated.callbacks_async])
 
         return handler__having_both
 
-    elif separated.callbacks_async:
+    if separated.callbacks_async:
 
-        async def handler__having_async(self: T) -> None:
-            await gather(*(cb(self) for cb in separated.callbacks_async))
+        async def handler__having_async(*args: P.args, **kwargs: P.kwargs) -> None:
+            await gather(*[cb(*args, **kwargs) for cb in separated.callbacks_async])
 
         return handler__having_async
 
-    elif separated.callbacks_sync:
+    if separated.callbacks_sync:
 
-        async def handler__having_sync(self: T) -> None:
+        async def handler__having_sync(*args: P.args, **kwargs: P.kwargs) -> None:
             for cb in separated.callbacks_sync:
-                try:
-                    cb(self)
-                except:
-                    print_exc()
+                cb(*args, **kwargs)
 
         return handler__having_sync
 
-    else:
+    async def handler__having_none(*args: P.args, **kwargs: P.kwargs) -> None:
+        pass
 
-        async def handler__having_none(self: T) -> None:
-            pass
-
-        return handler__having_none
+    return handler__having_none

@@ -1,18 +1,12 @@
-from typing import Coroutine, Any
-from traceback import print_exc
-from sys import stderr
-
-from dataclasses import field
 from asyncio import CancelledError, run
-
-from mypy_extensions import trait
+from collections.abc import Coroutine
+from dataclasses import field
 
 from .daemon import DaemonUnitBase
 
 
-@trait
-class LoopUnit(DaemonUnitBase):
-    _main_async_coro: Coroutine[Any, Any, None] = field(init=False, repr=False)
+class LoopUnit(DaemonUnitBase, final=False):
+    _main_async_coro: Coroutine[None, None, None] = field(init=False, repr=False)
 
     def main_sync(self) -> None:
         run_coroutine = self.run_async()
@@ -20,12 +14,8 @@ class LoopUnit(DaemonUnitBase):
 
     async def run_async(self) -> None:
         async with self:
-            try:
-                self._main_async_coro = self.main_async()
-                await self._main_async_coro
-            except Exception:
-                print_exc(file=stderr)
-                raise
+            self._main_async_coro = self.main_async()
+            await self._main_async_coro
 
     def stop(self) -> None:
         self._main_async_coro.throw(CancelledError)

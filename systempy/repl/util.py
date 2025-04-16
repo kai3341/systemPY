@@ -1,17 +1,14 @@
 import ctypes
 import signal as _signal
 from threading import Thread
-from typing import Type, Union
-
 
 PyThreadState_SetAsyncExc = ctypes.pythonapi.PyThreadState_SetAsyncExc
 
 
 def thread_send_exception(
     thread: Thread,
-    exception: Type[BaseException],
+    exception: type[BaseException],
 ) -> None:
-
     target_tid = thread.ident
     assert target_tid
     PyThreadState_SetAsyncExc(
@@ -22,9 +19,8 @@ def thread_send_exception(
 
 def thread_send_signal(
     thread: Thread,
-    signal: Union[_signal.Signals, int],
+    signal: _signal.Signals | int,
 ) -> None:
-
     target_tid = thread.ident
     assert target_tid
     _signal.pthread_kill(

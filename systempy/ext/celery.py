@@ -1,14 +1,10 @@
-from typing import Union, Type
-from celery import Celery, signals  # type: ignore
+from celery import Celery, signals  # type: ignore[import-untyped]
 
 from ..target import Target
 
-from mypy_extensions import trait
 
-
-@trait
-class CeleryUnit(Target):
-    celery_app: Union[Celery, Type[Celery]]
+class CeleryUnit(Target, final=False):
+    celery_app: Celery | type[Celery]
     config: dict
 
     def on_init(self) -> None:
@@ -18,4 +14,5 @@ class CeleryUnit(Target):
         signals.worker_shutdown.connect(self.post_shutdown)
 
     def pre_startup(self) -> None:
-        self.celery_app.config_from_object(self.config["Celery"])
+        obj: dict = self.config["Celery"]
+        self.celery_app.config_from_object(obj)

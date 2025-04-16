@@ -1,17 +1,17 @@
 import asyncio
-import inspect
 from dataclasses import field
-from typing import ClassVar, Dict, Tuple, Any
+from inspect import FrameInfo
+from inspect import stack as inspect_stack
+from typing import Any, ClassVar
 
-from mypy_extensions import trait
+from ..target import Target
 
 
-@trait
-class ReplLocalsMixin:
-    _repl_caller_frame: inspect.FrameInfo = field(init=False)
-    repl_env_full: Dict[str, Any] = field(init=False)
-    repl_variables: ClassVar[Dict[str, Any]] = {}
-    __repl_locals_keys_from_globals: ClassVar[Tuple[str, ...]] = (
+class ReplLocalsMixin(Target, final=False):
+    _repl_caller_frame: FrameInfo = field(init=False)
+    repl_env_full: dict[str, Any] = field(init=False)
+    repl_variables: ClassVar[dict[str, Any]] = {}
+    __repl_locals_keys_from_globals: ClassVar[tuple[str, ...]] = (
         "__name__",
         "__package__",
         "__loader__",
@@ -20,7 +20,7 @@ class ReplLocalsMixin:
         "__file__",
     )
 
-    def _repl_env_defaults(self) -> Dict[str, Any]:
+    def _repl_env_defaults(self) -> dict[str, Any]:
         return {"asyncio": asyncio, "unit": self}
 
     def _setup_repl_env(self) -> None:
@@ -36,5 +36,5 @@ class ReplLocalsMixin:
 
     def _setup_repl_caller_frame(self) -> None:
         "Firstly"
-        frames = inspect.stack()
+        frames = inspect_stack()
         self._repl_caller_frame = frames[-1]

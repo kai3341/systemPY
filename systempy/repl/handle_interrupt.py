@@ -1,13 +1,9 @@
 import sys
+from collections.abc import Callable
+from typing import Any
 
-from typing import Callable
-from .repl_typing import TRU
-
-
-readline_available = False
-
-handle_interrupt: Callable[[TRU], None]
-setup_completer: Callable[[TRU], None]
+handle_interrupt: Callable[[Any], None]
+setup_completer: Callable[[Any], None]
 
 __all__ = (
     "handle_interrupt",
@@ -15,28 +11,21 @@ __all__ = (
 )
 
 
-def handle_interrupt__fallback(unit: TRU) -> None:
+def handle_interrupt__fallback(unit: Any) -> None:
     pass
 
 
-def setup_completer__fallback(unit: TRU) -> None:
+def setup_completer__fallback(unit: Any) -> None:
     pass
 
+
+handle_interrupt = handle_interrupt__fallback
+setup_completer = setup_completer__fallback
 
 try:
-    import readline
-
-    readline_available = True
-except ImportError:
-    print(
-        "Module readline not available. No tab complete available.",
-        file=sys.stderr,
-    )
-
-else:
-    import rlcompleter
-
     import ctypes
+    import readline
+    import rlcompleter
     from ctypes.util import find_library
 
     rl_library = find_library("readline")
@@ -45,29 +34,28 @@ else:
 
     readline.parse_and_bind("tab: complete")
 
-    try:
-        rl_kill_full_line = rl.rl_kill_full_line
-        rl_beg_of_line = rl.rl_beg_of_line
-        rl_on_new_line = rl.rl_on_new_line
-        rl_forced_update_display = rl.rl_forced_update_display
-    except AttributeError:
-        readline_available = False
+    rl_kill_full_line = rl.rl_kill_full_line
+    rl_beg_of_line = rl.rl_beg_of_line
+    rl_on_new_line = rl.rl_on_new_line
+    rl_forced_update_display = rl.rl_forced_update_display
 
-    def handle_interrupt__readline(unit: TRU) -> None:
+    def handle_interrupt__readline(_unit: Any) -> None:
         sys.stderr.write("^C\n")
         rl_kill_full_line()
         rl_beg_of_line()
         rl_on_new_line()
         rl_forced_update_display()
 
-    def setup_completer__readline(unit: TRU) -> None:
+    def setup_completer__readline(unit: Any) -> None:
         unit.repl_completer = rlcompleter.Completer(unit.repl_env_full)
         readline.set_completer(unit.repl_completer.complete)
 
+except:  # noqa: E722
+    print(  # noqa: T201
+        "Module readline not available. No tab complete available.",
+        file=sys.stderr,
+    )
 
-if readline_available:
-    handle_interrupt = handle_interrupt__readline
-    setup_completer = setup_completer__readline
 else:
-    handle_interrupt = handle_interrupt__fallback
+    handle_interrupt = handle_interrupt__readline
     setup_completer = setup_completer__readline

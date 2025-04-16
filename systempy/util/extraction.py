@@ -1,20 +1,14 @@
+from collections.abc import Callable, Coroutine
 from inspect import iscoroutinefunction
-from typing import Tuple, List, Callable
 
-from .register import register_direction
-from . import constants
-
-from .local_typing import (
-    LFMethodTuple,
-    TypeIterable,
-    LFMethodSync,
-    LFMethodAsync,
-    function_types,
-)
+from .constants import lifecycle_bases_blacklist, lifecycle_disallowed_attrs
+from .enums import CONST
 from .local_dataclasses import SeparatedLFMethods
+from .local_typing import CTuple, P, R, TypeIterable
+from .register import register_direction
 
 
-def extract_attrs(iterable: TypeIterable, name: str) -> List[Callable]:
+def extract_attrs(iterable: TypeIterable, name: str) -> list[Callable]:
     return [
         # ===
         getattr(item, name)
@@ -23,31 +17,30 @@ def extract_attrs(iterable: TypeIterable, name: str) -> List[Callable]:
     ]
 
 
-@register_direction("forward")
-@register_direction("gather")
-def callbacks_direct(iterable: TypeIterable, name: str) -> LFMethodTuple:
+@register_direction(CONST.FORWARD)
+@register_direction(CONST.GATHER)
+def callbacks_direct(iterable: TypeIterable, name: str) -> CTuple:
     callbacks = extract_attrs(iterable, name)
     return tuple(callbacks)
 
 
-@register_direction("backward")
-def callbacks_reversed(iterable: TypeIterable, name: str) -> LFMethodTuple:
+@register_direction(CONST.BACKWARD)
+def callbacks_reversed(iterable: TypeIterable, name: str) -> CTuple:
     callbacks = extract_attrs(iterable, name)
     callbacks.reverse()
     return tuple(callbacks)
 
 
-def extract_bases(cls: type) -> Tuple[type, ...]:
+def extract_bases(cls: type) -> tuple[type, ...]:
     bases = cls.mro()
 
     bases = [
         # ===
         Base
         for Base in bases
-        if Base not in constants.lifecycle_bases_blacklist
+        if Base not in lifecycle_bases_blacklist
     ]
 
-    lifecycle_disallowed_attrs = constants.lifecycle_disallowed_attrs
     for base in bases:
         clsdict = vars(base)
         for check_attribute, description in lifecycle_disallowed_attrs:
@@ -55,7 +48,8 @@ def extract_bases(cls: type) -> Tuple[type, ...]:
                 message = f"Attribute {check_attribute} is not allowed"
 
                 if description:
-                    message = "%s. %s" % (message, description)
+                    # pylint: disable-next=C0209
+                    message = f"{message}. {description}"
 
                 raise ValueError(message, base)
 
@@ -64,12 +58,12 @@ def extract_bases(cls: type) -> Tuple[type, ...]:
     return tuple(bases)
 
 
-def separate_sync_async(iterable: LFMethodTuple) -> SeparatedLFMethods:
-    callbacks_sync: List[LFMethodSync] = []
-    callbacks_async: List[LFMethodAsync] = []
+def separate_sync_async(iterable: CTuple[P, R]) -> SeparatedLFMethods[P, R]:
+    callbacks_sync: list[Callable[P, R]] = []
+    callbacks_async: list[Callable[P, Coroutine[R, None, None]]] = []
 
     for callback in iterable:
-        assert isinstance(callback, function_types)
+        assert callable(callback)
         if iscoroutinefunction(callback):
             callbacks_async.append(callback)
         else:

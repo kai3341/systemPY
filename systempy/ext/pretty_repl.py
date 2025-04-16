@@ -1,13 +1,14 @@
+from dataclasses import field
 from os import path
+
 from ..repl.repl import ReplUnit
 from ..util import mark_as_target
 
-from mypy_extensions import trait
-
 
 @mark_as_target
-@trait
-class PrettyReplUnit(ReplUnit):
+class PrettyReplUnit(ReplUnit, final=False):
+    _module_qualname: str = field(init=False)
+
     def repl_handle_banner(self, banner: str) -> str:
         caller_globals = self._repl_caller_frame[0].f_globals
         package = caller_globals["__package__"]

@@ -1,18 +1,14 @@
 import signal
 from dataclasses import field
-
-from typing import Optional, ClassVar, Tuple
 from types import FrameType
+from typing import ClassVar
 
-from .target import ProcessTargetABC, DaemonTargetABC
+from .target import DaemonTargetABC, ProcessTargetABC
 from .util import mark_as_target
 
 
-class DaemonUnitBase(DaemonTargetABC, ProcessTargetABC):
-    reload_signals: ClassVar[Tuple[signal.Signals, ...]] = (
-        # signal.Signals
-        signal.SIGHUP,
-    )
+class DaemonUnitBase(DaemonTargetABC, ProcessTargetABC, final=False):
+    reload_signals: ClassVar[tuple[signal.Signals, ...]] = (signal.SIGHUP,)
 
     _daemon_reloading: bool = field(init=False, default=False)
 
@@ -20,7 +16,7 @@ class DaemonUnitBase(DaemonTargetABC, ProcessTargetABC):
         for reload_signal in self.reload_signals:
             signal.signal(reload_signal, self.__signal_handler)
 
-    def __signal_handler(self, sig: int, frame: Optional[FrameType]) -> None:
+    def __signal_handler(self, _sig: int, _frame: FrameType | None) -> None:
         self.reload()
 
     def reload(self) -> None:
@@ -38,7 +34,7 @@ class DaemonUnitBase(DaemonTargetABC, ProcessTargetABC):
 
 
 @mark_as_target
-class DaemonUnit(DaemonUnitBase):
+class DaemonUnit(DaemonUnitBase, final=False):
     async def run_async(self) -> None:
         async with self:
             await self.main_async()
