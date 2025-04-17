@@ -8,8 +8,12 @@ from .target_meta import TargetMeta
 from .util import CONST, mark_as_target, register_target, register_target_method
 
 
+@mark_as_target
+class _TargetBase(metaclass=TargetMeta): ...
+
+
 @register_target
-class TargetInterface(metaclass=TargetMeta):
+class TargetInterface(_TargetBase):
     @register_target_method(CONST.FORWARD)
     def on_init(self) -> None: ...
 
