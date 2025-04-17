@@ -4,10 +4,10 @@ from setuptools import setup
 
 from setup_constants import DESCRIPTION, NAME, NAME_CANONICAL, VERSION
 
-if "NO_MYPYC" in environ:
-    ext_modules = []
-else:
+if "USE_MYPYC" in environ:
     from setup_mypycify import ext_modules
+else:
+    ext_modules = []
 
 
 requirements = []
