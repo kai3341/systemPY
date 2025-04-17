@@ -9,7 +9,7 @@ from .local_typing import CTuple, MaybeCoro, P
 from .register import register_handler_by_aio
 
 
-def _create_repr(group: str, callbacks: tuple[Callable]) -> str:
+def _create_repr(group: str, callbacks: CTuple) -> str:
     names = ";".join(c.__name__ for c in callbacks)
     return f"<{group} {names}>"
 
