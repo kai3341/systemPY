@@ -43,6 +43,6 @@ module = [
 [dependency-groups]
 dev = [
     "mkdocs-material>=9.6.11",
-    "mypy>=1.15.0",
+    "mypy[mypyc]>=1.15.0",
     "ruff>=0.11.5",
 ]
