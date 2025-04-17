@@ -9,6 +9,11 @@ from .local_typing import CTuple, MaybeCoro, P
 from .register import register_handler_by_aio
 
 
+def _create_repr(group: str, callbacks: tuple[Callable]) -> str:
+    names = ";".join(c.__name__ for c in callbacks)
+    return f"<{group} {names}>"
+
+
 @register_handler_by_aio(TYPE.SYNC)
 def handler_sync(
     cls: type,
@@ -21,6 +26,7 @@ def handler_sync(
         for callback in callbacks_total:
             callback(*args, **kwargs)
 
+    handler.__name__ = _create_repr("Sync", callbacks_total)
     return handler
 
 
@@ -39,6 +45,7 @@ def handler_async(
             else:
                 callback(*args, **kwargs)
 
+    handler.__name__ = _create_repr("Async", callbacks_total)
     return handler
 
 
@@ -60,6 +67,7 @@ def handler_gather(
 
             await gather(*[cb(*args, **kwargs) for cb in separated.callbacks_async])
 
+        handler__having_both.__name__ = _create_repr("GatherBoth", callbacks_total)
         return handler__having_both
 
     if separated.callbacks_async:
@@ -67,6 +75,7 @@ def handler_gather(
         async def handler__having_async(*args: P.args, **kwargs: P.kwargs) -> None:
             await gather(*[cb(*args, **kwargs) for cb in separated.callbacks_async])
 
+        handler__having_async.__name__ = _create_repr("GatherAsync", callbacks_total)
         return handler__having_async
 
     if separated.callbacks_sync:
@@ -75,9 +84,11 @@ def handler_gather(
             for cb in separated.callbacks_sync:
                 cb(*args, **kwargs)
 
+        handler__having_sync.__name__ = _create_repr("GatherBoth", callbacks_total)
         return handler__having_sync
 
     async def handler__having_none(*args: P.args, **kwargs: P.kwargs) -> None:
         pass
 
+    handler__having_none.__name__ = _create_repr("GatherNone", callbacks_total)
     return handler__having_none

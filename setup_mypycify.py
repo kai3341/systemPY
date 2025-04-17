@@ -22,7 +22,7 @@ Struct = StructLeafNode | dict[str, "Struct"]
 mypy_config: dict[str, str] = pyproject.get("tool", {}).get("mypy", {})
 
 
-mypycify_structure: Struct = {  # pyright: ignore[reportAssignmentType]
+mypycify_structure: Struct = {
     NAME: {
         None: (
             # "target.py",
