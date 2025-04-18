@@ -6,7 +6,7 @@ from .util.local_typing import A
 
 
 @mark_as_target
-class ProcessUnit(ProcessTargetABC, Generic[A], final=False):
+class ProcessUnit(Generic[A], ProcessTargetABC, final=False):
     def run_sync(self) -> None:
         with self:
             self.main_sync()

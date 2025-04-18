@@ -10,7 +10,7 @@ default_dataclass_kwargs: dict[str, bool] = {
 }
 
 
-unit_meta_dataclass_fns = (
+target_meta_dataclass_fns = (
     dataclass(**default_dataclass_kwargs, init=False, repr=False, eq=False),
     dataclass(**default_dataclass_kwargs),
 )
@@ -35,10 +35,9 @@ class TargetMeta(ABCMeta):
         **kwargs: Any,
     ) -> type["TargetMeta"]:
         new_cls = super().__new__(mcs, name, bases, classdict, **kwargs)
-        new_cls_casted = cast("type[TargetMeta]", new_cls)
 
         if final:
             apply_additional_configuration(typing_final(new_cls))
 
-        unit_meta_dataclass = unit_meta_dataclass_fns[final]
-        return unit_meta_dataclass(new_cls_casted)
+        target_meta_dataclass = target_meta_dataclass_fns[final]
+        return target_meta_dataclass(cast("type[TargetMeta]", new_cls))

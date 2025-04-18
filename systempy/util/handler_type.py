@@ -11,11 +11,12 @@ from .register import register_handler_by_aio
 
 def with_repr(
     group: str,
+    reason: Callable,
     callbacks: CTuple,
 ) -> Callable[[Callable[P, R]], Callable[P, R]]:
     def inner(handler: Callable[P, R]) -> Callable[P, R]:
-        names = ";".join(c.__qualname__.split(".")[0] for c in callbacks)
-        handler.__qualname__ = f"{group}({names})"
+        clsnames = ";".join(c.__qualname__.split(".")[0] for c in callbacks)
+        handler.__qualname__ = f"{group}[{reason.__name__}]({clsnames})"
         return handler
 
     return inner
@@ -29,7 +30,7 @@ def handler_sync(
 ) -> Callable[P, None]:
     callbacks_total = build_callback_plan(cls, reason, callbacks)
 
-    @with_repr("Sync", callbacks_total)
+    @with_repr("Sync", reason, callbacks_total)
     def handler(*args: P.args, **kwargs: P.kwargs) -> None:
         for callback in callbacks_total:
             callback(*args, **kwargs)
@@ -45,7 +46,7 @@ def handler_async(
 ) -> Callable[P, Coroutine[None, None, None]]:
     callbacks_total = build_callback_plan(cls, reason, callbacks)
 
-    @with_repr("Async", callbacks_total)
+    @with_repr("Async", reason, callbacks_total)
     async def handler(*args: P.args, **kwargs: P.kwargs) -> None:
         for callback in callbacks_total:
             if iscoroutinefunction(callback):
@@ -68,7 +69,7 @@ def handler_gather(
 
     if separated.callbacks_sync and separated.callbacks_async:
 
-        @with_repr("GatherBoth", callbacks_total)
+        @with_repr("GatherBoth", reason, callbacks_total)
         async def handler__having_both(*args: P.args, **kwargs: P.kwargs) -> None:
             for cb in separated.callbacks_sync:
                 cb(*args, **kwargs)
@@ -79,7 +80,7 @@ def handler_gather(
 
     if separated.callbacks_async:
 
-        @with_repr("GatherAsync", callbacks_total)
+        @with_repr("GatherAsync", reason, callbacks_total)
         async def handler__having_async(*args: P.args, **kwargs: P.kwargs) -> None:
             await gather(*[cb(*args, **kwargs) for cb in separated.callbacks_async])
 
@@ -87,14 +88,14 @@ def handler_gather(
 
     if separated.callbacks_sync:
 
-        @with_repr("GatherBoth", callbacks_total)
+        @with_repr("GatherBoth", reason, callbacks_total)
         async def handler__having_sync(*args: P.args, **kwargs: P.kwargs) -> None:
             for cb in separated.callbacks_sync:
                 cb(*args, **kwargs)
 
         return handler__having_sync
 
-    @with_repr("GatherNone", callbacks_total)
+    @with_repr("GatherNone", reason, callbacks_total)
     async def handler__having_none(*args: P.args, **kwargs: P.kwargs) -> None:
         pass
 

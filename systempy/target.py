@@ -1,7 +1,7 @@
 import atexit
 from abc import abstractmethod
 from collections.abc import Iterator
-from dataclasses import Field, dataclass, fields
+from dataclasses import Field, fields
 from types import TracebackType
 from typing import Self
 
@@ -9,12 +9,8 @@ from .target_meta import TargetMeta
 from .util import CONST, mark_as_target, register_target, register_target_method
 
 
-@mark_as_target
-class _TargetBase(metaclass=TargetMeta): ...
-
-
 @register_target
-class TargetInterface(_TargetBase):
+class TargetInterface(metaclass=TargetMeta):
     @register_target_method(CONST.FORWARD)
     def on_init(self) -> None: ...
 
@@ -57,7 +53,6 @@ class _TargetCtxMgrSync(TargetInterface, final=False):
 
 
 @mark_as_target
-@dataclass()
 class _TargetFieldIter(TargetInterface, final=False):
     def __iter__(self) -> Iterator[Field]:
         yield from fields(self)

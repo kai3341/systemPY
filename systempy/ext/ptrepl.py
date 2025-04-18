@@ -4,11 +4,11 @@ from os import path
 
 from ptpython.repl import embed
 
-from systempy import ProcessUnit
+from systempy import LoopUnit, ProcessUnit
 from systempy.repl.mixins import ReplLocalsMixin
 
 
-class PTRepl(ReplLocalsMixin, ProcessUnit, final=False):
+class PTRepl(ReplLocalsMixin, ProcessUnit, LoopUnit, final=False):
     _module_qualname: str = field(init=False)
     _banner: str = field(init=False)
 
