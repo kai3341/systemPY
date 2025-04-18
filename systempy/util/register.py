@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from inspect import iscoroutinefunction
+from typing import ParamSpec, TypeVar
 
 from .constants import (
     lifecycle_additional_configuration,
@@ -25,6 +26,9 @@ from .local_typing import (
 )
 from .misc import get_key_or_create
 
+P = ParamSpec("P")
+R = TypeVar("R")
+
 register_addition_cfg_applier: NamedRegistry[[type, ClsCFG], None] = NamedRegistry()
 register_direction: NamedRegistry[[TypeIterable, str], CTuple] = NamedRegistry()
 register_handler_by_aio: NamedRegistry[[type, Callable, CTuple], Callable] = (
@@ -44,7 +48,7 @@ def mark_as_target(cls: TT) -> TT:
 def register_target_method(direction: CONST) -> Decorator:
     direction_handler = register_direction[direction]
 
-    def inner(func: Callable) -> Callable:
+    def inner(func: Callable[P, R]) -> Callable[P, R]:
         if not callable(func):
             raise TypeError(f"{func} is not a callable")  # noqa: EM102, TRY003
 
@@ -100,7 +104,9 @@ def register_target(cls: type[T]) -> type[T]:
 
         # I think it would be good enough to crash on developer's machine but
         # don't do this check on the production
-        assert target_name not in clscfg_stack_method, "It's not allowed to "
+        assert target_name not in clscfg_stack_method, (
+            f"It's not allowed to override '{target_name}' on '{cls}'"
+        )
 
         clscfg_stack_method[target_name] = GenericHandlerSettings(
             target,

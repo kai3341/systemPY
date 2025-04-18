@@ -1,8 +1,10 @@
+from collections.abc import MutableMapping
+
 from .local_typing import KT, VT
 
 
 def get_key_or_create(
-    the_dict: dict[KT, VT],
+    the_dict: MutableMapping[KT, VT],
     key: KT,
     default_factory: type[VT],
 ) -> VT:

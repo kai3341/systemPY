@@ -48,7 +48,6 @@ def extract_bases(cls: type) -> tuple[type, ...]:
                 message = f"Attribute {check_attribute} is not allowed"
 
                 if description:
-                    # pylint: disable-next=C0209
                     message = f"{message}. {description}"
 
                 raise ValueError(message, base)

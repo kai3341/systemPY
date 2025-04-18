@@ -1,4 +1,4 @@
-from collections.abc import Callable, Coroutine, Iterable
+from collections.abc import Callable, Coroutine, Iterable, MutableMapping
 from types import BuiltinFunctionType, FunctionType
 from typing import (
     TYPE_CHECKING,
@@ -31,9 +31,12 @@ Decorator = Callable[[Callable[P, R]], Callable[P, R]]
 
 DirectionHandler = Callable[[TypeIterable, str], CTuple[P, R]]
 
-SMConfig = dict[str, "local_dataclasses.GenericHandlerSettings"]
-LFTypeConfig = dict[TT, "local_dataclasses.ClsCFG"]
-LFRegistered = dict[Callable, "local_dataclasses.LFMethodsRegistered"]
+SMConfig = MutableMapping[str, "local_dataclasses.GenericHandlerSettings"]
+LFTypeConfig = MutableMapping[TT, "local_dataclasses.ClsCFG"]
+LFRegistered = MutableMapping[
+    Callable[P, R],
+    "local_dataclasses.LFMethodsRegistered[P, R]",
+]
 MaybeCoro: TypeAlias = R | Coroutine[R, None, None]
 
 DisallowedAttrInfo = tuple[str, str]

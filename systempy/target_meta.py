@@ -3,7 +3,6 @@ from typing import Any, cast, dataclass_transform
 from typing import final as typing_final
 
 from .util.configuration import apply_additional_configuration
-from .util.register import mark_as_target
 
 default_dataclass_kwargs: dict[str, bool] = {
     "kw_only": True,
@@ -11,7 +10,7 @@ default_dataclass_kwargs: dict[str, bool] = {
 
 
 unit_meta_dataclass_fns = (
-    dataclass(**default_dataclass_kwargs, init=False),
+    dataclass(**default_dataclass_kwargs, init=False, repr=False, eq=False),
     dataclass(**default_dataclass_kwargs),
 )
 
@@ -37,9 +36,9 @@ class TargetMeta(type):
     ) -> type["TargetMeta"]:
         new_cls = super().__new__(mcs, name, bases, classdict, **kwargs)
         new_cls_casted = cast("type[TargetMeta]", new_cls)
+
         if final:
             apply_additional_configuration(typing_final(new_cls))
-        else:
-            mark_as_target(new_cls)
+
         unit_meta_dataclass = unit_meta_dataclass_fns[final]
         return unit_meta_dataclass(new_cls_casted)

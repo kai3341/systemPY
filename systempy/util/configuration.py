@@ -27,7 +27,6 @@ def apply_additional_config(cls: type, config: ClsCFG) -> None:
 
 def apply_additional_configuration(this_cls: type) -> None:
     for cls, config in lifecycle_additional_configuration.items():
-        assert isinstance(cls, type)
         if issubclass(this_cls, cls):
             apply_additional_config(this_cls, config)
 

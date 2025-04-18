@@ -1,4 +1,4 @@
-from collections.abc import Callable, Coroutine
+from collections.abc import Callable, Coroutine, MutableMapping
 from dataclasses import dataclass, field
 from inspect import iscoroutinefunction
 from typing import (
@@ -54,7 +54,7 @@ class ClsCFG(Generic[P, R]):
 
 @dataclass()
 class BaseRegistry(Generic[KT, VT]):
-    _registry: dict[KT, VT] = field(init=False, default_factory=dict)
+    _registry: MutableMapping[KT, VT] = field(init=False, default_factory=dict)
 
     def __getitem__(self, key: KT) -> VT:
         return self._registry[key]
@@ -97,7 +97,7 @@ class NamedRegistry(BaseRegistry[PrimitiveHashable, Callable[P, R]]):
 
 @dataclass()
 class HookRegistry(BaseRegistry[Callable[P, R], list[Callable[P, R]]]):
-    hook_parents: ClassVar[dict[Named, Named]] = {}
+    hook_parents: ClassVar[MutableMapping[Named, Named]] = {}
 
     __hook_invalid_template = (
         "You are trying to register executing asyncronous hook %s on the stage "

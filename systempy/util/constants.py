@@ -1,9 +1,11 @@
+from typing import Generic
+
 from .enums import TYPE as _TYPE
 from .local_typing import DisallowedAttrInfo, LFRegistered, LFTypeConfig
 
-lifecycle_additional_configuration: LFTypeConfig = {}
+lifecycle_additional_configuration: LFTypeConfig[type] = {}
 lifecycle_registered_methods: LFRegistered = {}
-lifecycle_bases_blacklist: set[type] = {object}
+lifecycle_bases_blacklist: set[type] = {object, Generic}  # type: ignore[arg-type]
 
 sync_or_async = (_TYPE.SYNC, _TYPE.ASYNC)
 

@@ -10,9 +10,9 @@ else:
     ext_modules = []
 
 
-requirements = []
+requirements: list[str] = []
 
-requirements_build = []
+requirements_build: list[str] = []
 
 packages = [
     NAME,

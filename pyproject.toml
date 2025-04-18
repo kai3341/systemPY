@@ -14,7 +14,7 @@ extra = [
 ]
 
 [tool.pyright]
-include = ["src/"]
+include = ["systempy/"]
 reportMissingModuleSource = false
 reportArgumentType = false
 reportCallIssue = false
@@ -33,12 +33,9 @@ line-ending = "auto"
 
 [tool.mypy]
 python_version = "3.11"
-warn_no_return = false
-
-[[tool.mypy.overrides]]
-module = [
-    'systempy'
-]
+mypy_path = "$MYPY_CONFIG_FILE_DIR/systempy"
+disable_error_code = ["import-untyped", "return", "empty-body"]
+exclude = ["^build/", "^dist/"]
 
 [dependency-groups]
 dev = [
