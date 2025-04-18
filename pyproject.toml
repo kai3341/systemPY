@@ -22,7 +22,7 @@ reportAssignmentType = false
 
 [tool.ruff.lint]
 select=["ALL"]
-ignore = ["D", "S101", "TID252", "ANN401", "PTH119"]
+ignore = ["D", "S101", "TID252", "ANN401", "PTH119", "RET503"]
 
 [tool.ruff.format]
 quote-style = "double"

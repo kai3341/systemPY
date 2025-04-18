@@ -1,4 +1,4 @@
-from asyncio import CancelledError, run
+from asyncio import run
 from collections.abc import Coroutine
 from dataclasses import field
 
@@ -15,7 +15,16 @@ class LoopUnit(DaemonUnitBase, final=False):
     async def run_async(self) -> None:
         async with self:
             self._main_async_coro = self.main_async()
-            await self._main_async_coro
+            try:
+                await self._main_async_coro
+            except RuntimeError as e:
+                if (len(e.args) == 0):
+                    raise
+
+                if e.args[0] == "cannot reuse already awaited coroutine":
+                    return
+
+                raise
 
     def stop(self) -> None:
-        self._main_async_coro.throw(CancelledError)
+        self._main_async_coro.throw(SystemExit)

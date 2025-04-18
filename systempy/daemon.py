@@ -26,11 +26,16 @@ class DaemonUnitBase(DaemonTargetABC, ProcessTargetABC, final=False):
     def run_sync(self) -> None:
         while True:
             with self:
-                self.main_sync()
-            if self._daemon_reloading:
-                self._daemon_reloading = False
-                continue
-            break
+                try:
+                    self.main_sync()
+
+                    if not self._daemon_reloading:
+                        return
+                except SystemExit:
+                    if not self._daemon_reloading:
+                        raise
+
+            self._daemon_reloading = False
 
 
 @mark_as_target
