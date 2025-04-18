@@ -1,8 +1,9 @@
-from typing import TYPE_CHECKING, Generic
+from typing import TYPE_CHECKING, Generic, ParamSpec
 
 from .target import ProcessTargetABC
 from .util import mark_as_target
-from .util.local_typing import A
+
+A = ParamSpec("A")
 
 
 @mark_as_target
