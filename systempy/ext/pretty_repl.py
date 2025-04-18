@@ -1,12 +1,15 @@
 from dataclasses import field
 from os import path
+from typing import ParamSpec
 
 from ..repl.repl import ReplUnit
 from ..util import mark_as_target
 
+A = ParamSpec("A")
+
 
 @mark_as_target
-class PrettyReplUnit(ReplUnit, final=False):
+class PrettyReplUnit(ReplUnit[A], final=False):
     _module_qualname: str = field(init=False)
 
     def repl_handle_banner(self, banner: str) -> str:

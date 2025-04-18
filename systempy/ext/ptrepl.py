@@ -1,14 +1,17 @@
 import sys
 from dataclasses import field
 from os import path
+from typing import ParamSpec
 
 from ptpython.repl import embed
 
 from systempy import LoopUnit, ProcessUnit
 from systempy.repl.mixins import ReplLocalsMixin
 
+A = ParamSpec("A")
 
-class PTRepl(ReplLocalsMixin, ProcessUnit, LoopUnit, final=False):
+
+class PTRepl(ReplLocalsMixin, ProcessUnit[A], LoopUnit, final=False):
     _module_qualname: str = field(init=False)
     _banner: str = field(init=False)
 

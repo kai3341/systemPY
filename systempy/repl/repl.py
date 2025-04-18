@@ -1,14 +1,16 @@
 import asyncio
 import asyncio.__main__ as amain  # type:ignore[import-not-found]
 import rlcompleter
-from typing import Any
+from typing import Any, ParamSpec
 
 from ..process import ProcessUnit
 from .handle_interrupt import handle_interrupt, setup_completer
 from .mixins import ReplLocalsMixin
 
+A = ParamSpec("A")
 
-class ReplUnit(ReplLocalsMixin, ProcessUnit, final=False):
+
+class ReplUnit(ReplLocalsMixin, ProcessUnit[A], final=False):
     loop: asyncio.AbstractEventLoop
     console: amain.AsyncIOInteractiveConsole
     repl_completer: rlcompleter.Completer
