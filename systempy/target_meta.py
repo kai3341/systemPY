@@ -1,3 +1,4 @@
+from abc import ABCMeta
 from dataclasses import Field, dataclass, field
 from typing import Any, cast, dataclass_transform
 from typing import final as typing_final
@@ -19,7 +20,7 @@ unit_meta_dataclass_fns = (
     field_specifiers=(Field, field),
     kw_only_default=True,
 )
-class TargetMeta(type):
+class TargetMeta(ABCMeta):
     @dataclass_transform(
         field_specifiers=(Field, field),
         kw_only_default=True,
@@ -29,7 +30,6 @@ class TargetMeta(type):
         name: str,
         bases: tuple[type, ...],
         classdict: dict[str, Any],
-        /,
         *,
         final: bool = True,
         **kwargs: Any,

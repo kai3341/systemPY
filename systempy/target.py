@@ -1,4 +1,5 @@
 import atexit
+from abc import abstractmethod
 from collections.abc import Iterator
 from dataclasses import Field, dataclass, fields
 from types import TracebackType
@@ -90,30 +91,26 @@ class Target(
 
 @mark_as_target
 class ProcessTargetABC(Target, final=False):
-    "Unfortunally `abc` can not be used because can not use 2 metaclasses"
+    @abstractmethod
+    def main_sync(self) -> None: ...
 
-    def main_sync(self) -> None:
-        raise NotImplementedError
+    @abstractmethod
+    def run_sync(self) -> None: ...
 
-    def run_sync(self) -> None:
-        raise NotImplementedError
-
-    def reload(self) -> None:
-        raise NotImplementedError
+    @abstractmethod
+    def reload(self) -> None: ...
 
 
 @mark_as_target
 class DaemonTargetABC(Target, final=False):
-    "Unfortunally `abc` can not be used because can not use 2 metaclasses"
+    @abstractmethod
+    async def main_async(self) -> None: ...
 
-    async def main_async(self) -> None:
-        raise NotImplementedError
+    @abstractmethod
+    async def run_async(self) -> None: ...
 
-    async def run_async(self) -> None:
-        raise NotImplementedError
-
-    def stop(self) -> None:
-        raise NotImplementedError
+    @abstractmethod
+    def stop(self) -> None: ...
 
 
 __all__ = (
