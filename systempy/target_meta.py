@@ -1,10 +1,12 @@
 from abc import ABCMeta
 from dataclasses import Field, dataclass, field
-from typing import Any, cast, dataclass_transform
+from typing import Any, Generic, ParamSpec, cast, dataclass_transform
 from typing import final as typing_final
 
 from .util.configuration import apply_additional_configuration
 from .util.register import mark_as_final
+
+A = ParamSpec("A")
 
 default_dataclass_kwargs: dict[str, bool] = {
     "kw_only": True,
@@ -31,7 +33,7 @@ _new_on_not_final_class_error = (
     field_specifiers=(Field, field),
     kw_only_default=True,
 )
-class TargetMeta(ABCMeta):
+class TargetMeta(ABCMeta, Generic[A]):
     @dataclass_transform(
         field_specifiers=(Field, field),
         kw_only_default=True,
@@ -58,7 +60,7 @@ class TargetMeta(ABCMeta):
         target_meta_dataclass = target_meta_dataclass_fns[final]
         return target_meta_dataclass(cast("type[TargetMeta]", new_cls))
 
-    def __call__(cls, *args: Any, **kwargs: Any) -> "TargetMeta":
+    def __call__(cls, *args: A.args, **kwargs: A.kwargs) -> "TargetMeta[A]":
         if cls not in mark_as_final:
             raise TypeError(_new_on_not_final_class_error.format(cls=cls))
         return super().__call__(*args, **kwargs)
