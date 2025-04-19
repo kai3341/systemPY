@@ -1,11 +1,11 @@
 from collections.abc import Callable, Coroutine
 from inspect import iscoroutinefunction
 
-from .constants import lifecycle_bases_blacklist, lifecycle_disallowed_attrs
+from .constants import lifecycle_disallowed_attrs
 from .enums import CONST
 from .local_dataclasses import SeparatedLFMethods
 from .local_typing import CTuple, P, R, TypeIterable
-from .register import register_direction
+from .register import mark_as_target, register_direction
 
 
 def extract_attrs(iterable: TypeIterable, name: str) -> list[Callable]:
@@ -38,7 +38,7 @@ def extract_bases(cls: type) -> tuple[type, ...]:
         # ===
         Base
         for Base in bases
-        if Base not in lifecycle_bases_blacklist
+        if Base not in mark_as_target
     ]
 
     for base in bases:

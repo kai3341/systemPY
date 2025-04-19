@@ -118,3 +118,19 @@ class HookRegistry(BaseRegistry[Callable[P, R], list[Callable[P, R]]]):
             return func
 
         return inner
+
+
+@dataclass()
+class SetRegistry(Generic[VT]):
+    regisrty: set[VT] = field(init=False, default_factory=set)
+
+    def __call__(self, target: VT) -> VT:
+        self.regisrty.add(target)
+        return target
+
+    def __contains__(self, target: VT) -> bool:
+        return target in self.regisrty
+
+    def add(self, *args: VT) -> None:
+        for t in args:
+            self.regisrty.add(t)

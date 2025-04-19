@@ -19,6 +19,9 @@ reportMissingModuleSource = false
 reportArgumentType = false
 reportCallIssue = false
 reportAssignmentType = false
+reportGeneralTypeIssues = false
+reportIndexIssue = false
+reportInvalidTypeArguments = false
 
 [tool.ruff.lint]
 select=["ALL"]

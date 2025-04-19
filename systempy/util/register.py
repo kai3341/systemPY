@@ -1,10 +1,9 @@
 from collections.abc import Callable
 from inspect import iscoroutinefunction
-from typing import ParamSpec, TypeVar
+from typing import Generic, ParamSpec, Protocol, TypeVar
 
 from .constants import (
     lifecycle_additional_configuration,
-    lifecycle_bases_blacklist,
     lifecycle_registered_methods,
     sync_or_async,
 )
@@ -15,9 +14,9 @@ from .local_dataclasses import (
     HookRegistry,
     LFMethodsRegistered,
     NamedRegistry,
+    SetRegistry,
 )
 from .local_typing import (
-    TT,
     CTuple,
     Decorator,
     T,
@@ -34,15 +33,17 @@ register_direction: NamedRegistry[[TypeIterable, str], CTuple] = NamedRegistry()
 register_handler_by_aio: NamedRegistry[[type, Callable, CTuple], Callable] = (
     NamedRegistry()
 )
-register_check_method_type: NamedRegistry[[Callable], None] = NamedRegistry()
+register_check_method_type = NamedRegistry[[Callable], None]()
 
 register_hook_before: HookRegistry = HookRegistry()
 register_hook_after: HookRegistry = HookRegistry()
+mark_as_target = SetRegistry[type]()
 
+# According to `typing.final` implementation I can't trust to `__final__` class
+# attribure
+mark_as_final = SetRegistry[type]()
 
-def mark_as_target(cls: TT) -> TT:
-    lifecycle_bases_blacklist.add(cls)
-    return cls
+mark_as_target.add(object, Generic, Protocol)  # type:ignore[arg-type]
 
 
 def register_target_method(direction: CONST) -> Decorator:
