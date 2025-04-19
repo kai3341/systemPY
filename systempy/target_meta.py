@@ -4,7 +4,6 @@ from typing import Any, cast, dataclass_transform
 from typing import final as typing_final
 
 from .util.configuration import apply_additional_configuration
-from .util.constants import _init_on_not_final_classes
 from .util.register import mark_as_final
 
 default_dataclass_kwargs: dict[str, bool] = {
@@ -19,7 +18,12 @@ target_meta_dataclass_fns = (
 
 subclassing_final_caught = (
     "Subclassing of final classes {cls} is not allowed. "
-    "Did you forget to pass it `final=False`?"
+    "Did you forget to mark it as `final=False`?"
+)
+
+
+_new_on_not_final_class_error = (
+    "Caught attempt to instantiate class {cls} marked as `final=False`"
 )
 
 
@@ -45,9 +49,6 @@ class TargetMeta(ABCMeta):
             if base in mark_as_final:
                 raise TypeError(subclassing_final_caught.format(cls=base))
 
-        if not final:
-            classdict["__init__"] = _init_on_not_final_classes
-
         new_cls = super().__new__(mcs, name, bases, classdict, **kwargs)
 
         if final:
@@ -56,3 +57,8 @@ class TargetMeta(ABCMeta):
 
         target_meta_dataclass = target_meta_dataclass_fns[final]
         return target_meta_dataclass(cast("type[TargetMeta]", new_cls))
+
+    def __call__(cls, *args: Any, **kwargs: Any) -> "TargetMeta":
+        if cls not in mark_as_final:
+            raise TypeError(_new_on_not_final_class_error.format(cls=cls))
+        return super().__call__(*args, **kwargs)

@@ -43,11 +43,8 @@ def extract_bases(cls: type) -> tuple[type, ...]:
 
     for base in bases:
         clsdict = vars(base)
-        for check_attribute, description, except_fn in lifecycle_disallowed_attrs:
+        for check_attribute, description in lifecycle_disallowed_attrs:
             if check_attribute in clsdict:
-                if except_fn(clsdict[check_attribute]):
-                    continue
-
                 message = f"Attribute {check_attribute} is not allowed"
 
                 if description:
