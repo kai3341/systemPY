@@ -39,4 +39,4 @@ LFRegistered = MutableMapping[
 ]
 MaybeCoro: TypeAlias = R | Coroutine[R, None, None]
 
-DisallowedAttrInfo = tuple[str, str]
+DisallowedAttrInfo = tuple[str, str, Callable[[object], bool]]

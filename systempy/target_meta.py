@@ -4,6 +4,7 @@ from typing import Any, cast, dataclass_transform
 from typing import final as typing_final
 
 from .util.configuration import apply_additional_configuration
+from .util.constants import _init_on_not_final_classes
 from .util.register import mark_as_final
 
 default_dataclass_kwargs: dict[str, bool] = {
@@ -43,6 +44,9 @@ class TargetMeta(ABCMeta):
         for base in bases:
             if base in mark_as_final:
                 raise TypeError(subclassing_final_caught.format(cls=base))
+
+        if not final:
+            classdict["__init__"] = _init_on_not_final_classes
 
         new_cls = super().__new__(mcs, name, bases, classdict, **kwargs)
 

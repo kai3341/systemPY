@@ -10,7 +10,7 @@ from .util import CONST, mark_as_target, register_target, register_target_method
 
 
 @register_target
-class TargetInterface(metaclass=TargetMeta):
+class TargetInterface(metaclass=TargetMeta, final=False):
     @register_target_method(CONST.FORWARD)
     def on_init(self) -> None: ...
 
