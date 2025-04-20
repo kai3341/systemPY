@@ -7,7 +7,7 @@ from typing import (
     overload,
 )
 
-from .enums import CONST
+from .enums import DIRECTION
 from .local_typing import (
     KT,
     VT,
@@ -27,7 +27,7 @@ from .misc import get_key_or_create
 @dataclass()
 class LFMethodsRegistered(Generic[P, R]):
     direction: DirectionHandler[P, R] | None
-    direction_name: CONST | None
+    direction_name: DIRECTION | None
     interface: type | None
 
 

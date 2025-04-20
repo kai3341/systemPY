@@ -52,8 +52,7 @@ class ReplUnit(ReplLocalsMixin, ProcessUnit[A], final=False):
     def repl_handle_exitmsg(self, exitmsg: str) -> str:
         return exitmsg
 
-    async def repl_handle_code(self, code: str) -> None:
-        pass
+    async def repl_handle_code(self, code: str) -> None: ...
 
     def __repr_console_interact(self) -> None:
         original_interact = self.console.interact

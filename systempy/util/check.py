@@ -2,7 +2,7 @@ from collections.abc import Callable
 from inspect import iscoroutinefunction
 
 from .constants import sync_or_async
-from .enums import CONST
+from .enums import DIRECTION
 from .local_typing import function_types
 from .register import register_check_method_type
 
@@ -45,7 +45,7 @@ def check_callback_signature(reason: Callable, func: Callable) -> None:
     raise ValueError(error_message)
 
 
-@register_check_method_type(CONST.GATHER)
+@register_check_method_type(DIRECTION.GATHER)
 def gather(target: Callable) -> None:
     if not iscoroutinefunction(target):
         error_message = "Can not `asyncio.gather` syncronous method"

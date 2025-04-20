@@ -2,7 +2,7 @@ from enum import Enum, unique
 
 
 @unique
-class CONST(str, Enum):
+class DIRECTION(str, Enum):
     """
     Public enum containing supported directions. Rely on your IDE's help
     """

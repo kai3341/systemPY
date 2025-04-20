@@ -11,12 +11,10 @@ __all__ = (
 )
 
 
-def handle_interrupt__fallback(unit: Any) -> None:
-    pass
+def handle_interrupt__fallback(unit: Any) -> None: ...
 
 
-def setup_completer__fallback(unit: Any) -> None:
-    pass
+def setup_completer__fallback(unit: Any) -> None: ...
 
 
 handle_interrupt = handle_interrupt__fallback

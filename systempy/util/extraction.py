@@ -2,7 +2,7 @@ from collections.abc import Callable, Coroutine
 from inspect import iscoroutinefunction
 
 from .constants import lifecycle_disallowed_attrs
-from .enums import CONST
+from .enums import DIRECTION
 from .local_dataclasses import SeparatedLFMethods
 from .local_typing import CTuple, P, R, TypeIterable
 from .register import mark_as_target, register_direction
@@ -17,14 +17,14 @@ def extract_attrs(iterable: TypeIterable, name: str) -> list[Callable]:
     ]
 
 
-@register_direction(CONST.FORWARD)
-@register_direction(CONST.GATHER)
+@register_direction(DIRECTION.FORWARD)
+@register_direction(DIRECTION.GATHER)
 def callbacks_direct(iterable: TypeIterable, name: str) -> CTuple:
     callbacks = extract_attrs(iterable, name)
     return tuple(callbacks)
 
 
-@register_direction(CONST.BACKWARD)
+@register_direction(DIRECTION.BACKWARD)
 def callbacks_reversed(iterable: TypeIterable, name: str) -> CTuple:
     callbacks = extract_attrs(iterable, name)
     callbacks.reverse()

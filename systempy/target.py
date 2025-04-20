@@ -6,27 +6,27 @@ from types import TracebackType
 from typing import Self
 
 from .target_meta import TargetMeta
-from .util import CONST, mark_as_target, register_target, register_target_method
+from .util import DIRECTION, mark_as_target, register_target, register_target_method
 
 
 @register_target
 class TargetInterface(metaclass=TargetMeta, final=False):
-    @register_target_method(CONST.FORWARD)
+    @register_target_method(DIRECTION.FORWARD)
     def on_init(self) -> None: ...
 
-    @register_target_method(CONST.FORWARD)
+    @register_target_method(DIRECTION.FORWARD)
     def pre_startup(self) -> None: ...
 
-    @register_target_method(CONST.FORWARD)
+    @register_target_method(DIRECTION.FORWARD)
     async def on_startup(self) -> None: ...
 
-    @register_target_method(CONST.BACKWARD)
+    @register_target_method(DIRECTION.BACKWARD)
     async def on_shutdown(self) -> None: ...
 
-    @register_target_method(CONST.BACKWARD)
+    @register_target_method(DIRECTION.BACKWARD)
     def post_shutdown(self) -> None: ...
 
-    @register_target_method(CONST.BACKWARD)
+    @register_target_method(DIRECTION.BACKWARD)
     def on_exit(self) -> None: ...
 
 
@@ -80,8 +80,7 @@ class Target(
     _TargetCtxMgrAsync,
     _TargetFieldIter,
     final=False,
-):
-    pass
+): ...
 
 
 @mark_as_target

@@ -1,4 +1,4 @@
-from .enums import CONST
+from .enums import DIRECTION
 from .register import (
     mark_as_target,
     register_hook_after,
@@ -8,7 +8,7 @@ from .register import (
 )
 
 __all__ = (
-    "CONST",
+    "DIRECTION",
     "mark_as_target",
     "register_hook_after",
     "register_hook_before",

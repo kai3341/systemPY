@@ -3,7 +3,7 @@ from collections.abc import Callable, Coroutine
 from inspect import iscoroutinefunction
 
 from .callback_plan import build_callback_plan
-from .enums import CONST, TYPE
+from .enums import DIRECTION, TYPE
 from .extraction import separate_sync_async
 from .local_typing import CTuple, MaybeCoro, P, R
 from .register import register_handler_by_aio
@@ -57,7 +57,7 @@ def handler_async(
     return handler
 
 
-@register_handler_by_aio(CONST.GATHER)
+@register_handler_by_aio(DIRECTION.GATHER)
 def handler_gather(
     cls: type,
     reason: Callable[P, MaybeCoro[None]],
@@ -96,7 +96,6 @@ def handler_gather(
         return handler__having_sync
 
     @with_repr("GatherNone", reason, callbacks_total)
-    async def handler__having_none(*args: P.args, **kwargs: P.kwargs) -> None:
-        pass
+    async def handler__having_none(*args: P.args, **kwargs: P.kwargs) -> None: ...
 
     return handler__having_none

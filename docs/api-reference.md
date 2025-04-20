@@ -24,12 +24,12 @@
 
 ## `ext.target_ext.TargetExt`
 
-## `util.register_target`
+## `register_target`
 
-## `util.register_target_method`
+## `register_target_method`
 
-## `util.register_hook_before`
+## `register_hook_before`
 
-## `util.register_hook_after`
+## `register_hook_after`
 
-## `util.mark_as_target`
+## `mark_as_target`

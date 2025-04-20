@@ -7,7 +7,7 @@ from .constants import (
     lifecycle_registered_methods,
     sync_or_async,
 )
-from .enums import CONST
+from .enums import DIRECTION
 from .local_dataclasses import (
     ClsCFG,
     GenericHandlerSettings,
@@ -46,7 +46,7 @@ mark_as_final = SetRegistry[type]()
 mark_as_target.add(object, Generic, Protocol)  # type:ignore[arg-type]
 
 
-def register_target_method(direction: CONST) -> Decorator:
+def register_target_method(direction: DIRECTION) -> Decorator:
     direction_handler = register_direction[direction]
 
     def inner(func: Callable[P, R]) -> Callable[P, R]:
