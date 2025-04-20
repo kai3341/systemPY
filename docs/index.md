@@ -55,33 +55,38 @@ There are 6 most significant stages of the application lifecycle. Keep in mind
 we need in safe application reload. Just looks the
 [code](https://github.com/kai3341/systemPY/blob/main/systempy/target.py):
 
-=== Code
+=== "Code"
 
-```python
-from systempy import DIRECTION, TargetMeta, register_target, register_target_method
+    ```python
+    from systempy import (
+        DIRECTION,
+        TargetMeta,
+        register_target,
+        register_target_method,
+    )
 
-@register_target
-class Target(metaclass=TargetMeta, final=False):
-    @register_target_method(DIRECTION.FORWARD)
-    def on_init(self) -> None: ...
+    @register_target
+    class Target(metaclass=TargetMeta, final=False):
+        @register_target_method(DIRECTION.FORWARD)
+        def on_init(self) -> None: ...
 
-    @register_target_method(DIRECTION.FORWARD)
-    def pre_startup(self) -> None: ...
+        @register_target_method(DIRECTION.FORWARD)
+        def pre_startup(self) -> None: ...
 
-    @register_target_method(DIRECTION.FORWARD)
-    async def on_startup(self) -> None: ...
+        @register_target_method(DIRECTION.FORWARD)
+        async def on_startup(self) -> None: ...
 
-    @register_target_method(DIRECTION.BACKWARD)
-    async def on_shutdown(self) -> None: ...
+        @register_target_method(DIRECTION.BACKWARD)
+        async def on_shutdown(self) -> None: ...
 
-    @register_target_method(DIRECTION.BACKWARD)
-    def post_shutdown(self) -> None: ...
+        @register_target_method(DIRECTION.BACKWARD)
+        def post_shutdown(self) -> None: ...
 
-    @register_target_method(DIRECTION.BACKWARD)
-    def on_exit(self) -> None: ...
-```
+        @register_target_method(DIRECTION.BACKWARD)
+        def on_exit(self) -> None: ...
+    ```
 
-=== Methods
+=== "Methods"
 
     * `on_init` executes exactly once on application startup
 
@@ -97,7 +102,7 @@ class Target(metaclass=TargetMeta, final=False):
 
     * `on_exit` executes exactly once when application is stopping
 
-=== Target & Unit
+=== "Target & Unit"
 
     Target idea is similar to `systemd`'s targets. Keep in mind such examples like
     `graphical.target` or `multi-user.target`. It means to achieve this target we
@@ -111,20 +116,41 @@ class Target(metaclass=TargetMeta, final=False):
     just overriding `Target`'s methods. It's similar to `abc`, but everything is
     optional.
 
-=== `TargetMeta` & `final`
+=== "`TargetMeta` & `final`"
 
-=== `@register`'s
+    All magic happens in `TargetMeta` metaclass:
+
+    * `TargetMeta` is a subclass of `abc.ABCMeta`, that's why you are able to to
+    use `@abc.abstractmethod` decorator
+
+    * `TargetMeta` checks `final` kwarg. By default it is set to `True`. So you
+    have to mark all you mixin classes with `final=False` kwarg
+
+    * If you passed `final=False` kwarg, your mixin would be **not** able to
+    instantiate. If you see it's runable thing -- just subclass your mixin
+    without passing `final=False` parameter
+
+    * __Finally__, all classes you didn't marked as `final=False` (next time I'll
+    say that this class is marked as `final`) are not able to subclass. Also these
+    classes are decorates with `@typing.final` decorator. Would your lang server
+    able to use this information or not I don't know
+
+    * In simple words, `final=False` tells to `systempy` to avoid doing useless
+    job, because some operations on `final` classes are a little bit heavy
+
+=== "`@register`'s"
 
     The last but not the least is `register_target_method`. It defines method's
     type and payload method execution order. When you define syncronous method,
     overriding it by asyncronous method will cause an error
 
-    Payload execution order may be `"forward"`, `"backward"` and `"gather"`.
-    Typically you should use `"forward"` on initialization and `"backward"` on
-    shutdown
+    Payload execution order may be `DIRECTION.FORWARD`, `DIRECTION.BACKWARD` and
+    `DIRECTION.GATHER`. Typically you should use `DIRECTION.FORWARD` on
+    initialization and `DIRECTION.BACKWARD` on shutdown
 
-    Also you may use `"gather"` direction. Registered callbacks will be handled by
-    `asyncio.gather` and will be executed in arbitrary order
+    Also you may use `DIRECTION.GATHER` direction. Registered callbacks will be
+    handled by `asyncio.gather` and will be executed in arbitrary order. You are
+    able to use here both syncronous and asyncronous methods
 
 ### That's all? Nope, it's really begin
 
@@ -134,35 +160,35 @@ lifecycle methods. The first such example is
 
 === "Code"
 
-```python
-from systempy import (
-    DIRECTION,
-    Target,
-    register_hook_after,
-    register_hook_before,
-    register_target,
-)
+    ```python
+    from systempy import (
+        DIRECTION,
+        Target,
+        register_hook_after,
+        register_hook_before,
+        register_target,
+    )
 
-@register_target
-class TargetExt(Target, final=False):
-    @register_hook_after(Target.on_startup)
-    @register_target_method(DIRECTION.FORWARD)
-    async def post_startup(self) -> None: ...
+    @register_target
+    class TargetExt(Target, final=False):
+        @register_hook_after(Target.on_startup)
+        @register_target_method(DIRECTION.FORWARD)
+        async def post_startup(self) -> None: ...
 
-    @register_hook_before(Target.on_shutdown)
-    @register_target_method(DIRECTION.BACKWARD)
-    async def pre_shutdown(self) -> None: ...
-```
+        @register_hook_before(Target.on_shutdown)
+        @register_target_method(DIRECTION.BACKWARD)
+        async def pre_shutdown(self) -> None: ...
+    ```
 
-=== Methods
+=== "Methods"
 
     Here there were registered two new lifecycle methods:
 
     * `post_startup` callbacks will be called exactly after finished
-    `Target.on_startup` in `"forward"` order
+    `Target.on_startup` in `DIRECTION.FORWARD` order
 
     * `pre_shutdown` callbacks will be called before running `Target.on_shutdown`
-    in `"backward"` order
+    in `DIRECTION.BACKWARD` order
 
 You are able to define your own lifecycle stages without any limit binding them
 before or after already existing. It's like `systemd`'s `Unit` options `Before`
@@ -188,28 +214,38 @@ class MyPrettyReplUnit(     # INIT      # SHUTDOWN
     SQLAlchemyMariaDBUnit,  # 6         # 3
     MyFirstDatabaseUnit,    # 7         # 2
     PrettyReplUnit,         # 8         # 1
-    Unit,                   # SKIPED    # SKIPED
-):
-    ...
+): ...
 ```
 
-So, you may put `Unit` base class anywhere it's handy for you. It will be
-ignored. Also all `Target` class lifecycle methods will be skipped too
-
-Important: while you are implementing `Unit` mixins, remember NEVER call
+Important: while you are implementing your `Unit` mixins, remember **NEVER** call
 `super()` in lifecycle methods. These methods will be collected and called
 by `systemPY` in the right order
 
 ## Installing
 
-Install `systemPY` from [PyPI](https://pypi.org/project/systemPY/):
+Install `systemPY` from [PyPI](https://pypi.org/project/systemPY/) **OR**
+from [github repository](https://github.com/kai3341/systemPY):
 
-```
-pip install systemPY
-```
+=== "pip"
 
-You also able to install the latest version from github repository:
+    ```sh
+    pip install systemPY
+    ```
 
-```
-pip install git+https://github.com/kai3341/systemPY.git
-```
+    **OR**
+
+    ```sh
+    pip install git+https://github.com/kai3341/systemPY.git
+    ```
+
+=== "uv"
+
+    ```sh
+    uv add systemPY
+    ```
+
+    **OR**
+
+    ```sh
+    uv add git+https://github.com/kai3341/systemPY
+    ```

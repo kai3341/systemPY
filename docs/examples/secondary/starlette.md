@@ -40,6 +40,6 @@ unit = MyAppUnit(
 
 Then run webserver:
 
-```bash
+```sh
 uvicorn starlette_app:starlette_app
 ```
