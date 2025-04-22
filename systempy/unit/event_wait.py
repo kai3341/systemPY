@@ -12,7 +12,7 @@ class EventWaitUnit(LoopUnit, final=False):
 
     __event: Event = field(init=False)
 
-    def on_startup(self) -> None:
+    async def on_startup(self) -> None:
         self.__event = Event()
 
     async def main_async(self) -> None:
