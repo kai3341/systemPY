@@ -1,5 +1,5 @@
 from .target import DaemonTargetABC, ProcessTargetABC, Target
-from .unit import DaemonUnit, LoopUnit, ProcessUnit, ReplUnit, Unit
+from .unit import DaemonUnit, EventWaitUnit, LoopUnit, ProcessUnit, ReplUnit, Unit
 from .util import (
     DIRECTION,
     register_hook_after,
@@ -12,6 +12,7 @@ __all__ = (
     "DIRECTION",
     "DaemonTargetABC",
     "DaemonUnit",
+    "EventWaitUnit",
     "LoopUnit",
     "ProcessTargetABC",
     "ProcessUnit",
