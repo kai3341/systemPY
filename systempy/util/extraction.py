@@ -39,12 +39,10 @@ def callbacks_reversed(iterable: WeakTypeIterable, name: str) -> CTuple:
 
 
 def extract_bases(cls: type) -> WeakTypeIterable:
-    bases = cls.mro()
-
     bases = [
         # ===
         Base
-        for Base in bases
+        for Base in cls.mro()
         if Base not in mark_as_target
     ]
 

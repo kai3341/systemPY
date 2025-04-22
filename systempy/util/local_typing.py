@@ -6,7 +6,7 @@ from typing import (
     TypeAlias,
     TypeVar,
 )
-from weakref import ref
+from weakref import WeakKeyDictionary, ref
 
 if TYPE_CHECKING:
     from . import local_dataclasses
@@ -33,7 +33,7 @@ Decorator = Callable[[Callable[P, R]], Callable[P, R]]
 DirectionHandler = Callable[[WeakTypeIterable, str], CTuple[P, R]]
 
 SMConfig = MutableMapping[str, "local_dataclasses.GenericHandlerSettings"]
-LFTypeConfig = MutableMapping[TT, "local_dataclasses.ClsCFG"]
+LFTypeConfig = WeakKeyDictionary[TT, "local_dataclasses.ClsCFG"]
 LFRegistered = MutableMapping[
     Callable[P, R],
     "local_dataclasses.LFMethodsRegistered[P, R]",

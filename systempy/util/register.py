@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from inspect import iscoroutinefunction
 from typing import Generic, ParamSpec, Protocol, TypeVar
-from weakref import WeakSet, WeakValueDictionary, ref
+from weakref import WeakKeyDictionary, WeakSet, WeakValueDictionary, ref
 
 from .constants import (
     lifecycle_additional_configuration,
@@ -9,10 +9,10 @@ from .constants import (
     sync_or_async,
 )
 from .enums import DIRECTION
+from .hook_registry import HookRegistry
 from .local_dataclasses import (
     ClsCFG,
     GenericHandlerSettings,
-    HookRegistry,
     LFMethodsRegistered,
     NamedRegistry,
     SetRegistry,
@@ -41,8 +41,8 @@ register_handler_by_aio: NamedRegistry[
 ] = NamedRegistry(WeakValueDictionary())
 register_check_method_type = NamedRegistry[[Callable], None](WeakValueDictionary())
 
-register_hook_before: HookRegistry = HookRegistry()
-register_hook_after: HookRegistry = HookRegistry()
+register_hook_before: HookRegistry = HookRegistry(WeakKeyDictionary())
+register_hook_after: HookRegistry = HookRegistry(WeakKeyDictionary())
 mark_as_target = SetRegistry[type](WeakSet())
 
 # According to `typing.final` implementation I can't trust to `__final__` class

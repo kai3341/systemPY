@@ -104,6 +104,8 @@ class BasicTestCase(TestCase):
         del Result
 
     def test_custom_target(self) -> None:  # noqa: C901
+        from gc import collect
+
         from systempy import (
             DIRECTION,
             LoopUnit,
@@ -338,6 +340,8 @@ class BasicTestCase(TestCase):
             async def main_async(self) -> None:
                 results.append("main_async")
 
+        collect()  # Make sure we didn't leave any object without refs
+
         ExampleDaemon.launch()
 
         expected_result = [
@@ -425,7 +429,12 @@ class BasicTestCase(TestCase):
 
         collect()
 
-        from systempy.util.register import mark_as_final, mark_as_target
+        from systempy.util.register import (
+            mark_as_final,
+            mark_as_target,
+            register_hook_after,
+            register_hook_before,
+        )
 
         self.assertEqual(len(mark_as_final.regisrty), 0)
 
@@ -451,3 +460,45 @@ class BasicTestCase(TestCase):
             {c.__name__ for c in mark_as_target.regisrty},
             marked_as_target,
         )
+
+        hook_parents_names = {
+            fk.__qualname__: fv.__qualname__
+            for fk, fv in register_hook_after.hook_parents.items()
+        }
+
+        hook_parents_names__expected = {
+            "TargetExt.post_startup": "TargetInterface.on_startup",
+            "TargetExt.pre_shutdown": "TargetInterface.on_shutdown",
+        }
+
+        self.assertDictEqual(hook_parents_names, hook_parents_names__expected)
+
+        hook_names_after = {
+            cb.__qualname__
+            for cb in register_hook_after._registry  # noqa: SLF001
+        }
+
+        hook_names_after__expected = {
+            "TargetInterface.on_init",
+            "TargetInterface.on_startup",
+            "TargetInterface.pre_startup",
+            "TargetExt.post_startup",
+            "TargetInterface.post_shutdown",
+        }
+
+        self.assertSetEqual(hook_names_after, hook_names_after__expected)
+
+        hook_names_before = {
+            cb.__qualname__
+            for cb in register_hook_before._registry  # noqa: SLF001
+        }
+
+        hook_names_before__expected = {
+            "TargetInterface.on_shutdown",
+            "TargetInterface.on_init",
+            "TargetExt.post_startup",
+            "TargetInterface.pre_startup",
+            "TargetExt.pre_shutdown",
+        }
+
+        self.assertSetEqual(hook_names_before, hook_names_before__expected)
