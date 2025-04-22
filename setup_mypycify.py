@@ -26,19 +26,31 @@ mypycify_structure: Struct = {
         None: (
             # "target.py",
             # "unit_meta.py",
-            # "unit.py",
-            # "process.py",
-            # "daemon.py",
-            # "loop.py",
         ),
-        "repl": {
+        "unit": {
             None: (
-                # " __init__.py",
-                "handle_interrupt.py",
-                # "mixins.py",
-                # "repl.py",
-                "util.py",
+                # "unit.py",
+                # "process.py",
+                # "daemon.py",
+                # "loop.py",
             ),
+            "repl": {
+                None: (
+                    # " __init__.py",
+                    "handle_interrupt.py",
+                    # "mixins.py",
+                    # "repl.py",
+                    "util.py",
+                ),
+            },
+            "ext": {
+                None: (
+                    # "pretty_repl.py",
+                    # "target_ext.py",
+                    # "starlette.py",
+                    # "celery.py",
+                ),
+            },
         },
         "util": {
             None: (
@@ -56,14 +68,6 @@ mypycify_structure: Struct = {
                 "handler_type.py",
             ),
         },
-        # "ext": {  # noqa: ERA001
-        #     None: (
-        #         "pretty_repl.py",
-        #         "target_ext.py",
-        #         "starlette.py",
-        #         "celery.py",
-        #     ),
-        # },
     },
 }
 

@@ -453,6 +453,7 @@ class BasicTestCase(TestCase):
             "DaemonUnit",
             "object",
             "Protocol",
+            "ReplLocalsMixin",
             "_TargetInit",
             "TargetInterface",
             "ProcessTargetABC",

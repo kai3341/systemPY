@@ -17,8 +17,9 @@ requirements_build: list[str] = []
 packages = [
     NAME,
     f"{NAME}.util",
-    f"{NAME}.ext",
-    f"{NAME}.repl",
+    f"{NAME}.unit",
+    f"{NAME}.unit.ext",
+    f"{NAME}.unit.repl",
 ]
 
 package_data = {
