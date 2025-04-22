@@ -1,9 +1,5 @@
-from .daemon import DaemonUnit
-from .loop import LoopUnit
-from .process import ProcessUnit
-from .repl.repl import ReplUnit
 from .target import DaemonTargetABC, ProcessTargetABC, Target
-from .unit import Unit
+from .unit import DaemonUnit, LoopUnit, ProcessUnit, ReplUnit, Unit
 from .util import (
     DIRECTION,
     register_hook_after,

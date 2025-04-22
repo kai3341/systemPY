@@ -1,6 +1,6 @@
 from starlette.applications import Starlette
 
-from ..target import Target
+from systempy import Target
 
 
 class StarletteUnit(Target, final=False):

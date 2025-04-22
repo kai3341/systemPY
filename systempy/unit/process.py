@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Generic, ParamSpec
 
-from .target import ProcessTargetABC
-from .util import mark_as_target
+from ..target import ProcessTargetABC
+from ..util import mark_as_target
 
 A = ParamSpec("A")
 

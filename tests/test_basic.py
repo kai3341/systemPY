@@ -115,7 +115,7 @@ class BasicTestCase(TestCase):
             register_target,
             register_target_method,
         )
-        from systempy.ext.target_ext import TargetExt
+        from systempy.unit.ext.target_ext import TargetExt
 
         results: list[str] = []
 

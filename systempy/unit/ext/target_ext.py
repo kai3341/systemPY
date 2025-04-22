@@ -1,6 +1,6 @@
-from ..target import Target
-from ..util import (
+from systempy import (
     DIRECTION,
+    Target,
     register_hook_after,
     register_hook_before,
     register_target,

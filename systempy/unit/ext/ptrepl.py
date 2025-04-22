@@ -6,7 +6,7 @@ from typing import ParamSpec
 from ptpython.repl import embed
 
 from systempy import LoopUnit, ProcessUnit
-from systempy.repl.mixins import ReplLocalsMixin
+from systempy.unit.repl.mixins import ReplLocalsMixin
 
 A = ParamSpec("A")
 

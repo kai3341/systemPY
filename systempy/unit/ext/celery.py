@@ -1,6 +1,6 @@
 from celery import Celery, signals  # type: ignore[import-untyped]
 
-from ..target import Target
+from systempy import Target
 
 
 class CeleryUnit(Target, final=False):

@@ -5,6 +5,9 @@ description = "Python application component initialization system"
 authors = [{name = "kai3341"}]
 readme = "README.md"
 requires-python = ">=3.11"
+dependencies = [
+    "typing-extensions",
+]
 
 [project.optional-dependencies]
 extra = [

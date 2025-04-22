@@ -3,6 +3,8 @@ import asyncio.__main__ as amain  # type:ignore[import-not-found]
 import rlcompleter
 from typing import Any, ParamSpec
 
+from typing_extensions import deprecated
+
 from ..process import ProcessUnit
 from .handle_interrupt import handle_interrupt, setup_completer
 from .mixins import ReplLocalsMixin
@@ -10,6 +12,7 @@ from .mixins import ReplLocalsMixin
 A = ParamSpec("A")
 
 
+@deprecated("Use `systempy.unit.ext.ptrepl.PTRepl` instead")
 class ReplUnit(ReplLocalsMixin, ProcessUnit[A], final=False):
     loop: asyncio.AbstractEventLoop
     console: amain.AsyncIOInteractiveConsole

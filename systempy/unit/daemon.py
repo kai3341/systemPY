@@ -3,8 +3,8 @@ from dataclasses import field
 from types import FrameType
 from typing import ClassVar
 
-from .target import DaemonTargetABC, ProcessTargetABC
-from .util import mark_as_target
+from ..target import DaemonTargetABC, ProcessTargetABC
+from ..util import mark_as_target
 
 
 class DaemonUnitBase(DaemonTargetABC, ProcessTargetABC, final=False):

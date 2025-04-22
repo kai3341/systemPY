@@ -2,12 +2,15 @@ from dataclasses import field
 from os import path
 from typing import ParamSpec
 
-from ..repl.repl import ReplUnit
-from ..util import mark_as_target
+from typing_extensions import deprecated
+
+from systempy.unit.repl.repl import ReplUnit
+from systempy.util import mark_as_target
 
 A = ParamSpec("A")
 
 
+@deprecated("Use `systempy.unit.ext.ptrepl.PTRepl` instead")
 @mark_as_target
 class PrettyReplUnit(ReplUnit[A], final=False):
     _module_qualname: str = field(init=False)

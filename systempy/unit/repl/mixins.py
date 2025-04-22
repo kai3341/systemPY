@@ -4,9 +4,10 @@ from inspect import FrameInfo
 from inspect import stack as inspect_stack
 from typing import Any, ClassVar
 
-from ..target import Target
+from ...target import Target, mark_as_target
 
 
+@mark_as_target
 class ReplLocalsMixin(Target, final=False):
     _repl_caller_frame: FrameInfo = field(init=False)
     repl_env_full: dict[str, Any] = field(init=False)

@@ -677,6 +677,9 @@ wheels = [
 name = "systempy"
 version = "0.1.0"
 source = { virtual = "." }
+dependencies = [
+    { name = "typing-extensions" },
+]
 
 [package.optional-dependencies]
 extra = [
@@ -697,6 +700,7 @@ requires-dist = [
     { name = "celery", marker = "extra == 'extra'", specifier = ">=5.5.1" },
     { name = "ptpython", marker = "extra == 'extra'", specifier = ">=3.0.30" },
     { name = "starlette", marker = "extra == 'extra'", specifier = ">=0.46.2" },
+    { name = "typing-extensions" },
 ]
 provides-extras = ["extra"]
 
