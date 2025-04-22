@@ -7,6 +7,7 @@ from typing import Self
 
 from .target_meta import TargetMeta
 from .util import DIRECTION, mark_as_target, register_target, register_target_method
+from .util.constants import handler_metadata
 
 
 @register_target
@@ -33,7 +34,11 @@ class TargetInterface(metaclass=TargetMeta, final=False):
 @mark_as_target
 class _TargetInit(TargetInterface, final=False):
     def __post_init__(self) -> None:
-        atexit.register(self.on_exit)
+        on_exit_meta = handler_metadata[type(self).on_exit]
+
+        if on_exit_meta.call_order:
+            atexit.register(self.on_exit)
+
         self.on_init()
 
 

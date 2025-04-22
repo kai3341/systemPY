@@ -1,6 +1,7 @@
 from collections.abc import Callable
 from inspect import iscoroutinefunction
 from typing import Generic, ParamSpec, Protocol, TypeVar
+from weakref import WeakSet, WeakValueDictionary, ref
 
 from .constants import (
     lifecycle_additional_configuration,
@@ -20,7 +21,7 @@ from .local_typing import (
     CTuple,
     Decorator,
     T,
-    TypeIterable,
+    WeakTypeIterable,
     function_types,
 )
 from .misc import get_key_or_create
@@ -28,22 +29,30 @@ from .misc import get_key_or_create
 P = ParamSpec("P")
 R = TypeVar("R")
 
-register_addition_cfg_applier: NamedRegistry[[type, ClsCFG], None] = NamedRegistry()
-register_direction: NamedRegistry[[TypeIterable, str], CTuple] = NamedRegistry()
-register_handler_by_aio: NamedRegistry[[type, Callable, CTuple], Callable] = (
-    NamedRegistry()
+register_addition_cfg_applier = NamedRegistry[[type, ClsCFG], None](
+    WeakValueDictionary(),
 )
-register_check_method_type = NamedRegistry[[Callable], None]()
+register_direction = NamedRegistry[[WeakTypeIterable, str], CTuple](
+    WeakValueDictionary(),
+)
+register_handler_by_aio: NamedRegistry[
+    [type, WeakTypeIterable, Callable, CTuple],
+    Callable,
+] = NamedRegistry(WeakValueDictionary())
+register_check_method_type = NamedRegistry[[Callable], None](WeakValueDictionary())
 
 register_hook_before: HookRegistry = HookRegistry()
 register_hook_after: HookRegistry = HookRegistry()
-mark_as_target = SetRegistry[type]()
+mark_as_target = SetRegistry[type](WeakSet())
 
 # According to `typing.final` implementation I can't trust to `__final__` class
 # attribure
-mark_as_final = SetRegistry[type]()
+mark_as_final = SetRegistry[type](WeakSet())
 
 mark_as_target.add(object, Generic, Protocol)  # type:ignore[arg-type]
+
+
+msg_not_callable = "{func} is not a callable"
 
 
 def register_target_method(direction: DIRECTION) -> Decorator:
@@ -51,10 +60,9 @@ def register_target_method(direction: DIRECTION) -> Decorator:
 
     def inner(func: Callable[P, R]) -> Callable[P, R]:
         if not callable(func):
-            raise TypeError(f"{func} is not a callable")  # noqa: EM102, TRY003
+            raise TypeError(msg_not_callable.format(func=func))
 
         lifecycle_registered_methods[func] = LFMethodsRegistered(
-            interface=None,
             direction_name=direction,
             direction=direction_handler,
         )
@@ -77,12 +85,11 @@ def register_target(cls: type[T]) -> type[T]:
             continue
 
         lifecycle_registered_this_methods = lifecycle_registered_methods[target]
-        lifecycle_registered_this_methods.interface = cls
+        lifecycle_registered_this_methods.interface = ref(cls)
         direction_handler = lifecycle_registered_this_methods.direction
         direction_name = lifecycle_registered_this_methods.direction_name
 
         assert direction_name
-        assert direction_handler
 
         if direction_name in register_check_method_type:
             checker = register_check_method_type[direction_name]
@@ -110,9 +117,9 @@ def register_target(cls: type[T]) -> type[T]:
         )
 
         clscfg_stack_method[target_name] = GenericHandlerSettings(
-            target,
-            direction_handler,
-            method_type_handler,
+            ref(target),
+            ref(direction_handler),
+            ref(method_type_handler),
         )
 
     return cls

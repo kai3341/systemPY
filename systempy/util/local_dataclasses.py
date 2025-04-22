@@ -1,4 +1,4 @@
-from collections.abc import Callable, Coroutine, MutableMapping
+from collections.abc import Callable, Coroutine, MutableMapping, MutableSet
 from dataclasses import dataclass, field
 from inspect import iscoroutinefunction
 from typing import (
@@ -6,6 +6,7 @@ from typing import (
     Generic,
     overload,
 )
+from weakref import WeakValueDictionary, ref
 
 from .enums import DIRECTION
 from .local_typing import (
@@ -19,23 +20,23 @@ from .local_typing import (
     PrimitiveHashable,
     R,
     SMConfig,
-    TypeIterable,
+    WeakTypeIterable,
 )
 from .misc import get_key_or_create
 
 
 @dataclass()
 class LFMethodsRegistered(Generic[P, R]):
-    direction: DirectionHandler[P, R] | None
-    direction_name: DIRECTION | None
-    interface: type | None
+    direction: DirectionHandler[P, R]
+    direction_name: DIRECTION
+    interface: ref[type] = field(init=False)
 
 
 @dataclass()
 class GenericHandlerSettings(Generic[P, R]):
-    reason: Callable
-    collect: Callable[[TypeIterable, str], CTuple[P, R]]
-    compose: Callable[[type, Callable, CTuple[P, R]], Callable]
+    reason: ref[Callable]
+    collect: ref[Callable[[WeakTypeIterable, str], CTuple[P, R]]]
+    compose: ref[Callable[[type, WeakTypeIterable, Callable, CTuple[P, R]], Callable]]
 
 
 @dataclass()
@@ -54,7 +55,7 @@ class ClsCFG(Generic[P, R]):
 
 @dataclass()
 class BaseRegistry(Generic[KT, VT]):
-    _registry: MutableMapping[KT, VT] = field(init=False, default_factory=dict)
+    _registry: MutableMapping[KT, VT] = field(default_factory=dict)
 
     def __getitem__(self, key: KT) -> VT:
         return self._registry[key]
@@ -97,7 +98,7 @@ class NamedRegistry(BaseRegistry[PrimitiveHashable, Callable[P, R]]):
 
 @dataclass()
 class HookRegistry(BaseRegistry[Callable[P, R], list[Callable[P, R]]]):
-    hook_parents: ClassVar[MutableMapping[Named, Named]] = {}
+    hook_parents: ClassVar[MutableMapping[Named, Named]] = WeakValueDictionary()
 
     __hook_invalid_template = (
         "You are trying to register executing asyncronous hook %s on the stage "
@@ -122,7 +123,7 @@ class HookRegistry(BaseRegistry[Callable[P, R], list[Callable[P, R]]]):
 
 @dataclass()
 class SetRegistry(Generic[VT]):
-    regisrty: set[VT] = field(init=False, default_factory=set)
+    regisrty: MutableSet[VT] = field(default_factory=set)
 
     def __call__(self, target: VT) -> VT:
         self.regisrty.add(target)
@@ -133,4 +134,9 @@ class SetRegistry(Generic[VT]):
 
     def add(self, *args: VT) -> None:
         for t in args:
-            self.regisrty.add(t)
+            self(t)
+
+
+@dataclass()
+class CallbackMetadata:
+    call_order: tuple[str, ...]

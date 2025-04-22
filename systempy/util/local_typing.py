@@ -6,6 +6,7 @@ from typing import (
     TypeAlias,
     TypeVar,
 )
+from weakref import ref
 
 if TYPE_CHECKING:
     from . import local_dataclasses
@@ -24,18 +25,22 @@ PrimitiveHashable = str | bytes | int | float | bool
 
 TT = TypeVar("TT", bound=type)  # pylint: disable=C0103
 
-TypeIterable = Iterable[type]
+WeakTypeIterable = Iterable[ref[type]]
 
 CTuple = tuple[Callable[P, R], ...]
 Decorator = Callable[[Callable[P, R]], Callable[P, R]]
 
-DirectionHandler = Callable[[TypeIterable, str], CTuple[P, R]]
+DirectionHandler = Callable[[WeakTypeIterable, str], CTuple[P, R]]
 
 SMConfig = MutableMapping[str, "local_dataclasses.GenericHandlerSettings"]
 LFTypeConfig = MutableMapping[TT, "local_dataclasses.ClsCFG"]
 LFRegistered = MutableMapping[
     Callable[P, R],
     "local_dataclasses.LFMethodsRegistered[P, R]",
+]
+LFMetadata = MutableMapping[
+    Callable[P, R],
+    "local_dataclasses.CallbackMetadata",
 ]
 MaybeCoro: TypeAlias = R | Coroutine[R, None, None]
 

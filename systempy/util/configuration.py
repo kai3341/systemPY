@@ -4,7 +4,7 @@ from typing import Any
 from .constants import lifecycle_additional_configuration
 from .creation import create_partial_handler_generic
 from .local_dataclasses import ClsCFG
-from .local_typing import TypeIterable
+from .local_typing import WeakTypeIterable
 from .misc import get_key_or_create
 from .register import register_addition_cfg_applier
 
@@ -33,7 +33,7 @@ def apply_additional_configuration(this_cls: type) -> None:
 
 def update_annotation(
     clsdict: dict[str, Any],
-    bases: TypeIterable,
+    bases: WeakTypeIterable,
 ) -> None:
     annotations: dict[str, type] = get_key_or_create(
         clsdict,
