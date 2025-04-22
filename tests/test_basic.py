@@ -427,14 +427,18 @@ class BasicTestCase(TestCase):
     def test_memory_leak(self) -> None:
         from gc import collect
 
-        collect()
-
         from systempy.util.register import (
             mark_as_final,
             mark_as_target,
             register_hook_after,
             register_hook_before,
         )
+
+        # create many objects
+        for _ in range(20):
+            self.test_custom_target()
+
+        collect()
 
         self.assertEqual(len(mark_as_final.regisrty), 0)
 
