@@ -1,7 +1,8 @@
 from collections.abc import Callable, Coroutine
 from functools import wraps
+from os import environ
 from typing import TypeVar
-from unittest import TestCase
+from unittest import TestCase, skipIf
 
 T = TypeVar("T")
 
@@ -424,6 +425,136 @@ class BasicTestCase(TestCase):
             "ExampleDaemonUnit3.before_on_init)",
         )
 
+    def test_stop_reload(self) -> None:  # noqa: C901
+        from threading import Thread
+        from time import sleep
+
+        from systempy import (
+            EventWaitUnit,
+            ProcessUnit,
+            Target,
+        )
+
+        results: list[str] = []
+
+        _sync_1 = _method_sync(results, "1")
+        _async_1 = _method_async(results, "1")
+
+        class ExampleDaemonUnit1(Target, final=False):
+            @_sync_1
+            def on_init(self) -> None: ...
+
+            @_sync_1
+            def pre_startup(self) -> None: ...
+
+            @_async_1
+            async def on_startup(self) -> None: ...
+
+            @_async_1
+            async def on_shutdown(self) -> None: ...
+
+            @_sync_1
+            def post_shutdown(self) -> None: ...
+
+        _sync_2 = _method_sync(results, "2")
+        _async_2 = _method_async(results, "2")
+
+        class ExampleDaemonUnit2(Target, final=False):
+            @_sync_2
+            def on_init(self) -> None: ...
+
+            @_sync_2
+            def pre_startup(self) -> None: ...
+
+            @_async_2
+            async def on_startup(self) -> None: ...
+
+            @_async_2
+            async def on_shutdown(self) -> None: ...
+
+            @_sync_2
+            def post_shutdown(self) -> None: ...
+
+        _sync_3 = _method_sync(results, "3")
+        _async_3 = _method_async(results, "3")
+
+        class ExampleDaemonUnit3(Target, final=False):
+            @_sync_3
+            def on_init(self) -> None: ...
+
+            @_sync_3
+            def pre_startup(self) -> None: ...
+
+            @_async_3
+            async def on_startup(self) -> None: ...
+
+            @_async_3
+            async def on_shutdown(self) -> None: ...
+
+            @_sync_3
+            def post_shutdown(self) -> None: ...
+
+        class ExampleUnit(
+            EventWaitUnit,
+            ExampleDaemonUnit1,
+            ExampleDaemonUnit2,
+            ExampleDaemonUnit3,
+            ProcessUnit,
+        ):
+            async def main_async(self) -> None:
+                results.append("main_async")
+                return await super().main_async()
+
+        unit = ExampleUnit()
+
+        thread = Thread(target=unit.run_sync)
+        thread.start()
+        sleep(0.1)
+        unit.reload_threadsafe()
+        sleep(0.2)
+        unit.stop_threadsafe()
+        thread.join(1)
+
+        self.assertEqual(thread.is_alive(), False)
+
+        expected_result = [
+            "on_init:1",
+            "on_init:2",
+            "on_init:3",
+            "pre_startup:1",
+            "pre_startup:2",
+            "pre_startup:3",
+            "on_startup:1",
+            "on_startup:2",
+            "on_startup:3",
+            "main_async",
+            "on_shutdown:3",
+            "on_shutdown:2",
+            "on_shutdown:1",
+            "post_shutdown:3",
+            "post_shutdown:2",
+            "post_shutdown:1",
+            "pre_startup:1",
+            "pre_startup:2",
+            "pre_startup:3",
+            "on_startup:1",
+            "on_startup:2",
+            "on_startup:3",
+            "main_async",
+            "on_shutdown:3",
+            "on_shutdown:2",
+            "on_shutdown:1",
+            "post_shutdown:3",
+            "post_shutdown:2",
+            "post_shutdown:1",
+        ]
+
+        self.assertListEqual(results, expected_result, "lifecycle method order")
+
+    @skipIf(
+        "MEMORE_LEAK_ROUNDS" not in environ,
+        "Variable `MEMORE_LEAK_ROUNDS` is not defined",
+    )
     def test_memory_leak(self) -> None:
         from gc import collect
 
@@ -435,7 +566,7 @@ class BasicTestCase(TestCase):
         )
 
         # create many objects
-        for _ in range(20):
+        for _ in range(int(environ["MEMORE_LEAK_ROUNDS"])):
             self.test_custom_target()
 
         collect()
