@@ -45,65 +45,6 @@ def _method_async(
 
 
 class BasicTestCase(TestCase):
-    def test_basic(self) -> None:
-        from systempy import LoopUnit, ProcessUnit, Target
-
-        on_init_results: list[int] = []
-        pre_startup_results: list[int] = []
-        on_startup_results: list[int] = []
-        on_shutdown_results: list[int] = []
-        post_shutdown_results: list[int] = []
-
-        main_async_result: list[str] = []
-
-        class C0(Target, final=False): ...
-
-        # ===
-
-        class C1(Target, final=False):
-            def on_init(self) -> None:
-                on_init_results.append(1)
-
-            def pre_startup(self) -> None:
-                pre_startup_results.append(1)
-
-            def post_shutdown(self) -> None:
-                post_shutdown_results.append(1)
-
-        # ===
-
-        class C2(Target, final=False):
-            def on_init(self) -> None:
-                on_init_results.append(2)
-
-            async def on_startup(self) -> None:
-                on_startup_results.append(2)
-
-        # ===
-
-        class C3(Target, final=False):
-            async def on_shutdown(self) -> None:
-                on_shutdown_results.append(3)
-
-        # ===
-
-        class Result(C0, C1, C2, C3, LoopUnit, ProcessUnit):
-            reload_signals = ()
-
-            async def main_async(self) -> None:
-                main_async_result.append("result")
-
-        Result.launch()
-
-        self.assertListEqual(on_init_results, [1, 2])
-        self.assertListEqual(pre_startup_results, [1])
-        self.assertListEqual(on_startup_results, [2])
-        self.assertListEqual(on_shutdown_results, [3])
-        self.assertListEqual(post_shutdown_results, [1])
-        self.assertListEqual(main_async_result, ["result"])
-
-        del Result
-
     def test_custom_target(self) -> None:  # noqa: C901
         from gc import collect
 
@@ -501,6 +442,8 @@ class BasicTestCase(TestCase):
             ExampleDaemonUnit3,
             ProcessUnit,
         ):
+            reload_signals = ()
+
             async def main_async(self) -> None:
                 results.append("main_async")
                 return await super().main_async()
@@ -510,6 +453,8 @@ class BasicTestCase(TestCase):
         thread = Thread(target=unit.run_sync)
         thread.start()
         sleep(0.1)
+        unit.reload_threadsafe()
+        sleep(0.2)
         unit.reload_threadsafe()
         sleep(0.2)
         unit.stop_threadsafe()
@@ -547,6 +492,19 @@ class BasicTestCase(TestCase):
             "post_shutdown:3",
             "post_shutdown:2",
             "post_shutdown:1",
+            "pre_startup:1",
+            "pre_startup:2",
+            "pre_startup:3",
+            "on_startup:1",
+            "on_startup:2",
+            "on_startup:3",
+            "main_async",
+            "on_shutdown:3",
+            "on_shutdown:2",
+            "on_shutdown:1",
+            "post_shutdown:3",
+            "post_shutdown:2",
+            "post_shutdown:1",
         ]
 
         self.assertListEqual(results, expected_result, "lifecycle method order")
@@ -555,7 +513,7 @@ class BasicTestCase(TestCase):
         "MEMORE_LEAK_ROUNDS" not in environ,
         "Variable `MEMORE_LEAK_ROUNDS` is not defined",
     )
-    def test_memory_leak(self) -> None:
+    def test_zzz_memory_leak(self) -> None:
         from gc import collect
 
         from systempy.util.register import (

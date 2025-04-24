@@ -8,6 +8,11 @@ repo_url: https://github.com/kai3341/systemPY
 nav:
   - Home: index.md
   - Examples:
+      - Units:
+          - Rodi: examples/unit/rodi.md
+          - SQLAlchemy: examples/unit/sqlalchemy.md
+          - Redis / Valkey: examples/unit/redis.md
+          - AIOLogger: examples/unit/aiologger.md
       - Secondary Application:
           - FastAPI / Starlette: examples/secondary/starlette.md
           - Celery: examples/secondary/celery.md
