@@ -22,14 +22,10 @@
 
 ## `ext.starlette.StarletteUnit`
 
-## `ext.target_ext.TargetExt`
-
-## `register_target`
+## `ext.target_ext.ExtTarget`
 
 ## `register_target_method`
 
 ## `register_hook_before`
 
 ## `register_hook_after`
-
-## `mark_as_target`

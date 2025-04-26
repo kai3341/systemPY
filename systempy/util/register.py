@@ -32,7 +32,7 @@ R = TypeVar("R")
 register_addition_cfg_applier = NamedRegistry[[type, ClsCFG], None](
     WeakValueDictionary(),
 )
-register_direction = NamedRegistry[[WeakTypeIterable, str], CTuple](
+register_direction = NamedRegistry[[WeakTypeIterable, Callable], CTuple](
     WeakValueDictionary(),
 )
 register_handler_by_aio: NamedRegistry[
@@ -113,7 +113,8 @@ def register_target(cls: type[T]) -> type[T]:
         # I think it would be good enough to crash on developer's machine but
         # don't do this check on the production
         assert target_name not in clscfg_stack_method, (
-            f"It's not allowed to override '{target_name}' on '{cls}'"
+            "It's not allowed to override "
+            f"'{clscfg_stack_method[target_name].reason()}' on '{cls}'"
         )
 
         clscfg_stack_method[target_name] = GenericHandlerSettings(

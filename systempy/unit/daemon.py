@@ -3,11 +3,10 @@ from dataclasses import field
 from types import FrameType
 from typing import ClassVar
 
-from ..target import DaemonTargetABC, ProcessTargetABC
-from ..util import mark_as_target
+from ..target import DaemonMixinABC, ProcessMixinABC
 
 
-class DaemonUnitBase(DaemonTargetABC, ProcessTargetABC, final=False):
+class DaemonBaseUnit(DaemonMixinABC, ProcessMixinABC):
     reload_signals: ClassVar[tuple[signal.Signals, ...]] = (signal.SIGHUP,)
 
     _daemon_reloading: bool = field(init=False, default=False)
@@ -38,8 +37,7 @@ class DaemonUnitBase(DaemonTargetABC, ProcessTargetABC, final=False):
             self._daemon_reloading = False
 
 
-@mark_as_target
-class DaemonUnit(DaemonUnitBase, final=False):
+class DaemonUnit(DaemonBaseUnit):
     async def run_async(self) -> None:
         async with self:
             await self.main_async()

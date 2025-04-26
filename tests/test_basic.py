@@ -2,7 +2,7 @@ from collections.abc import Callable, Coroutine
 from functools import wraps
 from os import environ
 from typing import TypeVar
-from unittest import TestCase, skipIf
+from unittest import TestCase, skip, skipIf
 
 T = TypeVar("T")
 
@@ -54,48 +54,46 @@ class BasicTestCase(TestCase):
             ProcessUnit,
             register_hook_after,
             register_hook_before,
-            register_target,
             register_target_method,
         )
-        from systempy.unit.ext.target_ext import TargetExt
+        from systempy.unit.ext.target_ext import ExtTarget
 
         results: list[str] = []
 
-        @register_target
-        class ExampleDaemonTarget(TargetExt, final=False):
-            @register_hook_before(TargetExt.on_init)
+        class ExampleDaemonTarget(ExtTarget):
+            @register_hook_before(ExtTarget.on_init)
             @register_target_method(DIRECTION.FORWARD)
             def before_on_init(self) -> None: ...
 
-            @register_hook_after(TargetExt.on_init)
+            @register_hook_after(ExtTarget.on_init)
             @register_target_method(DIRECTION.FORWARD)
             def after_on_init(self) -> None: ...
 
-            @register_hook_before(TargetExt.pre_startup)
+            @register_hook_before(ExtTarget.pre_startup)
             @register_target_method(DIRECTION.FORWARD)
             def before_pre_startup(self) -> None: ...
 
-            @register_hook_after(TargetExt.pre_startup)
+            @register_hook_after(ExtTarget.pre_startup)
             @register_target_method(DIRECTION.FORWARD)
             def after_pre_startup(self) -> None: ...
 
-            @register_hook_before(TargetExt.post_startup)
+            @register_hook_before(ExtTarget.post_startup)
             @register_target_method(DIRECTION.FORWARD)
             async def before_post_startup(self) -> None: ...
 
-            @register_hook_after(TargetExt.post_startup)
+            @register_hook_after(ExtTarget.post_startup)
             @register_target_method(DIRECTION.GATHER)
             async def after_post_startup(self) -> None: ...
 
-            @register_hook_before(TargetExt.pre_shutdown)
+            @register_hook_before(ExtTarget.pre_shutdown)
             @register_target_method(DIRECTION.GATHER)
             async def before_pre_shutdown(self) -> None: ...
 
-            @register_hook_after(TargetExt.post_shutdown)
+            @register_hook_after(ExtTarget.post_shutdown)
             @register_target_method(DIRECTION.BACKWARD)
             def after_post_shutdown(self) -> None: ...
 
-            @register_hook_after(TargetExt.post_shutdown)
+            @register_hook_after(ExtTarget.post_shutdown)
             @register_target_method(DIRECTION.BACKWARD)
             def also_after_post_shutdown(self) -> None: ...
 
@@ -108,7 +106,7 @@ class BasicTestCase(TestCase):
         _sync_1 = _method_sync(results, "1")
         _async_1 = _method_async(results, "1")
 
-        class ExampleDaemonUnit1(ExampleDaemonTarget, final=False):
+        class ExampleDaemon1Unit(ExampleDaemonTarget):
             @_sync_1
             def before_on_init(self) -> None: ...
 
@@ -163,7 +161,7 @@ class BasicTestCase(TestCase):
         _sync_2 = _method_sync(results, "2")
         _async_2 = _method_async(results, "2")
 
-        class ExampleDaemonUnit2(ExampleDaemonTarget, final=False):
+        class ExampleDaemon2Unit(ExampleDaemonTarget):
             @_sync_2
             def before_on_init(self) -> None: ...
 
@@ -218,7 +216,7 @@ class BasicTestCase(TestCase):
         _sync_3 = _method_sync(results, "3")
         _async_3 = _method_async(results, "3")
 
-        class ExampleDaemonUnit3(ExampleDaemonTarget, final=False):
+        class ExampleDaemon3Unit(ExampleDaemonTarget):
             @_sync_3
             def before_on_init(self) -> None: ...
 
@@ -270,10 +268,10 @@ class BasicTestCase(TestCase):
             @_sync_3
             def after_also_after_post_shutdown(self) -> None: ...
 
-        class ExampleDaemon(
-            ExampleDaemonUnit1,
-            ExampleDaemonUnit2,
-            ExampleDaemonUnit3,
+        class ExampleDaemonApp(
+            ExampleDaemon1Unit,
+            ExampleDaemon2Unit,
+            ExampleDaemon3Unit,
             LoopUnit,
             ProcessUnit,
         ):
@@ -284,7 +282,7 @@ class BasicTestCase(TestCase):
 
         collect()  # Make sure we didn't leave any object without refs
 
-        ExampleDaemon.launch()
+        ExampleDaemonApp.launch()
 
         expected_result = [
             "before_on_init:1",
@@ -344,27 +342,270 @@ class BasicTestCase(TestCase):
         self.assertListEqual(results, expected_result, "lifecycle method order")
 
         self.assertEqual(
-            ExampleDaemon.on_init.__qualname__,
+            ExampleDaemonApp.on_init.__qualname__,
             "Sync[on_init]("
-            "ExampleDaemonUnit1.before_on_init;"
-            "ExampleDaemonUnit2.before_on_init;"
-            "ExampleDaemonUnit3.before_on_init;"
-            "ExampleDaemonUnit1.on_init;"
-            "ExampleDaemonUnit2.on_init;"
-            "ExampleDaemonUnit3.on_init;"
-            "DaemonUnitBase.on_init;"
-            "ExampleDaemonUnit1.after_on_init;"
-            "ExampleDaemonUnit2.after_on_init;"
-            "ExampleDaemonUnit3.after_on_init)",
+            "ExampleDaemon1Unit.before_on_init;"
+            "ExampleDaemon2Unit.before_on_init;"
+            "ExampleDaemon3Unit.before_on_init;"
+            "ExampleDaemon1Unit.on_init;"
+            "ExampleDaemon2Unit.on_init;"
+            "ExampleDaemon3Unit.on_init;"
+            "DaemonBaseUnit.on_init;"
+            "ExampleDaemon1Unit.after_on_init;"
+            "ExampleDaemon2Unit.after_on_init;"
+            "ExampleDaemon3Unit.after_on_init)",
         )
 
         self.assertEqual(
-            ExampleDaemon.before_on_init.__qualname__,
+            ExampleDaemonApp.before_on_init.__qualname__,
             "Sync[before_on_init]("
-            "ExampleDaemonUnit1.before_on_init;"
-            "ExampleDaemonUnit2.before_on_init;"
-            "ExampleDaemonUnit3.before_on_init)",
+            "ExampleDaemon1Unit.before_on_init;"
+            "ExampleDaemon2Unit.before_on_init;"
+            "ExampleDaemon3Unit.before_on_init)",
         )
+
+    @skip("not ready")
+    def test_custom_target_wrong_inheritence(self) -> None:  # noqa: C901
+        from gc import collect
+
+        from systempy import (
+            DIRECTION,
+            LoopUnit,
+            ProcessUnit,
+            Target,
+            register_hook_after,
+            register_hook_before,
+            register_target_method,
+        )
+        from systempy.unit.ext.target_ext import ExtTarget
+
+        results: list[str] = []
+
+        class ExampleDaemonTarget(Target):
+            @register_hook_before(ExtTarget.on_init)
+            @register_target_method(DIRECTION.FORWARD)
+            def before_on_init(self) -> None: ...
+
+            @register_hook_after(ExtTarget.on_init)
+            @register_target_method(DIRECTION.FORWARD)
+            def after_on_init(self) -> None: ...
+
+            @register_hook_before(ExtTarget.pre_startup)
+            @register_target_method(DIRECTION.FORWARD)
+            def before_pre_startup(self) -> None: ...
+
+            @register_hook_after(ExtTarget.pre_startup)
+            @register_target_method(DIRECTION.FORWARD)
+            def after_pre_startup(self) -> None: ...
+
+            @register_hook_before(ExtTarget.post_startup)
+            @register_target_method(DIRECTION.FORWARD)
+            async def before_post_startup(self) -> None: ...
+
+            @register_hook_after(ExtTarget.post_startup)
+            @register_target_method(DIRECTION.GATHER)
+            async def after_post_startup(self) -> None: ...
+
+            @register_hook_before(ExtTarget.pre_shutdown)
+            @register_target_method(DIRECTION.GATHER)
+            async def before_pre_shutdown(self) -> None: ...
+
+            @register_hook_after(ExtTarget.post_shutdown)
+            @register_target_method(DIRECTION.BACKWARD)
+            def after_post_shutdown(self) -> None: ...
+
+            @register_hook_after(ExtTarget.post_shutdown)
+            @register_target_method(DIRECTION.BACKWARD)
+            def also_after_post_shutdown(self) -> None: ...
+
+            @register_hook_after(also_after_post_shutdown)
+            @register_target_method(DIRECTION.BACKWARD)
+            def after_also_after_post_shutdown(self) -> None: ...
+
+        _gather = _method_async(results, "*")
+
+        _sync_1 = _method_sync(results, "1")
+        _async_1 = _method_async(results, "1")
+
+        class ExampleDaemon1Unit(ExampleDaemonTarget):
+            @_sync_1
+            def before_on_init(self) -> None: ...
+
+            @_sync_1
+            def on_init(self) -> None: ...
+
+            @_sync_1
+            def after_on_init(self) -> None: ...
+
+            @_sync_1
+            def before_pre_startup(self) -> None: ...
+
+            @_sync_1
+            def pre_startup(self) -> None: ...
+
+            @_sync_1
+            def after_pre_startup(self) -> None: ...
+
+            @_async_1
+            async def on_startup(self) -> None: ...
+
+            @_async_1
+            async def post_startup(self) -> None: ...
+
+            @_async_1
+            async def before_post_startup(self) -> None: ...
+
+            @_gather
+            async def after_post_startup(self) -> None: ...
+
+            @_gather
+            async def before_pre_shutdown(self) -> None: ...
+
+            @_async_1
+            async def pre_shutdown(self) -> None: ...
+
+            @_async_1
+            async def on_shutdown(self) -> None: ...
+
+            @_sync_1
+            def post_shutdown(self) -> None: ...
+
+            @_sync_1
+            def after_post_shutdown(self) -> None: ...
+
+            @_sync_1
+            def also_after_post_shutdown(self) -> None: ...
+
+            @_sync_1
+            def after_also_after_post_shutdown(self) -> None: ...
+
+        _sync_2 = _method_sync(results, "2")
+        _async_2 = _method_async(results, "2")
+
+        class ExampleDaemon2Unit(ExampleDaemonTarget):
+            @_sync_2
+            def before_on_init(self) -> None: ...
+
+            @_sync_2
+            def on_init(self) -> None: ...
+
+            @_sync_2
+            def after_on_init(self) -> None: ...
+
+            @_sync_2
+            def before_pre_startup(self) -> None: ...
+
+            @_sync_2
+            def pre_startup(self) -> None: ...
+
+            @_sync_2
+            def after_pre_startup(self) -> None: ...
+
+            @_async_2
+            async def on_startup(self) -> None: ...
+
+            @_async_2
+            async def post_startup(self) -> None: ...
+
+            @_async_2
+            async def before_post_startup(self) -> None: ...
+
+            @_gather
+            async def after_post_startup(self) -> None: ...
+
+            @_gather
+            async def before_pre_shutdown(self) -> None: ...
+
+            @_async_2
+            async def pre_shutdown(self) -> None: ...
+
+            @_async_2
+            async def on_shutdown(self) -> None: ...
+
+            @_sync_2
+            def post_shutdown(self) -> None: ...
+
+            @_sync_2
+            def after_post_shutdown(self) -> None: ...
+
+            @_sync_2
+            def also_after_post_shutdown(self) -> None: ...
+
+            @_sync_2
+            def after_also_after_post_shutdown(self) -> None: ...
+
+        _sync_3 = _method_sync(results, "3")
+        _async_3 = _method_async(results, "3")
+
+        class ExampleDaemon3Unit(ExampleDaemonTarget):
+            @_sync_3
+            def before_on_init(self) -> None: ...
+
+            @_sync_3
+            def on_init(self) -> None: ...
+
+            @_sync_3
+            def after_on_init(self) -> None: ...
+
+            @_sync_3
+            def before_pre_startup(self) -> None: ...
+
+            @_sync_3
+            def pre_startup(self) -> None: ...
+
+            @_sync_3
+            def after_pre_startup(self) -> None: ...
+
+            @_async_3
+            async def on_startup(self) -> None: ...
+
+            @_async_3
+            async def post_startup(self) -> None: ...
+
+            @_async_3
+            async def before_post_startup(self) -> None: ...
+
+            @_gather
+            async def after_post_startup(self) -> None: ...
+
+            @_gather
+            async def before_pre_shutdown(self) -> None: ...
+
+            @_async_3
+            async def pre_shutdown(self) -> None: ...
+
+            @_async_3
+            async def on_shutdown(self) -> None: ...
+
+            @_sync_3
+            def post_shutdown(self) -> None: ...
+
+            @_sync_3
+            def after_post_shutdown(self) -> None: ...
+
+            @_sync_3
+            def also_after_post_shutdown(self) -> None: ...
+
+            @_sync_3
+            def after_also_after_post_shutdown(self) -> None: ...
+
+        class ExampleDaemonApp(
+            ExampleDaemon1Unit,
+            ExampleDaemon2Unit,
+            ExampleDaemon3Unit,
+            LoopUnit,
+            ProcessUnit,
+        ):
+            reload_signals = ()
+
+            async def main_async(self) -> None:
+                results.append("main_async")
+
+        collect()  # Make sure we didn't leave any object without refs
+
+        ExampleDaemonApp.launch()
+
+        print(results)
 
     def test_stop_reload(self) -> None:  # noqa: C901
         from threading import Thread
@@ -381,7 +622,7 @@ class BasicTestCase(TestCase):
         _sync_1 = _method_sync(results, "1")
         _async_1 = _method_async(results, "1")
 
-        class ExampleDaemonUnit1(Target, final=False):
+        class ExampleDaemon1Unit(Target):
             @_sync_1
             def on_init(self) -> None: ...
 
@@ -400,7 +641,7 @@ class BasicTestCase(TestCase):
         _sync_2 = _method_sync(results, "2")
         _async_2 = _method_async(results, "2")
 
-        class ExampleDaemonUnit2(Target, final=False):
+        class ExampleDaemon2Unit(Target):
             @_sync_2
             def on_init(self) -> None: ...
 
@@ -419,7 +660,7 @@ class BasicTestCase(TestCase):
         _sync_3 = _method_sync(results, "3")
         _async_3 = _method_async(results, "3")
 
-        class ExampleDaemonUnit3(Target, final=False):
+        class ExampleDaemon3Unit(Target):
             @_sync_3
             def on_init(self) -> None: ...
 
@@ -435,11 +676,11 @@ class BasicTestCase(TestCase):
             @_sync_3
             def post_shutdown(self) -> None: ...
 
-        class ExampleUnit(
+        class ExampleApp(
             EventWaitUnit,
-            ExampleDaemonUnit1,
-            ExampleDaemonUnit2,
-            ExampleDaemonUnit3,
+            ExampleDaemon1Unit,
+            ExampleDaemon2Unit,
+            ExampleDaemon3Unit,
             ProcessUnit,
         ):
             reload_signals = ()
@@ -448,7 +689,7 @@ class BasicTestCase(TestCase):
                 results.append("main_async")
                 return await super().main_async()
 
-        unit = ExampleUnit()
+        unit = ExampleApp()
 
         thread = Thread(target=unit.run_sync)
         thread.start()
@@ -509,6 +750,8 @@ class BasicTestCase(TestCase):
 
         self.assertListEqual(results, expected_result, "lifecycle method order")
 
+    def test_target_from_scratch(self) -> None: ...
+
     @skipIf(
         "MEMORE_LEAK_ROUNDS" not in environ,
         "Variable `MEMORE_LEAK_ROUNDS` is not defined",
@@ -532,22 +775,19 @@ class BasicTestCase(TestCase):
         self.assertEqual(len(mark_as_final.regisrty), 0)
 
         marked_as_target = {
-            "TargetExt",
-            "Unit",
-            "Target",
-            "Generic",
-            "DaemonTargetABC",
-            "ProcessUnit",
-            "_TargetFieldIter",
-            "DaemonUnit",
             "object",
+            "InterfaceTarget",
+            "ProcessMixinABC",
+            "_FieldIterMixin",
+            "Target",
+            "_CtxMgrSyncMixin",
+            "ExtTarget",
+            "_InitMixin",
+            "_CtxMgrAsyncMixin",
             "Protocol",
+            "Generic",
             "ReplLocalsMixin",
-            "_TargetInit",
-            "TargetInterface",
-            "ProcessTargetABC",
-            "_TargetCtxMgrAsync",
-            "_TargetCtxMgrSync",
+            "DaemonMixinABC",
         }
 
         self.assertSetEqual(
@@ -561,8 +801,8 @@ class BasicTestCase(TestCase):
         }
 
         hook_parents_names__expected = {
-            "TargetExt.post_startup": "TargetInterface.on_startup",
-            "TargetExt.pre_shutdown": "TargetInterface.on_shutdown",
+            "ExtTarget.post_startup": "InterfaceTarget.on_startup",
+            "ExtTarget.pre_shutdown": "InterfaceTarget.on_shutdown",
         }
 
         self.assertDictEqual(hook_parents_names, hook_parents_names__expected)
@@ -573,11 +813,11 @@ class BasicTestCase(TestCase):
         }
 
         hook_names_after__expected = {
-            "TargetInterface.on_init",
-            "TargetInterface.on_startup",
-            "TargetInterface.pre_startup",
-            "TargetExt.post_startup",
-            "TargetInterface.post_shutdown",
+            "InterfaceTarget.on_init",
+            "InterfaceTarget.on_startup",
+            "InterfaceTarget.pre_startup",
+            "ExtTarget.post_startup",
+            "InterfaceTarget.post_shutdown",
         }
 
         self.assertSetEqual(hook_names_after, hook_names_after__expected)
@@ -588,11 +828,11 @@ class BasicTestCase(TestCase):
         }
 
         hook_names_before__expected = {
-            "TargetInterface.on_shutdown",
-            "TargetInterface.on_init",
-            "TargetExt.post_startup",
-            "TargetInterface.pre_startup",
-            "TargetExt.pre_shutdown",
+            "InterfaceTarget.on_shutdown",
+            "InterfaceTarget.on_init",
+            "ExtTarget.post_startup",
+            "InterfaceTarget.pre_startup",
+            "ExtTarget.pre_shutdown",
         }
 
         self.assertSetEqual(hook_names_before, hook_names_before__expected)

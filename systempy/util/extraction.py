@@ -3,22 +3,30 @@ from inspect import iscoroutinefunction
 from typing import cast
 from weakref import ref
 
-from .constants import lifecycle_disallowed_attrs
+from .constants import lifecycle_disallowed_attrs, lifecycle_registered_methods
 from .enums import DIRECTION
 from .local_dataclasses import SeparatedLFMethods
 from .local_typing import CTuple, P, R, WeakTypeIterable
 from .register import mark_as_target, register_direction
 
 
-def extract_attrs(iterable: WeakTypeIterable, name: str) -> list[Callable]:
+def extract_attrs(iterable: WeakTypeIterable, reason: Callable) -> list[Callable]:
     result: list[Callable] = []
+    cfg = lifecycle_registered_methods[reason]
+    interface = cfg.interface()
 
-    for item_ref in iterable:
-        item = item_ref()
-        assert item
-        item_dict = item.__dict__
+    assert interface
 
-        if (maybe_val := item_dict.get(name)) is not None:
+    for cls_ref in iterable:
+        cls = cls_ref()
+        assert cls
+
+        if not issubclass(cls, interface):
+            continue
+
+        cls_dict = cls.__dict__
+
+        if (maybe_val := cls_dict.get(reason.__name__)) is not None:
             result.append(maybe_val)
 
     return result
@@ -26,14 +34,14 @@ def extract_attrs(iterable: WeakTypeIterable, name: str) -> list[Callable]:
 
 @register_direction(DIRECTION.FORWARD)
 @register_direction(DIRECTION.GATHER)
-def callbacks_direct(iterable: WeakTypeIterable, name: str) -> CTuple:
-    callbacks = extract_attrs(iterable, name)
+def callbacks_direct(iterable: WeakTypeIterable, reason: Callable) -> CTuple:
+    callbacks = extract_attrs(iterable, reason)
     return tuple(callbacks)
 
 
 @register_direction(DIRECTION.BACKWARD)
-def callbacks_reversed(iterable: WeakTypeIterable, name: str) -> CTuple:
-    callbacks = extract_attrs(iterable, name)
+def callbacks_reversed(iterable: WeakTypeIterable, reason: Callable) -> CTuple:
+    callbacks = extract_attrs(iterable, reason)
     callbacks.reverse()
     return tuple(callbacks)
 

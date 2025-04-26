@@ -10,7 +10,6 @@ from .local_typing import WeakTypeIterable
 def create_handler_generic(
     cls_ref: ref[type],
     bases: WeakTypeIterable,
-    name: str,
     settings: GenericHandlerSettings,
 ) -> None:
     collect = settings.collect()
@@ -21,13 +20,13 @@ def create_handler_generic(
     assert reason
     assert compose
     assert cls
-    callbacks = collect(bases, name)
+    callbacks = collect(bases, reason)
     handler = compose(cls, bases, reason, callbacks)
-    setattr(cls, name, handler)
+    setattr(cls, reason.__name__, handler)
 
 
 def create_partial_handler_generic(
     cls: type,
-) -> Callable[[str, GenericHandlerSettings], None]:
+) -> Callable[[GenericHandlerSettings], None]:
     bases = extraction.extract_bases(cls)
     return partial(create_handler_generic, ref(cls), bases)

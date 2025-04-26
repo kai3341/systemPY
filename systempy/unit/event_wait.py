@@ -5,7 +5,7 @@ from dataclasses import field
 from .loop import LoopUnit
 
 
-class EventWaitUnit(LoopUnit, final=False):
+class EventWaitUnit(LoopUnit):
     """
     Infinite wait unit
     """

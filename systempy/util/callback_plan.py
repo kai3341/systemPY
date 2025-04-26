@@ -23,7 +23,7 @@ def build_callback_plan_hook_iter(
             assert next_reason_interface
 
             if issubclass(cls, next_reason_interface):
-                next_callbacks = direction_handler(bases, next_reason.__name__)
+                next_callbacks = direction_handler(bases, next_reason)
 
                 for next_callback in next_callbacks:
                     check_callback_signature(next_reason, next_callback)

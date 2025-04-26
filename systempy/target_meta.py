@@ -1,32 +1,27 @@
 from abc import ABCMeta
-from dataclasses import Field, dataclass, field
-from typing import Any, Generic, ParamSpec, cast, dataclass_transform
-from typing import final as typing_final
+from collections.abc import Callable
+from dataclasses import Field, field
+from typing import (
+    Any,
+    ClassVar,
+    Generic,
+    NamedTuple,
+    ParamSpec,
+    TypeVar,
+    cast,
+    dataclass_transform,
+)
 
-from .util.configuration import apply_additional_configuration
+from .util.class_role import class_role
 from .util.register import mark_as_final
 
 A = ParamSpec("A")
-
-default_dataclass_kwargs: dict[str, bool] = {
-    "kw_only": True,
-}
+T = TypeVar("T")
 
 
-target_meta_dataclass_fns = (
-    dataclass(**default_dataclass_kwargs, init=False, repr=False, eq=False),
-    dataclass(**default_dataclass_kwargs),
-)
-
-subclassing_final_caught = (
-    "Subclassing of final classes {cls} is not allowed. "
-    "Did you forget to mark it as `final=False`?"
-)
-
-
-_new_on_not_final_class_error = (
-    "Caught attempt to instantiate class {cls} marked as `final=False`"
-)
+class ErrorMessages(NamedTuple):
+    instantiate_not_ready: str
+    subclassed_baked: str
 
 
 @dataclass_transform(
@@ -34,6 +29,25 @@ _new_on_not_final_class_error = (
     kw_only_default=True,
 )
 class TargetMeta(ABCMeta, Generic[A]):
+    __systempy_error_messages__: ClassVar = ErrorMessages(
+        instantiate_not_ready="Caught attempt to instantiate class {cls}, but "
+        "its name doesn't match `.*App`. You have to rename it or subclass it",
+        subclassed_baked="Subclassing of `*.App` classes {cls} is not allowed",
+    )
+
+    def __systempy_criteria__(cls: type) -> Callable[[type[T]], type[T]]:
+        cb = cls.__name__.endswith
+        if cb("App"):
+            return class_role.app
+        if cb("Mixin") or cb("MixinABC"):
+            return class_role.mixin
+        if cb("Unit"):
+            return class_role.unit
+        if cb("Target"):
+            return class_role.target
+
+        raise KeyError(cls)
+
     @dataclass_transform(
         field_specifiers=(Field, field),
         kw_only_default=True,
@@ -43,24 +57,18 @@ class TargetMeta(ABCMeta, Generic[A]):
         name: str,
         bases: tuple[type, ...],
         classdict: dict[str, Any],
-        *,
-        final: bool = True,
         **kwargs: Any,
     ) -> type["TargetMeta"]:
         for base in bases:
             if base in mark_as_final:
-                raise TypeError(subclassing_final_caught.format(cls=base))
+                msg = mcs.__systempy_error_messages__.subclassed_baked.format(cls=base)
+                raise TypeError(msg)
 
         new_cls = super().__new__(mcs, name, bases, classdict, **kwargs)
-
-        if final:
-            # I'n not sure I can trust `typing.final` implementation
-            apply_additional_configuration(mark_as_final(typing_final(new_cls)))
-
-        target_meta_dataclass = target_meta_dataclass_fns[final]
-        return target_meta_dataclass(cast("type[TargetMeta]", new_cls))
+        return cast("type[TargetMeta]", mcs.__systempy_criteria__(new_cls)(new_cls))
 
     def __call__(cls, *args: A.args, **kwargs: A.kwargs) -> "TargetMeta[A]":
         if cls not in mark_as_final:
-            raise TypeError(_new_on_not_final_class_error.format(cls=cls))
+            msg = cls.__systempy_error_messages__.instantiate_not_ready.format(cls=cls)
+            raise TypeError(msg)
         return super().__call__(*args, **kwargs)

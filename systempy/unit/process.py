@@ -1,13 +1,11 @@
 from typing import TYPE_CHECKING, Generic, ParamSpec
 
-from ..target import ProcessTargetABC
-from ..util import mark_as_target
+from ..target import ProcessMixinABC
 
 A = ParamSpec("A")
 
 
-@mark_as_target
-class ProcessUnit(Generic[A], ProcessTargetABC, final=False):
+class ProcessUnit(Generic[A], ProcessMixinABC):
     def run_sync(self) -> None:
         with self:
             self.main_sync()

@@ -3,7 +3,7 @@ from starlette.applications import Starlette
 from systempy import Target
 
 
-class StarletteUnit(Target, final=False):
+class StarletteUnit(Target):
     starlette_app: Starlette
 
     def on_init(self) -> None:

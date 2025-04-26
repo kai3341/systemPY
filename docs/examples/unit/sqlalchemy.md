@@ -31,7 +31,7 @@ Each database in your project require to create own `Unit`:
 
     # FirstDB
 
-    class FirstDBUnit(Target, final=False):
+    class FirstDBUnit(Target):
         __firstdb_engine: AsyncEngine = field(init=False)
         first_db: SessionMakerType = field(init=False)
 
@@ -45,7 +45,7 @@ Each database in your project require to create own `Unit`:
 
     # SecondDB
 
-    class SecondDBUnit(Target, final=False):
+    class SecondDBUnit(Target):
         __seconddb_engine: AsyncEngine = field(init=False)
         second_db: SessionMakerType = field(init=False)
 
@@ -90,7 +90,7 @@ Each database in your project require to create own `Unit`:
 
     # FirstDB
 
-    class FirstDBUnit(RodiUnit, final=False):
+    class FirstDBUnit(RodiUnit):
         __firstdb_engine: AsyncEngine = field(init=False)
         first_db: SessionMakerType = field(init=False)
 
@@ -104,7 +104,7 @@ Each database in your project require to create own `Unit`:
 
     # SecondDB
 
-    class SecondDBUnit(RodiUnit, final=False):
+    class SecondDBUnit(RodiUnit):
         __seconddb_engine: AsyncEngine = field(init=False)
         second_db: SessionMakerType = field(init=False)
 

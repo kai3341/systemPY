@@ -3,13 +3,11 @@ from systempy import (
     Target,
     register_hook_after,
     register_hook_before,
-    register_target,
     register_target_method,
 )
 
 
-@register_target
-class TargetExt(Target, final=False):
+class ExtTarget(Target):
     @register_hook_after(Target.on_startup)
     @register_target_method(DIRECTION.FORWARD)
     async def post_startup(self) -> None: ...

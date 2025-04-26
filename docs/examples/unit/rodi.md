@@ -11,7 +11,7 @@ from dataclasses import field
 from rodi import Container
 from systempy import Target
 
-class RodiUnit(Target, final=Flase):
+class RodiUnit(Target):
     rodi_container: Container = field(default_factory=Container)
 
     # Also valid on pre_startup

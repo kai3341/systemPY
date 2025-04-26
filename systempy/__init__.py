@@ -1,26 +1,23 @@
-from .target import DaemonTargetABC, ProcessTargetABC, Target
-from .unit import DaemonUnit, EventWaitUnit, LoopUnit, ProcessUnit, ReplUnit, Unit
+from .target import DaemonMixinABC, ProcessMixinABC, Target
+from .unit import DaemonUnit, EventWaitUnit, LoopUnit, ProcessUnit, ReplUnit
 from .util import (
     DIRECTION,
     register_hook_after,
     register_hook_before,
-    register_target,
     register_target_method,
 )
 
 __all__ = (
     "DIRECTION",
-    "DaemonTargetABC",
+    "DaemonMixinABC",
     "DaemonUnit",
     "EventWaitUnit",
     "LoopUnit",
-    "ProcessTargetABC",
+    "ProcessMixinABC",
     "ProcessUnit",
     "ReplUnit",
     "Target",
-    "Unit",
     "register_hook_after",
     "register_hook_before",
-    "register_target",
     "register_target_method",
 )

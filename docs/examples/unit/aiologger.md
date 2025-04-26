@@ -12,7 +12,7 @@
     from lib.logger import ExtraLogRecord, LoggerCTX
 
 
-    class LoggerUnit(Target, final=False):
+    class LoggerUnit(Target):
         logger_instance: Logger = field(init=False)
 
         def on_init(self) -> None:
@@ -43,7 +43,7 @@
     from lib.logger import ExtraLogRecord, LoggerCTX
 
 
-    class LoggerUnit(RodiUnit, final=False):
+    class LoggerUnit(RodiUnit):
         logger_instance: Logger = field(init=False)
 
         def on_init(self) -> None:

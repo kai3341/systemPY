@@ -1,6 +1,6 @@
 # systemPY
 
-![Logo](images/systempy-logo.png)
+![Logo](./images/systempy-logo.png)
 
 Python application component initialization system
 
@@ -39,14 +39,14 @@ and pass dependencies as keyword arguments. In case it's daemon run
 It's possible to use `systemPY` in three scenarios:
 
 - Secondary application, which is handled by another application like
-  [celery](examples/secondary/celery.md) or
-  [starlette](examples/secondary/starlette.md)
+  [celery](./examples/secondary/celery.md) or
+  [starlette](./examples/secondary/starlette.md)
 
-- Self-hosted application -- [daemon](examples/self-hosted/daemon.md),
-  [script](examples/self-hosted/script.md) or
-  [REPL](examples/self-hosted/repl.md)
+- Self-hosted application -- [daemon](./examples/self-hosted/daemon.md),
+  [script](./examples/self-hosted/script.md) or
+  [REPL](./examples/self-hosted/repl.md)
 
-- [Primary](examples/primary/write-me.md) application,
+- [Primary](./examples/primary/write-me.md) application,
   handles other applications. Such as Gunicorn/Uvicorn/... or Celery
 
 ## Basic principles
@@ -65,8 +65,7 @@ we need in safe application reload. Just looks the
         register_target_method,
     )
 
-    @register_target
-    class Target(metaclass=TargetMeta, final=False):
+        class Target(metaclass=TargetMeta):
         @register_target_method(DIRECTION.FORWARD)
         def on_init(self) -> None: ...
 
@@ -169,8 +168,7 @@ lifecycle methods. The first such example is
         register_target,
     )
 
-    @register_target
-    class TargetExt(Target, final=False):
+        class ExtTarget(Target):
         @register_hook_after(Target.on_startup)
         @register_target_method(DIRECTION.FORWARD)
         async def post_startup(self) -> None: ...
@@ -195,14 +193,14 @@ before or after already existing. It's like `systemd`'s `Unit` options `Before`
 and `After`. Yes, [`systemPY` is a small `systemd`'s brother](https://telegra.ph/Why-does-it-systemPY-08-12)
 
 You can find more examples. Interesting `Target` example is a
-[daemon](examples/self-hosted/daemon.md) example
+[daemon](./examples/self-hosted/daemon.md) example
 
-Also look at the [REPL](examples/self-hosted/repl.md) example. REPL is useful
+Also look at the [REPL](./examples/self-hosted/repl.md) example. REPL is useful
 and handy, also example has the most canonical usage example
 
 ### Method Relosve Order
 
-I'll exaplin on the part of [REPL](examples/self-hosted/repl.md) example:
+I'll exaplin on the part of [REPL](./examples/self-hosted/repl.md) example:
 
 ```python
 class MyPrettyReplUnit(     # INIT      # SHUTDOWN

@@ -20,28 +20,27 @@ from systempy.util import (
     register_target_method,
     CONST,
 )
-from systempy.ext.target_ext import TargetExt
+from systempy.ext.target_ext import ExtTarget
 
 
-@register_target
-class ExampleDaemonTarget(TargetExt):
-    @register_hook_before(TargetExt.post_startup)
+class ExampleDaemonTarget(ExtTarget):
+    @register_hook_before(ExtTarget.post_startup)
     @register_target_method(CONST.FORWARD)
     async def before_post_startup(self): ...
 
-    @register_hook_after(TargetExt.post_startup)
+    @register_hook_after(ExtTarget.post_startup)
     @register_target_method(CONST.GATHER)
     async def after_post_startup(self): ...
 
-    @register_hook_before(TargetExt.pre_shutdown)
+    @register_hook_before(ExtTarget.pre_shutdown)
     @register_target_method(CONST.GATHER)
     async def before_pre_shutdown(self): ...
 
-    @register_hook_after(TargetExt.post_shutdown)
+    @register_hook_after(ExtTarget.post_shutdown)
     @register_target_method(CONST.BACKWARD)
     def after_post_shutdown(self): ...
 
-    @register_hook_after(TargetExt.post_shutdown)
+    @register_hook_after(ExtTarget.post_shutdown)
     @register_target_method(CONST.BACKWARD)
     def also_after_post_shutdown(self): ...
 

@@ -30,7 +30,7 @@ WeakTypeIterable = Iterable[ref[type]]
 CTuple = tuple[Callable[P, R], ...]
 Decorator = Callable[[Callable[P, R]], Callable[P, R]]
 
-DirectionHandler = Callable[[WeakTypeIterable, str], CTuple[P, R]]
+DirectionHandler = Callable[[WeakTypeIterable, Callable], CTuple[P, R]]
 
 SMConfig = MutableMapping[str, "local_dataclasses.GenericHandlerSettings"]
 LFTypeConfig = WeakKeyDictionary[TT, "local_dataclasses.ClsCFG"]

@@ -14,7 +14,7 @@ Both `Reis` or `Valkey` use `redis-py` connector
     from contexts import RedisCTX
 
 
-    class RedisUnit(Target, final=False):
+    class RedisUnit(Target):
         redis_connection: Redis = field(init=False)
 
         def pre_startup(self) -> None:
@@ -42,7 +42,7 @@ Both `Reis` or `Valkey` use `redis-py` connector
     from lib.unit import RodiUnit
 
 
-    class RedisUnit(RodiUnit, final=False):
+    class RedisUnit(RodiUnit):
         redis_connection: Redis = field(init=False)
 
         def pre_startup(self) -> None:

@@ -3,7 +3,7 @@ from celery import Celery, signals  # type: ignore[import-untyped]
 from systempy import Target
 
 
-class CeleryUnit(Target, final=False):
+class CeleryUnit(Target):
     celery_app: Celery | type[Celery]
     config: dict
 

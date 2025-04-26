@@ -6,12 +6,10 @@ from types import TracebackType
 from typing import Self
 
 from .target_meta import TargetMeta
-from .util import DIRECTION, mark_as_target, register_target, register_target_method
-from .util.constants import handler_metadata
+from .util import DIRECTION, handler_metadata, register_target_method
 
 
-@register_target
-class TargetInterface(metaclass=TargetMeta, final=False):
+class InterfaceTarget(metaclass=TargetMeta):
     @register_target_method(DIRECTION.FORWARD)
     def on_init(self) -> None: ...
 
@@ -31,8 +29,7 @@ class TargetInterface(metaclass=TargetMeta, final=False):
     def on_exit(self) -> None: ...
 
 
-@mark_as_target
-class _TargetInit(TargetInterface, final=False):
+class _InitMixin(InterfaceTarget):
     def __post_init__(self) -> None:
         on_exit_meta = handler_metadata[type(self).on_exit]
 
@@ -42,8 +39,7 @@ class _TargetInit(TargetInterface, final=False):
         self.on_init()
 
 
-@mark_as_target
-class _TargetCtxMgrSync(TargetInterface, final=False):
+class _CtxMgrSyncMixin(InterfaceTarget):
     def __enter__(self) -> Self:
         self.pre_startup()
         return self
@@ -57,14 +53,12 @@ class _TargetCtxMgrSync(TargetInterface, final=False):
         self.post_shutdown()
 
 
-@mark_as_target
-class _TargetFieldIter(TargetInterface, final=False):
+class _FieldIterMixin(InterfaceTarget):
     def __iter__(self) -> Iterator[Field]:
         yield from fields(self)
 
 
-@mark_as_target
-class _TargetCtxMgrAsync(TargetInterface, final=False):
+class _CtxMgrAsyncMixin(InterfaceTarget):
     async def __aenter__(self) -> Self:
         await self.on_startup()
         return self
@@ -78,18 +72,15 @@ class _TargetCtxMgrAsync(TargetInterface, final=False):
         await self.on_shutdown()
 
 
-@mark_as_target
 class Target(
-    _TargetInit,
-    _TargetCtxMgrSync,
-    _TargetCtxMgrAsync,
-    _TargetFieldIter,
-    final=False,
+    _InitMixin,
+    _CtxMgrSyncMixin,
+    _CtxMgrAsyncMixin,
+    _FieldIterMixin,
 ): ...
 
 
-@mark_as_target
-class ProcessTargetABC(Target, final=False):
+class ProcessMixinABC(Target):
     @abstractmethod
     def main_sync(self) -> None: ...
 
@@ -100,8 +91,7 @@ class ProcessTargetABC(Target, final=False):
     def reload(self) -> None: ...
 
 
-@mark_as_target
-class DaemonTargetABC(Target, final=False):
+class DaemonMixinABC(Target):
     @abstractmethod
     async def main_async(self) -> None: ...
 
@@ -113,7 +103,7 @@ class DaemonTargetABC(Target, final=False):
 
 
 __all__ = (
-    "DaemonTargetABC",
-    "ProcessTargetABC",
+    "DaemonMixinABC",
+    "ProcessMixinABC",
     "Target",
 )

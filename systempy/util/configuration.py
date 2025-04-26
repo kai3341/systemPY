@@ -14,8 +14,8 @@ def stack_method(cls: type, config: ClsCFG) -> None:
     sm_cfg = config.stack_method
     create = create_partial_handler_generic(cls)
 
-    for stage_name, stage_config in sm_cfg.items():
-        create(stage_name, stage_config)
+    for stage_config in sm_cfg.values():
+        create(stage_config)
 
 
 def apply_additional_config(cls: type, config: ClsCFG) -> None:
@@ -25,10 +25,11 @@ def apply_additional_config(cls: type, config: ClsCFG) -> None:
         apply_cfg_handler(cls, config)
 
 
-def apply_additional_configuration(this_cls: type) -> None:
+def apply_additional_configuration(this_cls: type) -> type:
     for cls, config in lifecycle_additional_configuration.items():
         if issubclass(this_cls, cls):
             apply_additional_config(this_cls, config)
+    return this_cls
 
 
 def update_annotation(

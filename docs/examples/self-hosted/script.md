@@ -1,6 +1,6 @@
 # Script example
 
-Very simiral to [daemon](daemon.md). Look there first
+Very simiral to [daemon](./daemon.md). Look there first
 
 ## Implement the `Unit`
 

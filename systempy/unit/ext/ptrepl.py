@@ -11,7 +11,7 @@ from systempy.unit.repl.mixins import ReplLocalsMixin
 A = ParamSpec("A")
 
 
-class PTRepl(ReplLocalsMixin, LoopUnit, ProcessUnit[A], final=False):
+class PTRepl(ReplLocalsMixin, LoopUnit, ProcessUnit[A]):
     _module_qualname: str = field(init=False)
     _banner: str = field(init=False)
 

@@ -13,7 +13,7 @@ A = ParamSpec("A")
 
 
 @deprecated("Use `systempy.unit.ext.ptrepl.PTRepl` instead")
-class ReplUnit(ReplLocalsMixin, ProcessUnit[A], final=False):
+class ReplUnit(ReplLocalsMixin, ProcessUnit[A]):
     loop: asyncio.AbstractEventLoop
     console: amain.AsyncIOInteractiveConsole
     repl_completer: rlcompleter.Completer

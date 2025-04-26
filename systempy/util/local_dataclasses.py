@@ -1,9 +1,6 @@
 from collections.abc import Callable, Coroutine, MutableMapping, MutableSet
 from dataclasses import dataclass, field
-from typing import (
-    Generic,
-    overload,
-)
+from typing import Generic, overload
 from weakref import ref
 
 from .enums import DIRECTION
@@ -31,7 +28,7 @@ class LFMethodsRegistered(Generic[P, R]):
 @dataclass()
 class GenericHandlerSettings(Generic[P, R]):
     reason: ref[Callable]
-    collect: ref[Callable[[WeakTypeIterable, str], CTuple[P, R]]]
+    collect: ref[Callable[[WeakTypeIterable, Callable], CTuple[P, R]]]
     compose: ref[Callable[[type, WeakTypeIterable, Callable, CTuple[P, R]], Callable]]
 
 

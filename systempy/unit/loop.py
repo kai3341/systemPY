@@ -2,10 +2,10 @@ from asyncio import AbstractEventLoop, get_running_loop, run
 from collections.abc import Coroutine
 from dataclasses import field
 
-from .daemon import DaemonUnitBase
+from .daemon import DaemonBaseUnit
 
 
-class LoopUnit(DaemonUnitBase, final=False):
+class LoopUnit(DaemonBaseUnit):
     _main_async_coro: Coroutine[None, None, None] = field(init=False, repr=False)
     __loop: AbstractEventLoop = field(init=False, repr=False)
 
