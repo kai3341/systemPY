@@ -65,7 +65,7 @@ we need in safe application reload. Just looks the
         register_target_method,
     )
 
-        class Target(metaclass=TargetMeta):
+    class Target(metaclass=TargetMeta):
         @register_target_method(DIRECTION.FORWARD)
         def on_init(self) -> None: ...
 
@@ -168,7 +168,7 @@ lifecycle methods. The first such example is
         register_target,
     )
 
-        class ExtTarget(Target):
+    class ExtTarget(Target):
         @register_hook_after(Target.on_startup)
         @register_target_method(DIRECTION.FORWARD)
         async def post_startup(self) -> None: ...
@@ -203,7 +203,7 @@ and handy, also example has the most canonical usage example
 I'll exaplin on the part of [REPL](./examples/self-hosted/repl.md) example:
 
 ```python
-class MyPrettyReplUnit(     # INIT      # SHUTDOWN
+class MyPrettyReplApp(     # INIT      # SHUTDOWN
     ConfigUnit,             # 1         # 8
     LoggerUnit,             # 2         # 7
     LoggingUnit,            # 3         # 6

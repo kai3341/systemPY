@@ -20,3 +20,11 @@ class TYPE(str, Enum):
 
     SYNC = "sync"
     ASYNC = "async"
+
+
+@unique
+class ROLE(str, Enum):
+    APP = "app"
+    UNIT = "unit"
+    MIXIN = "mixin"
+    TARGET = "target"

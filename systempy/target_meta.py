@@ -13,6 +13,7 @@ from typing import (
 )
 
 from .util.class_role import class_role
+from .util.enums import ROLE
 from .util.register import mark_as_final
 
 A = ParamSpec("A")
@@ -35,7 +36,13 @@ class TargetMeta(ABCMeta, Generic[A]):
         subclassed_baked="Subclassing of `*.App` classes {cls} is not allowed",
     )
 
-    def __systempy_criteria__(cls: type) -> Callable[[type[T]], type[T]]:
+    def __systempy_criteria__(
+        cls: type,
+        role: ROLE | None,
+    ) -> Callable[[type[T]], type[T]]:
+        if role is not None:
+            return getattr(class_role, role)
+
         cb = cls.__name__.endswith
         if cb("App"):
             return class_role.app
@@ -57,6 +64,8 @@ class TargetMeta(ABCMeta, Generic[A]):
         name: str,
         bases: tuple[type, ...],
         classdict: dict[str, Any],
+        *,
+        role: ROLE | None = None,
         **kwargs: Any,
     ) -> type["TargetMeta"]:
         for base in bases:
@@ -64,8 +73,11 @@ class TargetMeta(ABCMeta, Generic[A]):
                 msg = mcs.__systempy_error_messages__.subclassed_baked.format(cls=base)
                 raise TypeError(msg)
 
-        new_cls = super().__new__(mcs, name, bases, classdict, **kwargs)
-        return cast("type[TargetMeta]", mcs.__systempy_criteria__(new_cls)(new_cls))
+        new_cls = cast(
+            "type[TargetMeta]",
+            super().__new__(mcs, name, bases, classdict, **kwargs),
+        )
+        return mcs.__systempy_criteria__(new_cls, role)(new_cls)
 
     def __call__(cls, *args: A.args, **kwargs: A.kwargs) -> "TargetMeta[A]":
         if cls not in mark_as_final:

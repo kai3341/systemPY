@@ -3,6 +3,7 @@ from .event_wait import EventWaitUnit
 from .loop import LoopUnit
 from .process import ProcessUnit
 from .repl.repl import ReplUnit
+from .unit import Unit
 
 __all__ = (
     "DaemonUnit",
@@ -10,4 +11,5 @@ __all__ = (
     "LoopUnit",
     "ProcessUnit",
     "ReplUnit",
+    "Unit",
 )

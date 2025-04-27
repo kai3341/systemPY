@@ -1,5 +1,5 @@
 from .constants import handler_metadata
-from .enums import DIRECTION
+from .enums import DIRECTION, ROLE
 from .register import (
     mark_as_target,
     register_hook_after,
@@ -10,6 +10,7 @@ from .register import (
 
 __all__ = (
     "DIRECTION",
+    "ROLE",
     "handler_metadata",
     "mark_as_target",
     "register_hook_after",

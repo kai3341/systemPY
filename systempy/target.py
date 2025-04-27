@@ -6,7 +6,7 @@ from types import TracebackType
 from typing import Self
 
 from .target_meta import TargetMeta
-from .util import DIRECTION, handler_metadata, register_target_method
+from .util import DIRECTION, ROLE, handler_metadata, register_target_method
 
 
 class InterfaceTarget(metaclass=TargetMeta):
@@ -77,6 +77,7 @@ class Target(
     _CtxMgrSyncMixin,
     _CtxMgrAsyncMixin,
     _FieldIterMixin,
+    role=ROLE.MIXIN,
 ): ...
 
 

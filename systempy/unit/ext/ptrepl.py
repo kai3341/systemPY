@@ -15,6 +15,8 @@ class PTReplUnit(ReplLocalsMixin, LoopUnit, ProcessUnit[A]):
     _module_qualname: str = field(init=False)
     _banner: str = field(init=False)
 
+    repl_history_filename: str | None = field(default=None)
+
     def on_init(self) -> None:
         self._setup_repl_caller_frame()
         self._setup_repl_env()
@@ -52,4 +54,6 @@ class PTReplUnit(ReplLocalsMixin, LoopUnit, ProcessUnit[A]):
             globals=self.repl_env_full,
             title=self._module_qualname,
             return_asyncio_coroutine=True,
+            history_filename=self.repl_history_filename,
+            patch_stdout=True,
         )
