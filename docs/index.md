@@ -115,28 +115,6 @@ we need in safe application reload. Just looks the
     just overriding `Target`'s methods. It's similar to `abc`, but everything is
     optional.
 
-=== "`TargetMeta` & `final`"
-
-    All magic happens in `TargetMeta` metaclass:
-
-    * `TargetMeta` is a subclass of `abc.ABCMeta`, that's why you are able to to
-    use `@abc.abstractmethod` decorator
-
-    * `TargetMeta` checks `final` kwarg. By default it is set to `True`. So you
-    have to mark all you mixin classes with `final=False` kwarg
-
-    * If you passed `final=False` kwarg, your mixin would be **not** able to
-    instantiate. If you see it's runable thing -- just subclass your mixin
-    without passing `final=False` parameter
-
-    * __Finally__, all classes you didn't marked as `final=False` (next time I'll
-    say that this class is marked as `final`) are not able to subclass. Also these
-    classes are decorates with `@typing.final` decorator. Would your lang server
-    able to use this information or not I don't know
-
-    * In simple words, `final=False` tells to `systempy` to avoid doing useless
-    job, because some operations on `final` classes are a little bit heavy
-
 === "`@register`'s"
 
     The last but not the least is `register_target_method`. It defines method's
@@ -151,11 +129,86 @@ we need in safe application reload. Just looks the
     handled by `asyncio.gather` and will be executed in arbitrary order. You are
     able to use here both syncronous and asyncronous methods
 
-### That's all? Nope, it's really begin
 
-You are able to register own `Target` with own
-lifecycle methods. The first such example is
-[already included](https://github.com/kai3341/systemPY/blob/main/systempy/ext/target_ext.py).
+### Naming and roles
+
+All magic happens in `TargetMeta` metaclass. `TargetMeta` is a subclass of
+`abc.ABCMeta`, that's why you are able to to use `@abc.abstractmethod` decorator
+
+=== "Class roles"
+
+    There are 4 roles of classes I found:
+
+    * `Target` -- the interface which defines lifecycle methods
+
+    * `Unit` -- component with lifecycle methods
+
+    * `Mixin` -- class **without** lifecycle methods. It's special optimization of
+    `Target` role
+
+    * `App` -- the final "baked" class with composed lifecycle methods
+
+    `TargetMeta` checks `role` kwarg. If kwarg `role` is not defined, `TargetMeta`
+    tries to parse class name and decide what to do
+
+=== "by naming"
+
+    Here we are trying to manipulate class roles by class names. It's wery similar
+    to idea of [tailwind-css](https://tailwindcss.com/). You don't have to do any
+    extra import, just keep class naming:
+
+    * Classes with names, ends with `Target` or `TargetABC` / matches
+    `r'(\S*)Target(ABC)?$'`, will be interpreted as `Target` role
+
+    * Classes with names, ends with `Unit` or `UnitABC` / matches
+    `r'(\S*)Unit(ABC)?$'`, will be interpreted as `Unit` role
+
+    * Classes with names, ends with `Mixin` or `MixinABC` / matches
+    `r'(\S*)Mixin(ABC)?$'`, will be interpreted as `Mixin` role. Remember: the
+    `Mixin` role is a special optimisation of `Target` role and means the class
+    **does not have own lifecycle methods**
+
+    * Classes with names, ends with `App` / matches `r'(\S*)App$'`, will be
+    interpreted as `App` role
+
+    ```python
+    from systempy import Target
+
+    class MyTarget(Target): ...  # OK
+    class TargetMy(Target): ...  # ERROR
+
+    class MyMixin(Target): ...  # OK
+    class MixinMy(Target): ...  # ERROR
+    class MyMixinABC(Target): ...  # OK
+    class MixinABCMy(Target): ...  # ERROR
+
+    class MyUnit(Target): ...  # OK
+    class UnitMy(Target): ...  # ERROR
+
+    class MyApp(MyUnit): ...  # OK
+    class MyApplication(MyUnit): ...  # ERROR
+    ```
+
+=== "by `role` kwarg"
+
+    Sometimes you may prefer to pass to class explicit role. You can find such
+    examples in `systempy` code base too. When you are passing `role` kwargs,
+    `systempy` doesn't try to parse class name
+
+    ```python
+    from systempy import ROLE, Target
+
+    class MyTargetExample(Target, role=ROLE.TARGET): ... # OK
+    class MyBlahblahblah(Target, role=ROLE.MIXIN): ...  # OK
+    class MyFooDB(Target, role=ROLE.UNIT): ...  # OK
+    class MyBar(MyFooDB, role=ROLE.APP): ...  # OK
+    ```
+
+
+## That's all? Nope, it's really begin
+
+You are able to register own `Target` with own lifecycle methods. The first
+such example is [already included](https://github.com/kai3341/systemPY/blob/main/systempy/ext/target_ext.py):
 
 === "Code"
 
@@ -198,20 +251,17 @@ You can find more examples. Interesting `Target` example is a
 Also look at the [REPL](./examples/self-hosted/repl.md) example. REPL is useful
 and handy, also example has the most canonical usage example
 
-### Method Relosve Order
+## Method Relosve Order
 
 I'll exaplin on the part of [REPL](./examples/self-hosted/repl.md) example:
 
 ```python
-class MyPrettyReplApp(     # INIT      # SHUTDOWN
-    ConfigUnit,             # 1         # 8
-    LoggerUnit,             # 2         # 7
-    LoggingUnit,            # 3         # 6
-    CeleryUnit,             # 4         # 5
-    StarletteUnit,          # 5         # 4
-    SQLAlchemyMariaDBUnit,  # 6         # 3
-    MyFirstDatabaseUnit,    # 7         # 2
-    PrettyReplUnit,         # 8         # 1
+class MyReplApp(    # INIT      # SHUTDOWN
+    ConfigUnit,     # 1         # 5
+    LoggerUnit,     # 2         # 4
+    MyFirstDBUnit,  # 3         # 3
+    RedisUnit,      # 4         # 2
+    PTReplUnit,     # 5         # 1
 ): ...
 ```
 
@@ -219,7 +269,7 @@ Important: while you are implementing your `Unit` mixins, remember **NEVER** cal
 `super()` in lifecycle methods. These methods will be collected and called
 by `systemPY` in the right order
 
-## Installing
+# Installing
 
 Install `systemPY` from [PyPI](https://pypi.org/project/systemPY/) **OR**
 from [github repository](https://github.com/kai3341/systemPY):

@@ -72,7 +72,7 @@ instance/
 docs/_build/
 
 # PyBuilder
-target/
+/target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -103,12 +103,12 @@ celerybeat.pid
 
 # Environments
 .env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+/.venv
+/env/
+/venv/
+/ENV/
+/env.bak/
+/venv.bak/
 
 # Spyder project settings
 .spyderproject
@@ -121,12 +121,14 @@ venv.bak/
 /site
 
 # mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+/.mypy_cache/
+/.dmypy.json
+/dmypy.json
 
 # ruff
-.ruff_cache/
+/.ruff_cache/
 
 # Pyre type checker
-.pyre/
+/.pyre/
+
+!docs/target/

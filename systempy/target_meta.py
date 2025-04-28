@@ -43,14 +43,14 @@ class TargetMeta(ABCMeta, Generic[A]):
         if role is not None:
             return getattr(class_role, role)
 
-        cb = cls.__name__.endswith
-        if cb("App"):
+        clsname_endswith = cls.__name__.endswith
+        if clsname_endswith("App"):
             return class_role.app
-        if cb("Mixin") or cb("MixinABC"):
+        if clsname_endswith("Mixin") or clsname_endswith("MixinABC"):
             return class_role.mixin
-        if cb("Unit"):
+        if clsname_endswith("Unit") or clsname_endswith("UnitABC"):
             return class_role.unit
-        if cb("Target"):
+        if clsname_endswith("Target") or clsname_endswith("TargetABC"):
             return class_role.target
 
         raise KeyError(cls)

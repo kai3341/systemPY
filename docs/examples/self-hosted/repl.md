@@ -81,56 +81,29 @@ API reference is the same, and problems are the same too. This is my pet project
 code with minimal changes
 
 ```python
-from systempy import Unit
-from systempy.ext.celery import CeleryUnit
-from systempy.ext.starlette import StarletteUnit
-from systempy.ext.pretty_repl import PrettyReplUnit
+from systempy.unit.ext.ptrepl import PTReplUnit
 
-from petproject.common.systempy import (
+from lib.unit import ConfigUnit, LoggerUnit, MyFirstDBUnit, RedisUnit
+from lib import services
+
+import models
+
+
+class MyReplApp(
     ConfigUnit,
     LoggerUnit,
-    LoggingUnit,
-    SQLAlchemyMariaDBUnit,
-    MyFirstDatabaseUnit,
-)
-
-from . import config
-from . import singleton
-from . import views
-
-from petproject.common import models
-from petproject.common.service import othermodule as othermodule_service
-from petproject.othermodule import tasks
-
-
-class MyPrettyReplUnit(
-    ConfigUnit,
-    LoggerUnit,
-    LoggingUnit,
-    CeleryUnit,
-    StarletteUnit,
-    SQLAlchemyMariaDBUnit,
-    MyFirstDatabaseUnit,
-    PrettyReplUnit,
-    Unit,
+    MyFirstDBUnit,
+    RedisUnit,
+    PTReplUnit,
 ):
     repl_variables = {
-        "views": views,
-        "singleton": singleton,
-        "config": config,
+        "services": services,
         "models": models,
-        "othermodule_service": othermodule_service,
-        "tasks": tasks,
     }
 
 
-unit = MyPrettyReplUnit(
-    config=config.config,
-)
-
-
 if __name__ == '__main__':
-    unit.run_sync()
+    MyPrettyReplUnit.launch()
 ```
 
 ## PTRepl Extension
