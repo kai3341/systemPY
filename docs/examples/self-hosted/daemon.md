@@ -14,39 +14,31 @@ Keep in mind `GATHER`ing stages executes simultaneously
 ```python
 # example_daemon_target.py
 from systempy.util import (
-    register_target,
+    DIRECTION,
     register_hook_before,
     register_hook_after,
-    register_target_method,
-    CONST,
 )
-from systempy.ext.target_ext import ExtTarget
+from systempy.unit.ext.target_ext import ExtTarget
 
 
 class ExampleDaemonTarget(ExtTarget):
-    @register_hook_before(ExtTarget.post_startup)
-    @register_target_method(CONST.FORWARD)
+    @register_hook_before(ExtTarget.post_startup, DIRECTION.FORWARD)
     async def before_post_startup(self): ...
 
-    @register_hook_after(ExtTarget.post_startup)
-    @register_target_method(CONST.GATHER)
+    @register_hook_after(ExtTarget.post_startup, DIRECTION.GATHER)
     async def after_post_startup(self): ...
 
-    @register_hook_before(ExtTarget.pre_shutdown)
-    @register_target_method(CONST.GATHER)
+    @register_hook_before(ExtTarget.pre_shutdown, DIRECTION.GATHER)
     async def before_pre_shutdown(self): ...
 
-    @register_hook_after(ExtTarget.post_shutdown)
-    @register_target_method(CONST.BACKWARD)
+    @register_hook_after(ExtTarget.post_shutdown, DIRECTION.BACKWARD)
     def after_post_shutdown(self): ...
 
-    @register_hook_after(ExtTarget.post_shutdown)
-    @register_target_method(CONST.BACKWARD)
+    @register_hook_after(ExtTarget.post_shutdown, DIRECTION.BACKWARD)
     def also_after_post_shutdown(self): ...
 
     # Look, you may to add hooks just while you defining the `Target`
-    @register_hook_after(also_after_post_shutdown)
-    @register_target_method(CONST.BACKWARD)
+    @register_hook_after(also_after_post_shutdown, DIRECTION.BACKWARD)
     def after_also_after_post_shutdown(self): ...
 ```
 

@@ -155,7 +155,7 @@ All magic happens in `TargetMeta` metaclass. `TargetMeta` is a subclass of
 
     Here we are trying to manipulate class roles by class names. It's wery similar
     to idea of [tailwind-css](https://tailwindcss.com/). You don't have to do any
-    extra import, just keep class naming:
+    extra import, just keep class naming and be happy:
 
     * Classes with names, ends with `Target` or `TargetABC` / matches
     `r'(\S*)Target(ABC)?$'`, will be interpreted as `Target` role
@@ -169,7 +169,8 @@ All magic happens in `TargetMeta` metaclass. `TargetMeta` is a subclass of
     **does not have own lifecycle methods**
 
     * Classes with names, ends with `App` / matches `r'(\S*)App$'`, will be
-    interpreted as `App` role
+    interpreted as `App` role. Due App role does not allow subclassing, AppABC
+    has no sense
 
     ```python
     from systempy import Target
@@ -193,7 +194,7 @@ All magic happens in `TargetMeta` metaclass. `TargetMeta` is a subclass of
 
     Sometimes you may prefer to pass to class explicit role. You can find such
     examples in `systempy` code base too. When you are passing `role` kwargs,
-    `systempy` doesn't try to parse class name
+    `systempy` doesn't try to parse class name:
 
     ```python
     from systempy import ROLE, Target
@@ -218,16 +219,13 @@ such example is [already included](https://github.com/kai3341/systemPY/blob/main
         Target,
         register_hook_after,
         register_hook_before,
-        register_target,
     )
 
     class ExtTarget(Target):
-        @register_hook_after(Target.on_startup)
-        @register_target_method(DIRECTION.FORWARD)
+        @register_hook_after(Target.on_startup, DIRECTION.FORWARD)
         async def post_startup(self) -> None: ...
 
-        @register_hook_before(Target.on_shutdown)
-        @register_target_method(DIRECTION.BACKWARD)
+        @register_hook_before(Target.on_shutdown, DIRECTION.BACKWARD)
         async def pre_shutdown(self) -> None: ...
     ```
 

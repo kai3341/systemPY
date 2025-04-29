@@ -54,51 +54,40 @@ class BasicTestCase(TestCase):
             ProcessUnit,
             register_hook_after,
             register_hook_before,
-            register_target_method,
         )
         from systempy.unit.ext.target_ext import ExtTarget
 
         results: list[str] = []
 
         class ExampleDaemonTarget(ExtTarget):
-            @register_hook_before(ExtTarget.on_init)
-            @register_target_method(DIRECTION.FORWARD)
+            @register_hook_before(ExtTarget.on_init, DIRECTION.FORWARD)
             def before_on_init(self) -> None: ...
 
-            @register_hook_after(ExtTarget.on_init)
-            @register_target_method(DIRECTION.FORWARD)
+            @register_hook_after(ExtTarget.on_init, DIRECTION.FORWARD)
             def after_on_init(self) -> None: ...
 
-            @register_hook_before(ExtTarget.pre_startup)
-            @register_target_method(DIRECTION.FORWARD)
+            @register_hook_before(ExtTarget.pre_startup, DIRECTION.FORWARD)
             def before_pre_startup(self) -> None: ...
 
-            @register_hook_after(ExtTarget.pre_startup)
-            @register_target_method(DIRECTION.FORWARD)
+            @register_hook_after(ExtTarget.pre_startup, DIRECTION.FORWARD)
             def after_pre_startup(self) -> None: ...
 
-            @register_hook_before(ExtTarget.post_startup)
-            @register_target_method(DIRECTION.FORWARD)
+            @register_hook_before(ExtTarget.post_startup, DIRECTION.FORWARD)
             async def before_post_startup(self) -> None: ...
 
-            @register_hook_after(ExtTarget.post_startup)
-            @register_target_method(DIRECTION.GATHER)
+            @register_hook_after(ExtTarget.post_startup, DIRECTION.GATHER)
             async def after_post_startup(self) -> None: ...
 
-            @register_hook_before(ExtTarget.pre_shutdown)
-            @register_target_method(DIRECTION.GATHER)
+            @register_hook_before(ExtTarget.pre_shutdown, DIRECTION.GATHER)
             async def before_pre_shutdown(self) -> None: ...
 
-            @register_hook_after(ExtTarget.post_shutdown)
-            @register_target_method(DIRECTION.BACKWARD)
+            @register_hook_after(ExtTarget.post_shutdown, DIRECTION.BACKWARD)
             def after_post_shutdown(self) -> None: ...
 
-            @register_hook_after(ExtTarget.post_shutdown)
-            @register_target_method(DIRECTION.BACKWARD)
+            @register_hook_after(ExtTarget.post_shutdown, DIRECTION.BACKWARD)
             def also_after_post_shutdown(self) -> None: ...
 
-            @register_hook_after(also_after_post_shutdown)
-            @register_target_method(DIRECTION.BACKWARD)
+            @register_hook_after(also_after_post_shutdown, DIRECTION.BACKWARD)
             def after_also_after_post_shutdown(self) -> None: ...
 
         _gather = _method_async(results, "*")
@@ -375,51 +364,40 @@ class BasicTestCase(TestCase):
             Target,
             register_hook_after,
             register_hook_before,
-            register_target_method,
         )
         from systempy.unit.ext.target_ext import ExtTarget
 
         results: list[str] = []
 
         class ExampleDaemonTarget(Target):
-            @register_hook_before(ExtTarget.on_init)
-            @register_target_method(DIRECTION.FORWARD)
+            @register_hook_before(ExtTarget.on_init, DIRECTION.FORWARD)
             def before_on_init(self) -> None: ...
 
-            @register_hook_after(ExtTarget.on_init)
-            @register_target_method(DIRECTION.FORWARD)
+            @register_hook_after(ExtTarget.on_init, DIRECTION.FORWARD)
             def after_on_init(self) -> None: ...
 
-            @register_hook_before(ExtTarget.pre_startup)
-            @register_target_method(DIRECTION.FORWARD)
+            @register_hook_before(ExtTarget.pre_startup, DIRECTION.FORWARD)
             def before_pre_startup(self) -> None: ...
 
-            @register_hook_after(ExtTarget.pre_startup)
-            @register_target_method(DIRECTION.FORWARD)
+            @register_hook_after(ExtTarget.pre_startup, DIRECTION.FORWARD)
             def after_pre_startup(self) -> None: ...
 
-            @register_hook_before(ExtTarget.post_startup)
-            @register_target_method(DIRECTION.FORWARD)
+            @register_hook_before(ExtTarget.post_startup, DIRECTION.FORWARD)
             async def before_post_startup(self) -> None: ...
 
-            @register_hook_after(ExtTarget.post_startup)
-            @register_target_method(DIRECTION.GATHER)
+            @register_hook_after(ExtTarget.post_startup, DIRECTION.GATHER)
             async def after_post_startup(self) -> None: ...
 
-            @register_hook_before(ExtTarget.pre_shutdown)
-            @register_target_method(DIRECTION.GATHER)
+            @register_hook_before(ExtTarget.pre_shutdown, DIRECTION.GATHER)
             async def before_pre_shutdown(self) -> None: ...
 
-            @register_hook_after(ExtTarget.post_shutdown)
-            @register_target_method(DIRECTION.BACKWARD)
+            @register_hook_after(ExtTarget.post_shutdown, DIRECTION.BACKWARD)
             def after_post_shutdown(self) -> None: ...
 
-            @register_hook_after(ExtTarget.post_shutdown)
-            @register_target_method(DIRECTION.BACKWARD)
+            @register_hook_after(ExtTarget.post_shutdown, DIRECTION.BACKWARD)
             def also_after_post_shutdown(self) -> None: ...
 
-            @register_hook_after(also_after_post_shutdown)
-            @register_target_method(DIRECTION.BACKWARD)
+            @register_hook_after(also_after_post_shutdown, DIRECTION.BACKWARD)
             def after_also_after_post_shutdown(self) -> None: ...
 
         _gather = _method_async(results, "*")
@@ -788,6 +766,7 @@ class BasicTestCase(TestCase):
             "Generic",
             "ReplLocalsMixin",
             "DaemonMixinABC",
+            "Unit",
         }
 
         self.assertSetEqual(

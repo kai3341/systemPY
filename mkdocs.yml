@@ -14,8 +14,9 @@ nav:
           - Redis / Valkey: examples/unit/redis.md
           - AIOLogger: examples/unit/aiologger.md
       - Targets:
-          - Custom: examples/target/custom.md
+          - Custom: examples/target/custom-target.md
           - From Scratch: examples/target/from-scratch.md
+          - Custom TargetMeta: examples/target/custom-target-meta.md
       - Self hosted App:
           - Daemon: examples/self-hosted/daemon.md
           - Script: examples/self-hosted/script.md

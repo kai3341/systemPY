@@ -46,11 +46,11 @@ class TargetMeta(ABCMeta, Generic[A]):
         clsname_endswith = cls.__name__.endswith
         if clsname_endswith("App"):
             return class_role.app
-        if clsname_endswith("Mixin") or clsname_endswith("MixinABC"):
+        if clsname_endswith(("Mixin", "MixinABC")):
             return class_role.mixin
-        if clsname_endswith("Unit") or clsname_endswith("UnitABC"):
+        if clsname_endswith(("Unit", "UnitABC")):
             return class_role.unit
-        if clsname_endswith("Target") or clsname_endswith("TargetABC"):
+        if clsname_endswith(("Target", "TargetABC")):
             return class_role.target
 
         raise KeyError(cls)
