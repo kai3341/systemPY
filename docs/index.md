@@ -42,8 +42,8 @@ It's possible to use `systemPY` in three scenarios:
   [celery](./examples/secondary/celery.md) or
   [starlette](./examples/secondary/starlette.md)
 
-- Self-hosted application -- [daemon](./examples/self-hosted/daemon.md),
-  [script](./examples/self-hosted/script.md) or
+- Self-hosted application -- [scripts](./examples/self-hosted/scripting.md),
+  [daemon](./examples/self-hosted/daemon.md), or
   [REPL](./examples/self-hosted/repl.md)
 
 - [Primary](./examples/primary/write-me.md) application,

@@ -797,6 +797,173 @@ class BasicTestCase(TestCase):
 
         self.assertListEqual(results, results_expected)
 
+    def test_sync_script(self) -> None:  # noqa: C901
+        from _cbutil import _method_sync
+
+        from systempy import ScriptUnit, Target
+
+        results: list[str] = []
+        results_append = results.append
+
+        _sync_1 = _method_sync(results_append, "1")
+
+        class Example1Unit(Target):
+            @_sync_1
+            def on_init(self) -> None: ...
+
+            @_sync_1
+            def pre_startup(self) -> None: ...
+
+            @_sync_1
+            def post_shutdown(self) -> None: ...
+
+        _sync_2 = _method_sync(results_append, "2")
+
+        class Example2Unit(Target):
+            @_sync_2
+            def on_init(self) -> None: ...
+
+            @_sync_2
+            def pre_startup(self) -> None: ...
+
+            @_sync_2
+            def post_shutdown(self) -> None: ...
+
+        _sync_3 = _method_sync(results_append, "3")
+
+        class Example3Unit(Target):
+            @_sync_3
+            def on_init(self) -> None: ...
+
+            @_sync_3
+            def pre_startup(self) -> None: ...
+
+            @_sync_3
+            def post_shutdown(self) -> None: ...
+
+        class ExampleScriptApp(
+            Example1Unit,
+            Example2Unit,
+            Example3Unit,
+            ScriptUnit,
+        ):
+            def main_sync(self) -> None:
+                results_append("main_sync")
+
+        ExampleScriptApp.launch()
+
+        results_expected = [
+            "on_init:1",
+            "on_init:2",
+            "on_init:3",
+            "pre_startup:1",
+            "pre_startup:2",
+            "pre_startup:3",
+            "main_sync",
+            "post_shutdown:3",
+            "post_shutdown:2",
+            "post_shutdown:1",
+        ]
+
+        self.assertListEqual(results_expected, results)
+
+    def test_async_script(self) -> None:  # noqa: C901
+        from _cbutil import _method_async, _method_sync
+
+        from systempy import AsyncScriptUnit, Target
+
+        results: list[str] = []
+        results_append = results.append
+
+        _sync_1 = _method_sync(results_append, "1")
+        _async_1 = _method_async(results_append, "1")
+
+        class Example1Unit(Target):
+            @_sync_1
+            def on_init(self) -> None: ...
+
+            @_sync_1
+            def pre_startup(self) -> None: ...
+
+            @_async_1
+            async def on_shutdown(self) -> None: ...
+
+            @_async_1
+            async def on_startup(self) -> None: ...
+
+            @_sync_1
+            def post_shutdown(self) -> None: ...
+
+        _sync_2 = _method_sync(results_append, "2")
+        _async_2 = _method_async(results_append, "2")
+
+        class Example2Unit(Target):
+            @_sync_2
+            def on_init(self) -> None: ...
+
+            @_sync_2
+            def pre_startup(self) -> None: ...
+
+            @_async_2
+            async def on_shutdown(self) -> None: ...
+
+            @_async_2
+            async def on_startup(self) -> None: ...
+
+            @_sync_2
+            def post_shutdown(self) -> None: ...
+
+        _sync_3 = _method_sync(results_append, "3")
+        _async_3 = _method_async(results_append, "3")
+
+        class Example3Unit(Target):
+            @_sync_3
+            def on_init(self) -> None: ...
+
+            @_sync_3
+            def pre_startup(self) -> None: ...
+
+            @_async_3
+            async def on_shutdown(self) -> None: ...
+
+            @_async_3
+            async def on_startup(self) -> None: ...
+
+            @_sync_3
+            def post_shutdown(self) -> None: ...
+
+        class ExampleScriptApp(
+            Example1Unit,
+            Example2Unit,
+            Example3Unit,
+            AsyncScriptUnit,
+        ):
+            async def main_async(self) -> None:
+                results_append("main_async")
+
+        ExampleScriptApp.launch()
+
+        results_expected = [
+            "on_init:1",
+            "on_init:2",
+            "on_init:3",
+            "pre_startup:1",
+            "pre_startup:2",
+            "pre_startup:3",
+            "on_startup:1",
+            "on_startup:2",
+            "on_startup:3",
+            "main_async",
+            "on_shutdown:3",
+            "on_shutdown:2",
+            "on_shutdown:1",
+            "post_shutdown:3",
+            "post_shutdown:2",
+            "post_shutdown:1",
+        ]
+
+        self.assertListEqual(results_expected, results)
+
     def test_target_from_scratch(self) -> None: ...
 
     @skipIf(

@@ -20,7 +20,6 @@ nav:
       - Self hosted App:
           - Scripting: examples/self-hosted/scripting.md
           - Daemon: examples/self-hosted/daemon.md
-          - Script: examples/self-hosted/script.md
           - REPL: examples/self-hosted/repl.md
       - Secondary Application:
           - FastAPI / Starlette: examples/secondary/starlette.md
