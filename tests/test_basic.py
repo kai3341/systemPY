@@ -1,5 +1,3 @@
-from collections.abc import Callable, Coroutine
-from functools import wraps
 from os import environ
 from typing import TypeVar
 from unittest import TestCase, skip, skipIf
@@ -7,57 +5,22 @@ from unittest import TestCase, skip, skipIf
 T = TypeVar("T")
 
 
-def _method_sync(
-    results: list[str],
-    postfix: str,
-) -> Callable[[Callable[[T], None]], Callable[[T], None]]:
-    def outer(target: Callable[[T], None]) -> Callable[[T], None]:
-        result = f"{target.__name__}:{postfix}"
-
-        @wraps(target)
-        def inner(self: T) -> None:  # noqa: ARG001
-            results.append(result)
-
-        return inner
-
-    return outer
-
-
-def _method_async(
-    results: list[str],
-    postfix: str,
-) -> Callable[
-    [Callable[[T], Coroutine[None, None, None]]],
-    Callable[[T], Coroutine[None, None, None]],
-]:
-    def outer(
-        target: Callable[[T], Coroutine[None, None, None]],
-    ) -> Callable[[T], Coroutine[None, None, None]]:
-        result = f"{target.__name__}:{postfix}"
-
-        @wraps(target)
-        async def inner(self: T) -> None:  # noqa: ARG001
-            results.append(result)
-
-        return inner
-
-    return outer
-
-
 class BasicTestCase(TestCase):
     def test_custom_target(self) -> None:  # noqa: C901
         from gc import collect
 
+        from _cbutil import _method_async, _method_sync
+
         from systempy import (
             DIRECTION,
             LoopUnit,
-            ProcessUnit,
             register_hook_after,
             register_hook_before,
         )
         from systempy.unit.ext.target_ext import ExtTarget
 
         results: list[str] = []
+        results_append = results.append
 
         class ExampleDaemonTarget(ExtTarget):
             @register_hook_before(ExtTarget.on_init, DIRECTION.FORWARD)
@@ -90,10 +53,10 @@ class BasicTestCase(TestCase):
             @register_hook_after(also_after_post_shutdown, DIRECTION.BACKWARD)
             def after_also_after_post_shutdown(self) -> None: ...
 
-        _gather = _method_async(results, "*")
+        _gather = _method_async(results_append, "*")
 
-        _sync_1 = _method_sync(results, "1")
-        _async_1 = _method_async(results, "1")
+        _sync_1 = _method_sync(results_append, "1")
+        _async_1 = _method_async(results_append, "1")
 
         class ExampleDaemon1Unit(ExampleDaemonTarget):
             @_sync_1
@@ -147,8 +110,8 @@ class BasicTestCase(TestCase):
             @_sync_1
             def after_also_after_post_shutdown(self) -> None: ...
 
-        _sync_2 = _method_sync(results, "2")
-        _async_2 = _method_async(results, "2")
+        _sync_2 = _method_sync(results_append, "2")
+        _async_2 = _method_async(results_append, "2")
 
         class ExampleDaemon2Unit(ExampleDaemonTarget):
             @_sync_2
@@ -202,8 +165,8 @@ class BasicTestCase(TestCase):
             @_sync_2
             def after_also_after_post_shutdown(self) -> None: ...
 
-        _sync_3 = _method_sync(results, "3")
-        _async_3 = _method_async(results, "3")
+        _sync_3 = _method_sync(results_append, "3")
+        _async_3 = _method_async(results_append, "3")
 
         class ExampleDaemon3Unit(ExampleDaemonTarget):
             @_sync_3
@@ -262,12 +225,11 @@ class BasicTestCase(TestCase):
             ExampleDaemon2Unit,
             ExampleDaemon3Unit,
             LoopUnit,
-            ProcessUnit,
         ):
             reload_signals = ()
 
             async def main_async(self) -> None:
-                results.append("main_async")
+                results_append("main_async")
 
         collect()  # Make sure we didn't leave any object without refs
 
@@ -339,7 +301,7 @@ class BasicTestCase(TestCase):
             "ExampleDaemon1Unit.on_init;"
             "ExampleDaemon2Unit.on_init;"
             "ExampleDaemon3Unit.on_init;"
-            "DaemonBaseUnit.on_init;"
+            "_BaseDaemonUnitABC.on_init;"
             "ExampleDaemon1Unit.after_on_init;"
             "ExampleDaemon2Unit.after_on_init;"
             "ExampleDaemon3Unit.after_on_init)",
@@ -357,10 +319,11 @@ class BasicTestCase(TestCase):
     def test_custom_target_wrong_inheritence(self) -> None:  # noqa: C901
         from gc import collect
 
+        from _cbutil import _method_async, _method_sync
+
         from systempy import (
             DIRECTION,
             LoopUnit,
-            ProcessUnit,
             Target,
             register_hook_after,
             register_hook_before,
@@ -368,6 +331,7 @@ class BasicTestCase(TestCase):
         from systempy.unit.ext.target_ext import ExtTarget
 
         results: list[str] = []
+        results_append = results.append
 
         class ExampleDaemonTarget(Target):
             @register_hook_before(ExtTarget.on_init, DIRECTION.FORWARD)
@@ -400,10 +364,10 @@ class BasicTestCase(TestCase):
             @register_hook_after(also_after_post_shutdown, DIRECTION.BACKWARD)
             def after_also_after_post_shutdown(self) -> None: ...
 
-        _gather = _method_async(results, "*")
+        _gather = _method_async(results_append, "*")
 
-        _sync_1 = _method_sync(results, "1")
-        _async_1 = _method_async(results, "1")
+        _sync_1 = _method_sync(results_append, "1")
+        _async_1 = _method_async(results_append, "1")
 
         class ExampleDaemon1Unit(ExampleDaemonTarget):
             @_sync_1
@@ -457,8 +421,8 @@ class BasicTestCase(TestCase):
             @_sync_1
             def after_also_after_post_shutdown(self) -> None: ...
 
-        _sync_2 = _method_sync(results, "2")
-        _async_2 = _method_async(results, "2")
+        _sync_2 = _method_sync(results_append, "2")
+        _async_2 = _method_async(results_append, "2")
 
         class ExampleDaemon2Unit(ExampleDaemonTarget):
             @_sync_2
@@ -512,8 +476,8 @@ class BasicTestCase(TestCase):
             @_sync_2
             def after_also_after_post_shutdown(self) -> None: ...
 
-        _sync_3 = _method_sync(results, "3")
-        _async_3 = _method_async(results, "3")
+        _sync_3 = _method_sync(results_append, "3")
+        _async_3 = _method_async(results_append, "3")
 
         class ExampleDaemon3Unit(ExampleDaemonTarget):
             @_sync_3
@@ -572,12 +536,11 @@ class BasicTestCase(TestCase):
             ExampleDaemon2Unit,
             ExampleDaemon3Unit,
             LoopUnit,
-            ProcessUnit,
         ):
             reload_signals = ()
 
             async def main_async(self) -> None:
-                results.append("main_async")
+                results_append("main_async")
 
         collect()  # Make sure we didn't leave any object without refs
 
@@ -585,20 +548,19 @@ class BasicTestCase(TestCase):
 
         print(results)
 
-    def test_stop_reload(self) -> None:  # noqa: C901
+    def test_async_stop_reload(self) -> None:  # noqa: C901
         from threading import Thread
         from time import sleep
 
-        from systempy import (
-            EventWaitUnit,
-            ProcessUnit,
-            Target,
-        )
+        from _cbutil import _method_async, _method_sync
+
+        from systempy import EventWaitUnit, Target
 
         results: list[str] = []
+        results_append = results.append
 
-        _sync_1 = _method_sync(results, "1")
-        _async_1 = _method_async(results, "1")
+        _sync_1 = _method_sync(results_append, "1")
+        _async_1 = _method_async(results_append, "1")
 
         class ExampleDaemon1Unit(Target):
             @_sync_1
@@ -616,8 +578,8 @@ class BasicTestCase(TestCase):
             @_sync_1
             def post_shutdown(self) -> None: ...
 
-        _sync_2 = _method_sync(results, "2")
-        _async_2 = _method_async(results, "2")
+        _sync_2 = _method_sync(results_append, "2")
+        _async_2 = _method_async(results_append, "2")
 
         class ExampleDaemon2Unit(Target):
             @_sync_2
@@ -635,8 +597,8 @@ class BasicTestCase(TestCase):
             @_sync_2
             def post_shutdown(self) -> None: ...
 
-        _sync_3 = _method_sync(results, "3")
-        _async_3 = _method_async(results, "3")
+        _sync_3 = _method_sync(results_append, "3")
+        _async_3 = _method_async(results_append, "3")
 
         class ExampleDaemon3Unit(Target):
             @_sync_3
@@ -655,29 +617,30 @@ class BasicTestCase(TestCase):
             def post_shutdown(self) -> None: ...
 
         class ExampleApp(
-            EventWaitUnit,
             ExampleDaemon1Unit,
             ExampleDaemon2Unit,
             ExampleDaemon3Unit,
-            ProcessUnit,
+            EventWaitUnit,
         ):
-            reload_signals = ()
-
             async def main_async(self) -> None:
-                results.append("main_async")
+                results_append("main_async")
                 return await super().main_async()
 
         unit = ExampleApp()
 
         thread = Thread(target=unit.run_sync)
         thread.start()
-        sleep(0.1)
-        unit.reload_threadsafe()
+        thread_id = thread.ident
+        assert thread_id
         sleep(0.2)
-        unit.reload_threadsafe()
+        unit.reload()
         sleep(0.2)
-        unit.stop_threadsafe()
+        unit.reload()
+        sleep(0.2)
+        unit.stop()
         thread.join(1)
+
+        unit.remove_signal_handlers()
 
         self.assertEqual(thread.is_alive(), False)
 
@@ -728,6 +691,112 @@ class BasicTestCase(TestCase):
 
         self.assertListEqual(results, expected_result, "lifecycle method order")
 
+    def test_sync_stop_reload(self) -> None:  # noqa: C901
+        from threading import Thread
+        from time import sleep
+
+        from _cbutil import _method_sync
+
+        from systempy import DaemonUnit, Target
+
+        results: list[str] = []
+        results_append = results.append
+
+        _sync_1 = _method_sync(results_append, "1")
+
+        class ExampleDaemon1Unit(Target):
+            @_sync_1
+            def on_init(self) -> None: ...
+
+            @_sync_1
+            def pre_startup(self) -> None: ...
+
+            @_sync_1
+            def post_shutdown(self) -> None: ...
+
+        _sync_2 = _method_sync(results_append, "2")
+
+        class ExampleDaemon2Unit(Target):
+            @_sync_2
+            def on_init(self) -> None: ...
+
+            @_sync_2
+            def pre_startup(self) -> None: ...
+
+            @_sync_2
+            def post_shutdown(self) -> None: ...
+
+        _sync_3 = _method_sync(results_append, "3")
+
+        class ExampleDaemon3Unit(Target):
+            @_sync_3
+            def on_init(self) -> None: ...
+
+            @_sync_3
+            def pre_startup(self) -> None: ...
+
+            @_sync_3
+            def post_shutdown(self) -> None: ...
+
+        class ExampleDaemonApp(
+            ExampleDaemon1Unit,
+            ExampleDaemon2Unit,
+            ExampleDaemon3Unit,
+            DaemonUnit,
+        ):
+            def main_sync(self) -> None:
+                results_append("main_sync")
+                while True:
+                    sleep(0.05)
+
+        unit = ExampleDaemonApp()
+
+        thread = Thread(target=unit.run_sync)
+        thread.start()
+        thread_id = thread.ident
+        assert thread_id
+        sleep(0.1)
+        unit.reload()
+
+        sleep(0.2)
+        unit.reload()
+        sleep(0.2)
+        unit.stop()
+        thread.join(1)
+
+        unit.remove_signal_handlers()
+
+        self.assertEqual(thread.is_alive(), False)
+
+        results_expected = [
+            "on_init:1",
+            "on_init:2",
+            "on_init:3",
+            "pre_startup:1",
+            "pre_startup:2",
+            "pre_startup:3",
+            "main_sync",
+            "post_shutdown:3",
+            "post_shutdown:2",
+            "post_shutdown:1",
+            "pre_startup:1",
+            "pre_startup:2",
+            "pre_startup:3",
+            "main_sync",
+            "post_shutdown:3",
+            "post_shutdown:2",
+            "post_shutdown:1",
+            "pre_startup:1",
+            "pre_startup:2",
+            "pre_startup:3",
+            "main_sync",
+            "post_shutdown:3",
+            "post_shutdown:2",
+            "post_shutdown:1",
+        ]
+
+        self.assertListEqual(results, results_expected)
+
     def test_target_from_scratch(self) -> None: ...
 
     @skipIf(
@@ -737,7 +806,7 @@ class BasicTestCase(TestCase):
     def test_zzz_memory_leak(self) -> None:
         from gc import collect
 
-        from systempy.util.register import (
+        from systempy.libsystempy.register import (
             mark_as_final,
             mark_as_target,
             register_hook_after,
@@ -753,20 +822,22 @@ class BasicTestCase(TestCase):
         self.assertEqual(len(mark_as_final.regisrty), 0)
 
         marked_as_target = {
-            "object",
-            "InterfaceTarget",
-            "ProcessMixinABC",
-            "_FieldIterMixin",
-            "Target",
-            "_CtxMgrSyncMixin",
-            "ExtTarget",
-            "_InitMixin",
-            "_CtxMgrAsyncMixin",
             "Protocol",
-            "Generic",
+            "DaemonUnit",
+            "ExtTarget",
+            "SyncMixinABC",
+            "Target",
+            "_FieldIterMixin",
+            "object",
+            "AsyncMixinABC",
+            "_InitMixin",
+            "InterfaceTarget",
             "ReplLocalsMixin",
-            "DaemonMixinABC",
             "Unit",
+            "LoopUnit",
+            "Generic",
+            "ScriptUnit",
+            "AsyncScriptUnit",
         }
 
         self.assertSetEqual(

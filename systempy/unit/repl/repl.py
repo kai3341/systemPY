@@ -5,7 +5,7 @@ from typing import Any, ParamSpec
 
 from typing_extensions import deprecated
 
-from ..process import ProcessUnit
+from ..scripting import ScriptUnit
 from .handle_interrupt import handle_interrupt, setup_completer
 from .mixins import ReplLocalsMixin
 
@@ -13,7 +13,7 @@ A = ParamSpec("A")
 
 
 @deprecated("Use `systempy.unit.ext.ptrepl.PTRepl` instead")
-class ReplUnit(ReplLocalsMixin, ProcessUnit[A]):
+class ReplUnit(ReplLocalsMixin, ScriptUnit[A]):
     loop: asyncio.AbstractEventLoop
     console: amain.AsyncIOInteractiveConsole
     repl_completer: rlcompleter.Completer

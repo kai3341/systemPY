@@ -5,13 +5,13 @@ from typing import ParamSpec
 
 from ptpython.repl import embed
 
-from systempy import LoopUnit, ProcessUnit
+from systempy import LoopUnit
 from systempy.unit.repl.mixins import ReplLocalsMixin
 
 A = ParamSpec("A")
 
 
-class PTReplUnit(ReplLocalsMixin, LoopUnit, ProcessUnit[A]):
+class PTReplUnit(ReplLocalsMixin, LoopUnit[A]):
     _module_qualname: str = field(init=False)
     _banner: str = field(init=False)
 

@@ -30,7 +30,7 @@ mypycify_structure: Struct = {
         "unit": {
             None: (
                 # "unit.py",
-                # "process.py",
+                # "scripting.py",
                 # "daemon.py",
                 # "loop.py",
             ),
@@ -40,7 +40,6 @@ mypycify_structure: Struct = {
                     "handle_interrupt.py",
                     # "mixins.py",
                     # "repl.py",
-                    "util.py",
                 ),
             },
             "ext": {
@@ -66,6 +65,7 @@ mypycify_structure: Struct = {
                 "misc.py",
                 # "register.py",
                 "handler_type.py",
+                "thread_exception.py",
             ),
         },
     },

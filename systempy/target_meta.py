@@ -12,9 +12,9 @@ from typing import (
     dataclass_transform,
 )
 
-from .util.class_role import class_role
-from .util.enums import ROLE
-from .util.register import mark_as_final
+from .libsystempy.class_role import class_role
+from .libsystempy.enums import ROLE
+from .libsystempy.register import mark_as_final
 
 A = ParamSpec("A")
 T = TypeVar("T")

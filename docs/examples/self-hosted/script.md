@@ -9,14 +9,10 @@ Let's begin from creating, for example, `my_script.py`
 ```python
 #!/usr/bin/env python
 
-from systempy import Unit, LoopUnit, DaemonUnit
+from systempy import LoopUnit
 
 
-class ExampleScript(
-    Unit,
-    LoopUnit,
-    DaemonUnit,
-):
+class ExampleScript(LoopUnit):
     async def main_async(self):
         """
         Write your code here. Easy to use, isn't it?

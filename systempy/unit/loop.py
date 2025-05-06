@@ -1,11 +1,26 @@
 from asyncio import AbstractEventLoop, get_running_loop, run
 from collections.abc import Coroutine
 from dataclasses import field
+from typing import ParamSpec
 
-from .daemon import DaemonBaseUnit
+from ..libsystempy import ROLE
+from ..target import AsyncMixinABC
+from .daemon import _BaseDaemonUnitABC
+
+A = ParamSpec("A")
 
 
-class LoopUnit(DaemonBaseUnit):
+def handle_error(exc: RuntimeError) -> None:
+    if len(exc.args) == 0:
+        raise exc
+
+    if exc.args[0] == "cannot reuse already awaited coroutine":
+        return
+
+    raise exc
+
+
+class LoopUnit(AsyncMixinABC, _BaseDaemonUnitABC[A], role=ROLE.MIXIN):
     _main_async_coro: Coroutine[None, None, None] = field(init=False, repr=False)
     __loop: AbstractEventLoop = field(init=False, repr=False)
 
@@ -20,25 +35,13 @@ class LoopUnit(DaemonBaseUnit):
             try:
                 await self._main_async_coro
             except RuntimeError as e:
-                if len(e.args) == 0:
-                    raise
+                handle_error(e)
 
-                if e.args[0] == "cannot reuse already awaited coroutine":
-                    return
+    def _stop_samethread(self) -> None:
+        try:
+            return self._main_async_coro.throw(SystemExit)
+        except RuntimeError as e:
+            handle_error(e)
 
-                raise
-
-    def stop(self) -> None:
-        self._main_async_coro.throw(SystemExit)
-
-    def stop_threadsafe(self) -> None:
-        """
-        Used only when event loop is running in other thread
-        """
-        self.__loop.call_soon_threadsafe(self.stop)
-
-    def reload_threadsafe(self) -> None:
-        """
-        Used only when event loop is running in other thread
-        """
-        self.__loop.call_soon_threadsafe(self.reload)
+    def _stop_threadsafe(self, thread_id: int) -> None:  # noqa: ARG002
+        self.__loop.call_soon_threadsafe(self._stop_samethread)

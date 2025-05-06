@@ -3,10 +3,12 @@ from abc import abstractmethod
 from collections.abc import Iterator
 from dataclasses import Field, fields
 from types import TracebackType
-from typing import Self
+from typing import TYPE_CHECKING, Generic, ParamSpec, Self
 
+from .libsystempy import DIRECTION, ROLE, handler_metadata, register_target_method
 from .target_meta import TargetMeta
-from .util import DIRECTION, ROLE, handler_metadata, register_target_method
+
+A = ParamSpec("A")
 
 
 class InterfaceTarget(metaclass=TargetMeta):
@@ -39,7 +41,34 @@ class _InitMixin(InterfaceTarget):
         self.on_init()
 
 
-class _CtxMgrSyncMixin(InterfaceTarget):
+class _FieldIterMixin(InterfaceTarget):
+    def __iter__(self) -> Iterator[Field]:
+        yield from fields(self)
+
+
+class Target(
+    _InitMixin,
+    _FieldIterMixin,
+    role=ROLE.MIXIN,
+): ...
+
+
+class SyncMixinABC(Target, Generic[A]):
+    if TYPE_CHECKING:
+
+        def __init__(self, *args: A.args, **kwargs: A.kwargs) -> None: ...
+
+    @classmethod
+    def launch(cls, *args: A.args, **kwargs: A.kwargs) -> None:
+        self = cls(*args, **kwargs)
+        self.run_sync()
+
+    @abstractmethod
+    def main_sync(self) -> None: ...
+
+    @abstractmethod
+    def run_sync(self) -> None: ...
+
     def __enter__(self) -> Self:
         self.pre_startup()
         return self
@@ -53,12 +82,12 @@ class _CtxMgrSyncMixin(InterfaceTarget):
         self.post_shutdown()
 
 
-class _FieldIterMixin(InterfaceTarget):
-    def __iter__(self) -> Iterator[Field]:
-        yield from fields(self)
+class AsyncMixinABC(Target):
+    @abstractmethod
+    async def main_async(self) -> None: ...
+    @abstractmethod
+    async def run_async(self) -> None: ...
 
-
-class _CtxMgrAsyncMixin(InterfaceTarget):
     async def __aenter__(self) -> Self:
         await self.on_startup()
         return self
@@ -72,39 +101,8 @@ class _CtxMgrAsyncMixin(InterfaceTarget):
         await self.on_shutdown()
 
 
-class Target(
-    _InitMixin,
-    _CtxMgrSyncMixin,
-    _CtxMgrAsyncMixin,
-    _FieldIterMixin,
-    role=ROLE.MIXIN,
-): ...
-
-
-class ProcessMixinABC(Target):
-    @abstractmethod
-    def main_sync(self) -> None: ...
-
-    @abstractmethod
-    def run_sync(self) -> None: ...
-
-    @abstractmethod
-    def reload(self) -> None: ...
-
-
-class DaemonMixinABC(Target):
-    @abstractmethod
-    async def main_async(self) -> None: ...
-
-    @abstractmethod
-    async def run_async(self) -> None: ...
-
-    @abstractmethod
-    def stop(self) -> None: ...
-
-
 __all__ = (
-    "DaemonMixinABC",
-    "ProcessMixinABC",
+    "AsyncMixinABC",
+    "SyncMixinABC",
     "Target",
 )

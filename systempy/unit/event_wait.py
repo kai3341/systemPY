@@ -1,11 +1,14 @@
 from asyncio import CancelledError, Event
 from contextlib import suppress
 from dataclasses import field
+from typing import ParamSpec
 
 from .loop import LoopUnit
 
+A = ParamSpec("A")
 
-class EventWaitUnit(LoopUnit):
+
+class EventWaitUnit(LoopUnit[A]):
     """
     Infinite wait unit
     """
