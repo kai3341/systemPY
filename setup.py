@@ -16,7 +16,7 @@ requirements_build: list[str] = []
 
 packages = [
     NAME,
-    f"{NAME}.util",
+    f"{NAME}.libsystempy",
     f"{NAME}.unit",
     f"{NAME}.unit.ext",
     f"{NAME}.unit.repl",

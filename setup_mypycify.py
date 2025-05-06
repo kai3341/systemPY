@@ -51,7 +51,7 @@ mypycify_structure: Struct = {
                 ),
             },
         },
-        "util": {
+        "libsystempy": {
             None: (
                 "local_typing.py",
                 # "local_dataclasses.py",  # https://github.com/python/mypy/issues/13304  # noqa: E501, ERA001
