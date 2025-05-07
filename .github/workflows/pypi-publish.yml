@@ -52,4 +52,4 @@ jobs:
           echo "api-token=${api_token}" >> "${GITHUB_OUTPUT}"
 
       - name: Publish the project
-        run: uv publish --username __token__ --token ${{ steps.mint-token.outputs.api-token }}
+        run: uv publish --token ${{ steps.mint-token.outputs.api-token }}
