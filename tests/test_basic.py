@@ -6,11 +6,10 @@ T = TypeVar("T")
 
 
 class BasicTestCase(TestCase):
-    def test_custom_target(self) -> None:  # noqa: C901
+    def test_custom_target(self) -> None:
         from gc import collect
 
-        from _cbutil import _method_async, _method_sync
-
+        from _util._cbutil import _method_async, _method_sync
         from systempy import (
             DIRECTION,
             LoopUnit,
@@ -316,11 +315,10 @@ class BasicTestCase(TestCase):
         )
 
     @skip("not ready")
-    def test_custom_target_wrong_inheritence(self) -> None:  # noqa: C901
+    def test_custom_target_wrong_inheritence(self) -> None:
         from gc import collect
 
-        from _cbutil import _method_async, _method_sync
-
+        from _util._cbutil import _method_async, _method_sync
         from systempy import (
             DIRECTION,
             LoopUnit,
@@ -548,12 +546,11 @@ class BasicTestCase(TestCase):
 
         print(results)
 
-    def test_async_stop_reload(self) -> None:  # noqa: C901
+    def test_async_stop_reload(self) -> None:
         from threading import Thread
         from time import sleep
 
-        from _cbutil import _method_async, _method_sync
-
+        from _util._cbutil import _method_async, _method_sync
         from systempy import EventWaitUnit, Target
 
         results: list[str] = []
@@ -691,12 +688,11 @@ class BasicTestCase(TestCase):
 
         self.assertListEqual(results, expected_result, "lifecycle method order")
 
-    def test_sync_stop_reload(self) -> None:  # noqa: C901
+    def test_sync_stop_reload(self) -> None:
         from threading import Thread
         from time import sleep
 
-        from _cbutil import _method_sync
-
+        from _util._cbutil import _method_sync
         from systempy import DaemonUnit, Target
 
         results: list[str] = []
@@ -797,9 +793,8 @@ class BasicTestCase(TestCase):
 
         self.assertListEqual(results, results_expected)
 
-    def test_sync_script(self) -> None:  # noqa: C901
-        from _cbutil import _method_sync
-
+    def test_sync_script(self) -> None:
+        from _util._cbutil import _method_sync
         from systempy import ScriptUnit, Target
 
         results: list[str] = []
@@ -867,9 +862,8 @@ class BasicTestCase(TestCase):
 
         self.assertListEqual(results_expected, results)
 
-    def test_async_script(self) -> None:  # noqa: C901
-        from _cbutil import _method_async, _method_sync
-
+    def test_async_script(self) -> None:
+        from _util._cbutil import _method_async, _method_sync
         from systempy import AsyncScriptUnit, Target
 
         results: list[str] = []

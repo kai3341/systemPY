@@ -1,5 +1,6 @@
 from .libsystempy import (
     DIRECTION,
+    ROLE,
     register_hook_after,
     register_hook_before,
     register_target_method,
@@ -17,6 +18,7 @@ from .unit import (
 
 __all__ = (
     "DIRECTION",
+    "ROLE",
     "AsyncMixinABC",
     "AsyncScriptUnit",
     "DaemonUnit",

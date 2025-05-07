@@ -1,19 +1,19 @@
+from pathlib import Path
 from unittest import IsolatedAsyncioTestCase
+
+EXAMPLES = Path(__file__).parent.parent / "examples"
 
 
 class Test(IsolatedAsyncioTestCase):
     async def test_subprocess_async_reload_signal(self) -> None:
         from asyncio import create_subprocess_exec, sleep
         from asyncio.subprocess import PIPE
-        from pathlib import Path
         from signal import SIGHUP, SIGINT
         from sys import executable
 
-        current_dir = Path(__file__).parent
-
         process = await create_subprocess_exec(
             executable,
-            (str(current_dir / "async_reload_signal.py")),
+            (str(EXAMPLES / "async_reload_signal.py")),
             stdout=PIPE,
             stderr=PIPE,
         )
@@ -188,15 +188,12 @@ class Test(IsolatedAsyncioTestCase):
     async def test_subprocess_sync_reload_signal(self) -> None:
         from asyncio import create_subprocess_exec, sleep
         from asyncio.subprocess import PIPE
-        from pathlib import Path
         from signal import SIGHUP, SIGINT
         from sys import executable
 
-        current_dir = Path(__file__).parent
-
         process = await create_subprocess_exec(
             executable,
-            (str(current_dir / "sync_reload_signal.py")),
+            (str(EXAMPLES / "sync_reload_signal.py")),
             stdout=PIPE,
             stderr=PIPE,
         )

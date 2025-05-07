@@ -1,15 +1,12 @@
-#!/usr/bin/env python
-
 from pathlib import Path
 from sys import path
-from time import sleep
-
-from _cbutil import _method_sync
 
 root_dir = Path(__file__).parent.parent
 path.append(str(root_dir))
 
-from systempy import DaemonUnit, Target  # noqa: E402
+from _util._cbutil import _method_sync
+from systempy import Target
+from systempy.unit.ext.ptrepl import PTReplUnit
 
 _sync_1 = _method_sync(print, "1")
 
@@ -53,16 +50,13 @@ class ExampleDaemon3Unit(Target):
     def post_shutdown(self) -> None: ...
 
 
-class ExampleDaemonApp(
+class ExamplePTReplApp(
     ExampleDaemon1Unit,
     ExampleDaemon2Unit,
     ExampleDaemon3Unit,
-    DaemonUnit,
-):
-    def main_sync(self) -> None:
-        print("main_sync")  # noqa: T201
-        while True:
-            sleep(0.05)
+    PTReplUnit,
+): ...
 
 
-ExampleDaemonApp.launch()
+if __name__ == "__main__":
+    ExamplePTReplApp.launch()

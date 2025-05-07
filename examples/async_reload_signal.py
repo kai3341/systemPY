@@ -1,20 +1,17 @@
-#!/usr/bin/env python
-
 from pathlib import Path
 from sys import path
-
-from _cbutil import _method_async, _method_sync
 
 root_dir = Path(__file__).parent.parent
 path.append(str(root_dir))
 
-from systempy import (  # noqa: E402
+from _util._cbutil import _method_async, _method_sync
+from systempy import (
     DIRECTION,
     EventWaitUnit,
     register_hook_after,
     register_hook_before,
 )
-from systempy.unit.ext.target_ext import ExtTarget  # noqa: E402
+from systempy.unit.ext.target_ext import ExtTarget
 
 
 class ExampleDaemonTarget(ExtTarget):
@@ -233,4 +230,5 @@ class ExampleDaemonApp(
         return await super().main_async()
 
 
-ExampleDaemonApp.launch()
+if __name__ == "__main__":
+    ExampleDaemonApp.launch()

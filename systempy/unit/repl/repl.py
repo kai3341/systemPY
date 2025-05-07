@@ -1,6 +1,8 @@
 import asyncio
 import asyncio.__main__ as amain  # type:ignore[import-not-found]
 import rlcompleter
+import sys
+from dataclasses import field
 from typing import Any, ParamSpec
 
 from typing_extensions import deprecated
@@ -14,11 +16,11 @@ A = ParamSpec("A")
 
 @deprecated("Use `systempy.unit.ext.ptrepl.PTRepl` instead")
 class ReplUnit(ReplLocalsMixin, ScriptUnit[A]):
-    loop: asyncio.AbstractEventLoop
-    console: amain.AsyncIOInteractiveConsole
-    repl_completer: rlcompleter.Completer
-    repl_thread: amain.REPLThread
-    repl_env_full: dict[str, Any]
+    loop: asyncio.AbstractEventLoop = field(init=False)
+    console: amain.AsyncIOInteractiveConsole = field(init=False)
+    repl_completer: rlcompleter.Completer = field(init=False)
+    repl_thread: amain.REPLThread = field(init=False)
+    repl_env_full: dict[str, Any] = field(init=False)
 
     def __setup_repl(self) -> None:
         self.loop = asyncio.new_event_loop()
@@ -97,13 +99,18 @@ class ReplUnit(ReplLocalsMixin, ScriptUnit[A]):
                 break
 
     # Experimental
+    def __done_after_on_startup(self, _result: Any) -> None:
+        self.console.write(f"\n{sys.ps1}")
+
     def __done_after_shutdown_asyncgens(self, _result: Any) -> None:
         self.loop.call_soon_threadsafe(self.post_shutdown)
         self.loop.call_soon_threadsafe(self.pre_startup)
-        asyncio.ensure_future(  # noqa: RUF006
+        future = asyncio.ensure_future(
             self.on_startup(),
             loop=self.loop,
         )
+
+        future.add_done_callback(self.__done_after_on_startup)
 
     def __done_after_on_shutdown(self, _result: Any) -> None:
         future = asyncio.ensure_future(
@@ -112,11 +119,9 @@ class ReplUnit(ReplLocalsMixin, ScriptUnit[A]):
         )
         future.add_done_callback(self.__done_after_shutdown_asyncgens)
 
-    def reload_threadsafe(self) -> None:
+    def reload(self) -> None:
         future = asyncio.ensure_future(
             self.on_shutdown(),
             loop=self.loop,
         )
         future.add_done_callback(self.__done_after_on_shutdown)
-
-    def reload(self) -> None: ...

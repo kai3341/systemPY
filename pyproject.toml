@@ -17,7 +17,7 @@ extra = [
 ]
 
 [tool.pyright]
-include = ["systempy/", "tests/"]
+include = ["systempy/", "tests/", "_util/"]
 reportMissingModuleSource = false
 reportArgumentType = false
 reportCallIssue = false
@@ -38,7 +38,9 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["INP001"]
+"tests/*" = ["INP001", "E402", "C901"]
+"examples/*" = ["INP001", "E402"]
+"_util/*" = ["E402"]
 
 [tool.mypy]
 python_version = "3.11"
