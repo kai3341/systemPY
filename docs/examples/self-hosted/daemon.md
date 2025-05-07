@@ -28,6 +28,8 @@ if __name__ == "__main__":
     ExampleDaemonApp.launch()
 ```
 
+Also check for [example](https://github.com/kai3341/systemPY/blob/next-0.1.x/examples/sync_reload_signal.py)
+
 ## `LoopUnit`
 
 is (almost) subclass of `DaemonUnit`, but configured to run **asyncronous**
@@ -69,6 +71,8 @@ class ExampleInfiniteWaitApp(
 if __name__ == "__main__":
     ExampleInfiniteWaitApp.launch()
 ```
+
+Also check for [example](https://github.com/kai3341/systemPY/blob/next-0.1.x/examples/async_reload_signal.py)
 
 # Run and Reload
 

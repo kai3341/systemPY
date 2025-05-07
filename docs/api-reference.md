@@ -16,7 +16,7 @@
 
 ## `EventWaitUnit`
 
-## `ReplUnit`
+## `ReplUnit` (deprecated)
 
 ## `ext.celery.CeleryUnit`
 

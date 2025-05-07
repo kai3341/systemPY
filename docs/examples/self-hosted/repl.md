@@ -20,7 +20,7 @@ There are some tries to fix this anoying behavior. Right now the best solution
 is [PTRepl Extension](#ptrepl-extension) -- it works fine on Linux, MacOS and
 Windows
 
-## Vanila asyncio repl `ReplUnit`. Implement the unit
+## Vanila asyncio repl `ReplUnit` (deprecated). Implement the unit
 
 This solution does not requires external libraries and uses `ctypes`. On Linux
 and MacOS when library `readline` is available, this solution is good enough,
@@ -31,10 +31,10 @@ for other implementations
 Start from creating file, for example, `my_repl.py`:
 
 ```python
-from systempy import Unit, ReplUnit
+from systempy import ReplUnit
 
 
-class MyReplUnit(ReplUnit, Unit):
+class MyReplUnit(ReplUnit):
     """
     Just add your component mixins. For example, initialize models and other
     components. Also you may add your custom variables into repl globals.
@@ -53,13 +53,13 @@ if __name__ == '__main__':
     unit.run_sync()
 ```
 
-## Run the REPL
-
 Now you are able to use this REPL:
 
 ```sh
 python -m my_repl
 ```
+
+Also check for [example](https://github.com/kai3341/systemPY/blob/next-0.1.x/examples/repl_default.py)
 
 ## PrettyReplUnit Extension
 
@@ -130,3 +130,5 @@ from systempy.ext.ptrepl import PTRepl as PrettyReplUnit
 
 If you like this REPL implementation, you may remove old import and refactor
 your code
+
+Also check for [example](https://github.com/kai3341/systemPY/blob/next-0.1.x/examples/ptrepl.py)

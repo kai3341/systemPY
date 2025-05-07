@@ -3,7 +3,7 @@
 * [ ] API review
 * [x] Tests
 * [ ] Documantation
-    * [X] index
+    * [x] index
     * [x] Examples
     * [ ] API Reference
 

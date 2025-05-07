@@ -20,7 +20,7 @@ from . import views
 views.__package__
 
 
-class  MyAppUnit(StarletteUnit):
+class  MyStarletteApp(StarletteUnit):
     """
     Optionally you can define lifecycle actions. These actions you can split
     into your own mixins. Then you organize own mixins into own collection and
@@ -30,7 +30,7 @@ class  MyAppUnit(StarletteUnit):
 
 
 # StarletteUnit relies on keyword argument starlette_app
-unit = MyAppUnit(
+unit = MyStarletteApp(
     starlette_app=starlette_app,
 )
 ```

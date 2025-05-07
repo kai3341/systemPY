@@ -16,11 +16,12 @@ class PTReplUnit(ReplLocalsMixin, LoopUnit[A]):
     _banner: str = field(init=False)
 
     repl_history_filename: str | None = field(default=None)
+    repl_head: str | None = field(default=None)
 
     def on_init(self) -> None:
         self._setup_repl_caller_frame()
         self._setup_repl_env()
-        self._setup_banner()
+        self._setup_banner(self.repl_head)
 
     def _setup_banner(self, head: str | None = None) -> None:
         caller_globals = self._repl_caller_frame[0].f_globals
