@@ -9,7 +9,6 @@ library
 First you have to create file, for example, `celery_app.py`
 
 ```python
-from systempy import Unit
 from systempy.unit.ext.celery import CeleryUnit
 
 from .config import config

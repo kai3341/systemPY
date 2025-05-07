@@ -1,5 +1,13 @@
 ## Changelog
 
+### 0.1.0
+
+- Huge refactoring
+- Fix all implementation mess, deprecate and rename some classes
+- **Add unit tests**
+- Fix found bugs
+- Update docs
+
 ### 0.0.16
 
 - Actualize mypy plugin, it works with mypy>1.4.0
