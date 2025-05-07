@@ -8,8 +8,7 @@ I don't separate them
 For example, the name of following file is `starlette_app.py`
 
 ```python
-from systempy import Unit
-from systempy.ext.starlette import StarletteUnit
+from systempy.unit.ext.starlette import StarletteUnit
 
 # It's advice to define all your apps in separated file(s)
 # having this instance and nothing else. I think it's the
@@ -21,7 +20,7 @@ from . import views
 views.__package__
 
 
-class  MyAppUnit(StarletteUnit, Unit):
+class  MyStarletteApp(StarletteUnit):
     """
     Optionally you can define lifecycle actions. These actions you can split
     into your own mixins. Then you organize own mixins into own collection and
@@ -31,7 +30,7 @@ class  MyAppUnit(StarletteUnit, Unit):
 
 
 # StarletteUnit relies on keyword argument starlette_app
-unit = MyAppUnit(
+unit = MyStarletteApp(
     starlette_app=starlette_app,
 )
 ```
@@ -40,6 +39,6 @@ unit = MyAppUnit(
 
 Then run webserver:
 
-```bash
+```sh
 uvicorn starlette_app:starlette_app
 ```

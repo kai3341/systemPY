@@ -1,121 +1,86 @@
-# Daemon Example
+# Daemon examples
 
-I suggest to make a daemon example with a bit complicated startup and shutdown
-to make it less boring. Just imagine your daemon have a lot of dependencies
-have to be initialized
+Unlike [`scripting`](./scripting.md), daemon is long-living process, that's why
+it provides some extra features:
 
-## Custom `Target`
+* Built-in `stop()` and `reload()` methods
 
-At the first we have to defive custom startup and shutdown lifecycle stages
+* Signal handling (by default `SIGHUP` forces `DaemonUnit` reload)
 
-```python
-from systempy import util as systempy_util
-from systempy.ext.target_ext import TargetExt
+## `DaemonUnit`
 
-
-@systempy_util.register_target
-class ExampleDaemonTarget(TargetExt):
-    @systempy_util.register_hook_before(TargetExt.post_startup)
-    @systempy_util.register_target_method("forward")
-    def before_post_startup(self): ...
-
-    @systempy_util.register_hook_before(TargetExt.pre_shutdown)
-    @systempy_util.register_target_method("gather")
-    async def before_pre_shutdown(self): ...
-
-    @systempy_util.register_hook_after(TargetExt.post_shutdown)
-    @systempy_util.register_target_method("backward")
-    def after_post_shutdown(self): ...
-
-    @systempy_util.register_hook_after(TargetExt.post_shutdown)
-    @systempy_util.register_target_method("backward")
-    def also_after_post_shutdown(self): ...
-
-    # Look, you may to add hooks just while you defining the `Target`
-    @systempy_util.register_hook_after(also_after_post_shutdown)
-    @systempy_util.register_target_method("backward")
-    def after_also_after_post_shutdown(self): ...
-```
-
-## Daemon class
-
-Then you have to subclass this `Target`. Optionally you may add more mixins.
-Remember: combining a lot of `Target` mixins into current worker class is a
-default usage scenario of this library
-
-Create the file, for example, `my_daemon.py`
+Same as [`ScriptUnit`](./scripting.md), the `DaemonUnit` is **syncronous** unit
+and **requires** for implementation `main_sync()`
 
 ```python
-#!/usr/bin/env python
+from systempy import DaemonUnit
+from lib.unit import Example1Unit, Example2Unit, Example3Unit
 
-import os
-import asyncio
-
-from systempy import Unit, LoopUnit, DaemonUnit
-from somewhere_you_defined import ExampleDaemonTarget
-
-
-class ExampleDaemon(
-    Unit,
-    LoopUnit,
-    ExampleDaemonTarget,
+class ExampleDaemonApp(
+    Example1Unit,
+    Example2Unit,
+    Example3Unit,
     DaemonUnit,
 ):
-    async def main_async(self):
-        while True:
-            await asyncio.sleep(5)
-
-    def on_init(self) -> None:
-        print("ON INIT")
-
-    def pre_startup(self) -> None:
-        print("\tPRE STARTUP")
-
-    async def on_startup(self) -> None:
-        print("\t\tON STARTUP")
-
-    async def post_startup(self) -> None:
-        print("\t\t\tPOST STARTUP")
-
-    def before_post_startup(self):
-        print("\t\t\tCUSTOM BEFORE POST STARTUP")
-
-    async def before_pre_shutdown(self):
-        print("\t\t\tCUSTOM BEFORE PRE SHUTDOWN")
-
-    async def pre_shutdown(self) -> None:
-        print("\t\t\tPRE SHUTDOWN")
-
-    async def on_shutdown(self) -> None:
-        print("\t\tON SHUTDOWN")
-
-    def post_shutdown(self) -> None:
-        print("\tPOST SHUTDOWN")
-
-    def also_after_post_shutdown(self) -> None:
-        print("\tALSO AFTER POST SHUTDOWN")
-
-    def after_also_after_post_shutdown(self) -> None:
-        print("\tAFTER ALSO AFTER POST SHUTDOWN")
-
-    def on_exit(self) -> None:
-        print("ON EXIT")
-
+    def main_sync(self) -> None: ...
 
 if __name__ == "__main__":
-    print("PID: %s" % os.getpid())
-    ExampleDaemon.launch()
+    ExampleDaemonApp.launch()
 ```
 
-## Run
+Also check for [example](https://github.com/kai3341/systemPY/blob/next-0.1.x/examples/sync_reload_signal.py)
+
+## `LoopUnit`
+
+is (almost) subclass of `DaemonUnit`, but configured to run **asyncronous**
+long-living jobs. It **requires** for implementation `main_async()`
+
+```python
+from systempy import LoopUnit
+from lib.unit import Example1Unit, Example2Unit, Example3Unit
+
+class ExampleLoopApp(
+    Example1Unit,
+    Example2Unit,
+    Example3Unit,
+    LoopUnit,
+):
+    async def main_async(self) -> None: ...
+
+if __name__ == "__main__":
+    ExampleLoopApp.launch()
+```
+
+## `EventWaitUnit`
+
+is a subclass of `LoopUnit`, but already have implementation of `main_async()`,
+which is actually doing infinite wait. It's useful, when all your units have
+only startup and shutdown, but does not have own `main`
+
+```python
+from systempy import LoopUnit
+from lib.unit import Example1Unit, Example2Unit, Example3Unit
+
+class ExampleInfiniteWaitApp(
+    Example1Unit,
+    Example2Unit,
+    Example3Unit,
+    EventWaitUnit,
+): ...
+
+if __name__ == "__main__":
+    ExampleInfiniteWaitApp.launch()
+```
+
+Also check for [example](https://github.com/kai3341/systemPY/blob/next-0.1.x/examples/async_reload_signal.py)
+
+# Run and Reload
 
 Now you can run your daemon:
 
 ```sh
 python my_daemon.py
 ```
-
-## Reload
 
 By default `reload` action bound to `signals.SIGHUP`. Let's try to reload:
 

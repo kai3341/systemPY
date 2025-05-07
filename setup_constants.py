@@ -1,13 +1,11 @@
-import os, tomli
+import tomllib
 
-version = "0.0.16"
-name_canonical = "systemPY"
-name = name_canonical.lower()
+NAME_CANONICAL = "systemPY"
+NAME: str = NAME_CANONICAL.lower()
+PYPROJECT_CONFIG = "pyproject.toml"
 
+with open(PYPROJECT_CONFIG, "rb") as ppfile:  # noqa: PTH123
+    pyproject = tomllib.load(ppfile)
 
-pyproject_config = "pyproject.toml"
-if os.path.isfile(pyproject_config):
-    with open(pyproject_config, "rb") as ppfile:
-        pyproject = tomli.load(ppfile)
-else:
-    pyproject = {}
+VERSION = pyproject["project"]["version"]
+DESCRIPTION = pyproject["project"]["description"]

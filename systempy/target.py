@@ -1,113 +1,108 @@
-import abc
 import atexit
-
-from typing import Optional, Type, Dict, Any
+from abc import abstractmethod
+from collections.abc import Iterator
+from dataclasses import Field, fields
 from types import TracebackType
+from typing import TYPE_CHECKING, Generic, ParamSpec, Self
 
-from mypy_extensions import trait
-from typing_extensions import Self, dataclass_transform
+from .libsystempy import DIRECTION, ROLE, handler_metadata, register_target_method
+from .target_meta import TargetMeta
 
-from .util import register_target, register_target_method, mark_as_target
+A = ParamSpec("A")
 
 
-@register_target
-@dataclass_transform()
-@trait
-class Target:
+class InterfaceTarget(metaclass=TargetMeta):
+    @register_target_method(DIRECTION.FORWARD)
+    def on_init(self) -> None: ...
+
+    @register_target_method(DIRECTION.FORWARD)
+    def pre_startup(self) -> None: ...
+
+    @register_target_method(DIRECTION.FORWARD)
+    async def on_startup(self) -> None: ...
+
+    @register_target_method(DIRECTION.BACKWARD)
+    async def on_shutdown(self) -> None: ...
+
+    @register_target_method(DIRECTION.BACKWARD)
+    def post_shutdown(self) -> None: ...
+
+    @register_target_method(DIRECTION.BACKWARD)
+    def on_exit(self) -> None: ...
+
+
+class _InitMixin(InterfaceTarget):
     def __post_init__(self) -> None:
-        atexit.register(self.on_exit)
+        on_exit_meta = handler_metadata[type(self).on_exit]
+
+        if on_exit_meta.call_order:
+            atexit.register(self.on_exit)
+
         self.on_init()
 
-    @register_target_method("forward")
-    def on_init(self) -> None:
-        pass
 
-    @register_target_method("forward")
-    def pre_startup(self) -> None:
-        pass
+class _FieldIterMixin(InterfaceTarget):
+    def __iter__(self) -> Iterator[Field]:
+        yield from fields(self)
 
-    @register_target_method("forward")
-    async def on_startup(self) -> None:
-        pass
 
-    @register_target_method("backward")
-    async def on_shutdown(self) -> None:
-        pass
+class Target(
+    _InitMixin,
+    _FieldIterMixin,
+    role=ROLE.MIXIN,
+): ...
 
-    @register_target_method("backward")
-    def post_shutdown(self) -> None:
-        pass
 
-    @register_target_method("backward")
-    def on_exit(self) -> None:
-        pass
+class SyncMixinABC(Target, Generic[A]):
+    if TYPE_CHECKING:
 
-    def __enter__(self: Self) -> Self:
+        def __init__(self, *args: A.args, **kwargs: A.kwargs) -> None: ...
+
+    @classmethod
+    def launch(cls, *args: A.args, **kwargs: A.kwargs) -> None:
+        self = cls(*args, **kwargs)
+        self.run_sync()
+
+    @abstractmethod
+    def main_sync(self) -> None: ...
+
+    @abstractmethod
+    def run_sync(self) -> None: ...
+
+    def __enter__(self) -> Self:
         self.pre_startup()
         return self
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
-    ) -> bool:
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> bool | None:
         self.post_shutdown()
-        return True
 
-    async def __aenter__(self: Self) -> Self:
+
+class AsyncMixinABC(Target):
+    @abstractmethod
+    async def main_async(self) -> None: ...
+    @abstractmethod
+    async def run_async(self) -> None: ...
+
+    async def __aenter__(self) -> Self:
         await self.on_startup()
         return self
 
     async def __aexit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
-    ) -> bool:
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> bool | None:
         await self.on_shutdown()
-        return True
-
-
-@mark_as_target
-@trait
-class ProcessTargetABC:  # (metaclass=abc.ABCMeta):
-    @abc.abstractmethod
-    def main_sync(self) -> None:
-        pass
-
-    @abc.abstractmethod
-    def run_sync(self) -> None:
-        pass
-
-    @abc.abstractmethod
-    def reload(self) -> None:
-        pass
-
-    @classmethod
-    def launch(cls, **kwargs: Dict[str, Any]) -> None:
-        self = cls(**kwargs)
-        self.run_sync()
-
-
-@mark_as_target
-@trait
-class DaemonTargetABC:  # (metaclass=abc.ABCMeta):
-    @abc.abstractmethod
-    async def main_async(self) -> None:
-        pass
-
-    @abc.abstractmethod
-    async def run_async(self) -> None:
-        pass
-
-    @abc.abstractmethod
-    def stop(self) -> None:
-        pass
 
 
 __all__ = (
+    "AsyncMixinABC",
+    "SyncMixinABC",
     "Target",
-    "ProcessTargetABC",
-    "DaemonTargetABC",
 )

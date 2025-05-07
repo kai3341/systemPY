@@ -1,6 +1,6 @@
 # systemPY
 
-![Logo](images/systempy-logo.png)
+![Logo](./images/systempy-logo.png)
 
 Python application component initialization system
 
@@ -38,16 +38,16 @@ and pass dependencies as keyword arguments. In case it's daemon run
 
 It's possible to use `systemPY` in three scenarios:
 
-* Secondary application, which is handled by another application like
-[celery](examples/secondary/celery.md) or
-[starlette](examples/secondary/starlette.md)
+- Secondary application, which is handled by another application like
+  [celery](./examples/secondary/celery.md) or
+  [starlette](./examples/secondary/starlette.md)
 
-* Self-hosted application -- [daemon](examples/self-hosted/daemon.md),
-[script](examples/self-hosted/script.md) or
-[REPL](examples/self-hosted/repl.md)
+- Self-hosted application -- [scripts](./examples/self-hosted/scripting.md),
+  [daemon](./examples/self-hosted/daemon.md), or
+  [REPL](./examples/self-hosted/repl.md)
 
-* [Primary](examples/primary/write-me.md) application,
-handles other applications. Such as Gunicorn/Uvicorn/... or Celery
+- [Primary](./examples/primary/write-me.md) application,
+  handles other applications. Such as Gunicorn/Uvicorn/... or Celery
 
 ## Basic principles
 
@@ -58,24 +58,30 @@ we need in safe application reload. Just looks the
 === "Code"
 
     ```python
-    @util.register_target
-    class Target:
-        @util.register_target_method("forward")
+    from systempy import (
+        DIRECTION,
+        TargetMeta,
+        register_target,
+        register_target_method,
+    )
+
+    class Target(metaclass=TargetMeta):
+        @register_target_method(DIRECTION.FORWARD)
         def on_init(self) -> None: ...
 
-        @util.register_target_method("forward")
+        @register_target_method(DIRECTION.FORWARD)
         def pre_startup(self) -> None: ...
 
-        @util.register_target_method("forward")
+        @register_target_method(DIRECTION.FORWARD)
         async def on_startup(self) -> None: ...
 
-        @util.register_target_method("backward")
+        @register_target_method(DIRECTION.BACKWARD)
         async def on_shutdown(self) -> None: ...
 
-        @util.register_target_method("backward")
+        @register_target_method(DIRECTION.BACKWARD)
         def post_shutdown(self) -> None: ...
 
-        @util.register_target_method("backward")
+        @register_target_method(DIRECTION.BACKWARD)
         def on_exit(self) -> None: ...
     ```
 
@@ -104,41 +110,122 @@ we need in safe application reload. Just looks the
     `Systemd`'s `Unit`s are bound to target. `Target` is a reason of `Unit`
     execution
 
-    Now about `systemPY`. To bind `Unit` to `Target`, you have to subclass it.
-    After subclassing IDE promting you in defining the `Unit` methods -- it's just
-    overriding `Target`'s methods. It's similar to `abc`, but everything is
+    Now about `systemPY`. To bind your `Unit` to `Target`, you have to subclass it.
+    After subclassing IDE will promt you in defining your `Unit`'s methods -- it's
+    just overriding `Target`'s methods. It's similar to `abc`, but everything is
     optional.
 
-=== "@register's"
+=== "`@register`'s"
 
     The last but not the least is `register_target_method`. It defines method's
     type and payload method execution order. When you define syncronous method,
     overriding it by asyncronous method will cause an error
 
-    Payload execution order may be `"forward"`, `"backward"` and `"gather"`.
-    Typically you should use `"forward"` on initialization and `"backward"` on
-    shutdown
+    Payload execution order may be `DIRECTION.FORWARD`, `DIRECTION.BACKWARD` and
+    `DIRECTION.GATHER`. Typically you should use `DIRECTION.FORWARD` on
+    initialization and `DIRECTION.BACKWARD` on shutdown
 
-    Also you may use `"gather"` direction. Registered callbacks will be handled by
-    `asyncio.gather` and will be executed in arbitrary order
+    Also you may use `DIRECTION.GATHER` direction. Registered callbacks will be
+    handled by `asyncio.gather` and will be executed in arbitrary order. You are
+    able to use here both syncronous and asyncronous methods
 
-### That's all? Nope, it's really begin
 
-You are able to register own `Target` with own
-lifecycle methods. The first such example is
-[already included](https://github.com/kai3341/systemPY/blob/main/systempy/ext/target_ext.py).
+### Naming and roles
+
+All magic happens in `TargetMeta` metaclass. `TargetMeta` is a subclass of
+`abc.ABCMeta`, that's why you are able to to use `@abc.abstractmethod` decorator
+
+=== "Class roles"
+
+    There are 4 roles of classes I found:
+
+    * `Target` -- the interface which defines lifecycle methods
+
+    * `Unit` -- component with lifecycle methods
+
+    * `Mixin` -- class **without** lifecycle methods. It's special optimization of
+    `Target` role
+
+    * `App` -- the final "baked" class with composed lifecycle methods
+
+    `TargetMeta` checks `role` kwarg. If kwarg `role` is not defined, `TargetMeta`
+    tries to parse class name and decide what to do
+
+=== "by naming"
+
+    Here we are trying to manipulate class roles by class names. It's wery similar
+    to idea of [tailwind-css](https://tailwindcss.com/). You don't have to do any
+    extra import, just keep class naming and be happy:
+
+    * Classes with names, ends with `Target` or `TargetABC` / matches
+    `r'(\S*)Target(ABC)?$'`, will be interpreted as `Target` role
+
+    * Classes with names, ends with `Unit` or `UnitABC` / matches
+    `r'(\S*)Unit(ABC)?$'`, will be interpreted as `Unit` role
+
+    * Classes with names, ends with `Mixin` or `MixinABC` / matches
+    `r'(\S*)Mixin(ABC)?$'`, will be interpreted as `Mixin` role. Remember: the
+    `Mixin` role is a special optimisation of `Target` role and means the class
+    **does not have own lifecycle methods**
+
+    * Classes with names, ends with `App` / matches `r'(\S*)App$'`, will be
+    interpreted as `App` role. Due App role does not allow subclassing, AppABC
+    has no sense
+
+    ```python
+    from systempy import Target
+
+    class MyTarget(Target): ...  # OK
+    class TargetMy(Target): ...  # ERROR
+
+    class MyMixin(Target): ...  # OK
+    class MixinMy(Target): ...  # ERROR
+    class MyMixinABC(Target): ...  # OK
+    class MixinABCMy(Target): ...  # ERROR
+
+    class MyUnit(Target): ...  # OK
+    class UnitMy(Target): ...  # ERROR
+
+    class MyApp(MyUnit): ...  # OK
+    class MyApplication(MyUnit): ...  # ERROR
+    ```
+
+=== "by `role` kwarg"
+
+    Sometimes you may prefer to pass to class explicit role. You can find such
+    examples in `systempy` code base too. When you are passing `role` kwargs,
+    `systempy` doesn't try to parse class name:
+
+    ```python
+    from systempy import ROLE, Target
+
+    class MyTargetExample(Target, role=ROLE.TARGET): ... # OK
+    class MyBlahblahblah(Target, role=ROLE.MIXIN): ...  # OK
+    class MyFooDB(Target, role=ROLE.UNIT): ...  # OK
+    class MyBar(MyFooDB, role=ROLE.APP): ...  # OK
+    ```
+
+
+## That's all? Nope, it's really begin
+
+You are able to register own `Target` with own lifecycle methods. The first
+such example is [already included](https://github.com/kai3341/systemPY/blob/main/systempy/ext/target_ext.py):
 
 === "Code"
 
     ```python
-    @util.register_target
-    class TargetExt(Target):
-        @util.register_hook_after(Target.on_startup)
-        @util.register_target_method("forward")
+    from systempy import (
+        DIRECTION,
+        Target,
+        register_hook_after,
+        register_hook_before,
+    )
+
+    class ExtTarget(Target):
+        @register_hook_after(Target.on_startup, DIRECTION.FORWARD)
         async def post_startup(self) -> None: ...
 
-        @util.register_hook_before(Target.on_shutdown)
-        @util.register_target_method("backward")
+        @register_hook_before(Target.on_shutdown, DIRECTION.BACKWARD)
         async def pre_shutdown(self) -> None: ...
     ```
 
@@ -147,57 +234,64 @@ lifecycle methods. The first such example is
     Here there were registered two new lifecycle methods:
 
     * `post_startup` callbacks will be called exactly after finished
-    `Target.on_startup` in `"forward"` order
+    `Target.on_startup` in `DIRECTION.FORWARD` order
 
     * `pre_shutdown` callbacks will be called before running `Target.on_shutdown`
-    in `"backward"` order
+    in `DIRECTION.BACKWARD` order
 
 You are able to define your own lifecycle stages without any limit binding them
 before or after already existing. It's like `systemd`'s `Unit` options `Before`
 and `After`. Yes, [`systemPY` is a small `systemd`'s brother](https://telegra.ph/Why-does-it-systemPY-08-12)
 
 You can find more examples. Interesting `Target` example is a
-[daemon](examples/self-hosted/daemon.md) example
+[daemon](./examples/self-hosted/daemon.md) example
 
-Also look at the [REPL](examples/self-hosted/repl.md) example. REPL is useful
+Also look at the [REPL](./examples/self-hosted/repl.md) example. REPL is useful
 and handy, also example has the most canonical usage example
 
-### Method Relosve Order
+## Method Relosve Order
 
-I'll exaplin on the part of [REPL](examples/self-hosted/repl.md) example:
+I'll exaplin on the part of [REPL](./examples/self-hosted/repl.md) example:
 
 ```python
-class MyPrettyReplUnit(     # INIT      # SHUTDOWN
-    ConfigUnit,             # 1         # 8
-    LoggerUnit,             # 2         # 7
-    LoggingUnit,            # 3         # 6
-    CeleryUnit,             # 4         # 5
-    StarletteUnit,          # 5         # 4
-    SQLAlchemyMariaDBUnit,  # 6         # 3
-    MyFirstDatabaseUnit,    # 7         # 2
-    PrettyReplUnit,         # 8         # 1
-    Unit,                   # SKIPED    # SKIPED
-):
-    ...
+class MyReplApp(    # INIT      # SHUTDOWN
+    ConfigUnit,     # 1         # 5
+    LoggerUnit,     # 2         # 4
+    MyFirstDBUnit,  # 3         # 3
+    RedisUnit,      # 4         # 2
+    PTReplUnit,     # 5         # 1
+): ...
 ```
 
-So, you may put `Unit` base class anywhere it's handy for you. It will be
-ignored. Also all `Target` class lifecycle methods will be skipped too
-
-Important: while you are implementing `Unit` mixins, remember NEVER call
+Important: while you are implementing your `Unit` mixins, remember **NEVER** call
 `super()` in lifecycle methods. These methods will be collected and called
 by `systemPY` in the right order
 
-## Installing
+# Installing
 
-Install `systemPY` from [PyPI](https://pypi.org/project/systemPY/):
+Install `systemPY` from [PyPI](https://pypi.org/project/systemPY/) **OR**
+from [github repository](https://github.com/kai3341/systemPY):
 
-```
-pip install systemPY
-```
+=== "pip"
 
-You also able to install the latest version from github repository:
+    ```sh
+    pip install systemPY
+    ```
 
-```
-pip install git+https://github.com/kai3341/systemPY.git
-```
+    **OR**
+
+    ```sh
+    pip install git+https://github.com/kai3341/systemPY.git
+    ```
+
+=== "uv"
+
+    ```sh
+    uv add systemPY
+    ```
+
+    **OR**
+
+    ```sh
+    uv add git+https://github.com/kai3341/systemPY
+    ```

@@ -8,13 +8,22 @@ repo_url: https://github.com/kai3341/systemPY
 nav:
   - Home: index.md
   - Examples:
+      - Units:
+          - Rodi: examples/unit/rodi.md
+          - SQLAlchemy: examples/unit/sqlalchemy.md
+          - Redis / Valkey: examples/unit/redis.md
+          - AIOLogger: examples/unit/aiologger.md
+      - Targets:
+          - Custom: examples/target/custom-target.md
+          - From Scratch: examples/target/from-scratch.md
+          - Custom TargetMeta: examples/target/custom-target-meta.md
+      - Self hosted App:
+          - Scripting: examples/self-hosted/scripting.md
+          - Daemon: examples/self-hosted/daemon.md
+          - REPL: examples/self-hosted/repl.md
       - Secondary Application:
           - FastAPI / Starlette: examples/secondary/starlette.md
           - Celery: examples/secondary/celery.md
-      - Self hosted App:
-          - Daemon: examples/self-hosted/daemon.md
-          - Script: examples/self-hosted/script.md
-          - REPL: examples/self-hosted/repl.md
       - Primary Application:
           - No example yes: examples/primary/write-me.md
   - API Reference: api-reference.md

@@ -1,5 +1,13 @@
 ## Changelog
 
+### 0.1.0
+
+- Huge refactoring
+- Fix all implementation mess, deprecate and rename some classes
+- **Add unit tests**
+- Fix found bugs
+- Update docs
+
 ### 0.0.16
 
 - Actualize mypy plugin, it works with mypy>1.4.0
@@ -39,9 +47,9 @@
 - - Tested building via `mypyc`. It's almost ready
 - Refactor and split REPL code
 - - I found REPL have a lot of problems and
-    [tried to fix it](../marginal_notes/repl_pain)
+    [tried to fix it](./marginal_notes/repl_pain.md)
 - Add [ptpython](https://github.com/prompt-toolkit/ptpython) REPL.
-  [More about it](../../examples/self-hosted/repl#ptrepl-extension)
+  [More about it](../examples/self-hosted/repl.md#ptrepl-extension)
 - Got an idea how to test
 
 ### 0.0.4

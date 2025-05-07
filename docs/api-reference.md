@@ -2,19 +2,21 @@
 
 ## `Target`
 
-## `ProcessTargetABC`
+## `SyncMixinABC`
 
-## `DaemonTargetABC`
+## `AsyncMixinABC`
 
-## `Unit`
+## `ScriptUnit`
 
-## `ProcessUnit`
+## `AsyncScriptUnit`
 
 ## `DaemonUnit`
 
 ## `LoopUnit`
 
-## `ReplUnit`
+## `EventWaitUnit`
+
+## `ReplUnit` (deprecated)
 
 ## `ext.celery.CeleryUnit`
 
@@ -22,14 +24,10 @@
 
 ## `ext.starlette.StarletteUnit`
 
-## `ext.target_ext.TargetExt`
+## `ext.target_ext.ExtTarget`
 
-## `util.register_target`
+## `register_target_method`
 
-## `util.register_target_method`
+## `register_hook_before`
 
-## `util.register_hook_before`
-
-## `util.register_hook_after`
-
-## `util.mark_as_target`
+## `register_hook_after`

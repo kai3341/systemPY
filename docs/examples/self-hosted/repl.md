@@ -20,7 +20,7 @@ There are some tries to fix this anoying behavior. Right now the best solution
 is [PTRepl Extension](#ptrepl-extension) -- it works fine on Linux, MacOS and
 Windows
 
-## Vanila asyncio repl `ReplUnit`. Implement the unit
+## Vanila asyncio repl `ReplUnit` (deprecated). Implement the unit
 
 This solution does not requires external libraries and uses `ctypes`. On Linux
 and MacOS when library `readline` is available, this solution is good enough,
@@ -31,10 +31,10 @@ for other implementations
 Start from creating file, for example, `my_repl.py`:
 
 ```python
-from systempy import Unit, ReplUnit
+from systempy import ReplUnit
 
 
-class MyReplUnit(ReplUnit, Unit):
+class MyReplUnit(ReplUnit):
     """
     Just add your component mixins. For example, initialize models and other
     components. Also you may add your custom variables into repl globals.
@@ -53,13 +53,13 @@ if __name__ == '__main__':
     unit.run_sync()
 ```
 
-## Run the REPL
-
 Now you are able to use this REPL:
 
 ```sh
 python -m my_repl
 ```
+
+Also check for [example](https://github.com/kai3341/systemPY/blob/next-0.1.x/examples/repl_default.py)
 
 ## PrettyReplUnit Extension
 
@@ -81,56 +81,29 @@ API reference is the same, and problems are the same too. This is my pet project
 code with minimal changes
 
 ```python
-from systempy import Unit
-from systempy.ext.celery import CeleryUnit
-from systempy.ext.starlette import StarletteUnit
-from systempy.ext.pretty_repl import PrettyReplUnit
+from systempy.unit.ext.ptrepl import PTReplUnit
 
-from petproject.common.systempy import (
+from lib.unit import ConfigUnit, LoggerUnit, MyFirstDBUnit, RedisUnit
+from lib import services
+
+import models
+
+
+class MyReplApp(
     ConfigUnit,
     LoggerUnit,
-    LoggingUnit,
-    SQLAlchemyMariaDBUnit,
-    MyFirstDatabaseUnit,
-)
-
-from . import config
-from . import singleton
-from . import views
-
-from petproject.common import models
-from petproject.common.service import othermodule as othermodule_service
-from petproject.othermodule import tasks
-
-
-class MyPrettyReplUnit(
-    ConfigUnit,
-    LoggerUnit,
-    LoggingUnit,
-    CeleryUnit,
-    StarletteUnit,
-    SQLAlchemyMariaDBUnit,
-    MyFirstDatabaseUnit,
-    PrettyReplUnit,
-    Unit,
+    MyFirstDBUnit,
+    RedisUnit,
+    PTReplUnit,
 ):
     repl_variables = {
-        "views": views,
-        "singleton": singleton,
-        "config": config,
+        "services": services,
         "models": models,
-        "othermodule_service": othermodule_service,
-        "tasks": tasks,
     }
 
 
-unit = MyPrettyReplUnit(
-    config=config.config,
-)
-
-
 if __name__ == '__main__':
-    unit.run_sync()
+    MyPrettyReplUnit.launch()
 ```
 
 ## PTRepl Extension
@@ -157,3 +130,5 @@ from systempy.ext.ptrepl import PTRepl as PrettyReplUnit
 
 If you like this REPL implementation, you may remove old import and refactor
 your code
+
+Also check for [example](https://github.com/kai3341/systemPY/blob/next-0.1.x/examples/ptrepl.py)

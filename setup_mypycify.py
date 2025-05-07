@@ -8,87 +8,105 @@ TODO: It looks all util module may be built successfuly
 """
 
 import os
+from collections.abc import Generator, Mapping
+from typing import Union
+
 from mypyc.build import mypycify
 
-from setup_constants import name, pyproject
+from setup_constants import NAME, pyproject
 
-mypy_config = pyproject.get("tool", {}).get("mypy", {})
+StructLeaf = tuple[str, ...]
+Struct = Mapping[str | None, Union[StructLeaf, "Struct"]]
 
-mypycify_structure = {
-    name: {
-        # None: (
-        #     # "mypy.py",
-        #     "target.py",
-        #     # "unit_meta.py",
-        #     "unit.py",
-        #     "process.py",
-        #     "daemon.py",
-        #     "repl.py",
-        #     "loop.py",
-        # ),
-        # "repl": {
-        #     None: (
-        #         " __init__.py",
-        #         "handle_interrupt.py",
-        #         "repl.py",
-        #         "typing.py",
-        #         "util.py",
-        #     )
-        # },
-        "util": {
+mypy_config: dict[str, str] = pyproject.get("tool", {}).get("mypy", {})
+
+
+mypycify_structure: Struct = {
+    NAME: {
+        None: (
+            # "target.py",
+            # "unit_meta.py",
+        ),
+        "unit": {
             None: (
-                "typing.py",
-                "dataclasses.py",
+                # "unit.py",
+                # "scripting.py",
+                # "daemon.py",
+                # "loop.py",
+            ),
+            "repl": {
+                None: (
+                    # " __init__.py",
+                    "handle_interrupt.py",
+                    # "mixins.py",
+                    # "repl.py",
+                ),
+            },
+            "ext": {
+                None: (
+                    # "pretty_repl.py",
+                    # "target_ext.py",
+                    # "starlette.py",
+                    # "celery.py",
+                ),
+            },
+        },
+        "libsystempy": {
+            None: (
+                "local_typing.py",
+                # "local_dataclasses.py",  # https://github.com/python/mypy/issues/13304  # noqa: E501, ERA001
                 "constants.py",
                 "extraction.py",
+                # "enums.py",
                 "configuration.py",
                 "check.py",
                 "creation.py",
                 "callback_plan.py",
                 "misc.py",
-                "register.py",
+                # "register.py",
                 "handler_type.py",
+                "thread_exception.py",
             ),
         },
-        # "ext": {
-        #     None: (
-        #         "pretty_repl.py",
-        #         "target_ext.py",
-        #         "starlette.py",
-        #         "celery.py",
-        #     ),
-        # },
     },
 }
 
 
-def walk(struct: dict, root=None):
-    if root is None:
-        for key, value in struct.items():
-            if key is None:
-                for item in value:
-                    yield item
-            else:
-                yield from walk(value, key)
-    else:
-        for key, value in struct.items():
-            if key is None:
-                for item in value:
-                    yield os.path.join(root, item)
-            else:
-                next_root = os.path.join(root, key)
-                yield from walk(value, next_root)
+def _walk_next(struct: Struct, root: str) -> Generator[str, None, None]:
+    for key, value in struct.items():
+        if key is None:
+            assert isinstance(value, tuple)
+            value_leaf: StructLeaf = value
+            for item in value_leaf:
+                yield os.path.join(root, item)  # noqa: PTH118
+        else:
+            assert isinstance(value, dict)
+            value_struct: Struct = value
+            next_root = os.path.join(root, key)  # noqa: PTH118
+            yield from _walk_next(value_struct, next_root)
 
 
-ext_modules = walk(mypycify_structure)
-ext_modules = list(ext_modules)
+def walk(struct: Struct) -> Generator[str, None, None]:
+    for key, value in struct.items():
+        if key is None:
+            assert isinstance(value, tuple)
+            value_leaf: StructLeaf = value
+            yield from value_leaf
+        else:
+            assert isinstance(value, dict)
+            value_struct: Struct = value
+            yield from _walk_next(value_struct, key)
+
+
+ext_modules_paths = list(walk(mypycify_structure))
 
 if "custom_typeshed_dir" in mypy_config:
     custom_typeshed_dir = mypy_config["custom_typeshed_dir"]
-    custom_typeshed_dir = "--custom-typing-module='%s'" % custom_typeshed_dir
-    ext_modules.insert(0, custom_typeshed_dir)
+    # pylint: disable-next=C0209
+    custom_typeshed_dir = f"--custom-typing-module='{custom_typeshed_dir}'"
+    ext_modules_paths.insert(0, custom_typeshed_dir)
 
-ext_modules = mypycify(ext_modules)
+ext_modules = mypycify(ext_modules_paths)
 
 
 __all__ = ("ext_modules",)

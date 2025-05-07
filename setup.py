@@ -1,33 +1,29 @@
-"""
-Python application component initialization system
-"""
-
+from os import environ
 
 from setuptools import setup
-from inspect import cleandoc
 
-from setup_constants import name_canonical, name, version
+from setup_constants import DESCRIPTION, NAME, NAME_CANONICAL, VERSION
 
-# from setup_mypycify import ext_modules
-ext_modules = []
+if "NO_MYPYC" not in environ:
+    from setup_mypycify import ext_modules
+else:
+    ext_modules = []
 
 
-description = cleandoc(__doc__)
+requirements: list[str] = []
 
-requirements = [
-    "typing-extensions",
-    "mypy-extensions",
-]
+requirements_build: list[str] = []
 
 packages = [
-    name,
-    f"{name}.util",
-    f"{name}.ext",
-    f"{name}.repl",
+    NAME,
+    f"{NAME}.libsystempy",
+    f"{NAME}.unit",
+    f"{NAME}.unit.ext",
+    f"{NAME}.unit.repl",
 ]
 
 package_data = {
-    name: ["py.typed"],
+    NAME: ["py.typed"],
 }
 
 keywords = [
@@ -39,15 +35,27 @@ keywords = [
     "manager",
 ]
 
+classifiers__python_versions = (
+    "3 :: Only",
+    "3.9",
+    "3.10",
+    "3.11",
+    "3.12",
+    "3.13",
+    "3.14",
+)
+
+classifiers__programming_language = tuple(
+    f"Programming Language :: Python :: {i}"
+    # ===
+    for i in classifiers__python_versions
+)
+
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
-    # Programming Language
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
+    *classifiers__programming_language,
     # Topic
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
@@ -57,18 +65,21 @@ classifiers = [
 ]
 
 py_modules = [
-    name,
-    "setup_constants",
+    NAME,
+    # "setup_constants",
 ]
 
-with open("README.md") as readme_file:
+with open("README.md", encoding="utf-8") as readme_file:  # noqa: PTH123
     long_description = readme_file.read()
 
 
 setup(
     classifiers=classifiers,
-    description=description,
+    description=DESCRIPTION,
     install_requires=requirements,
+    extras_require={
+        "dev": requirements_build,
+    },
     license="MIT",
     packages=packages,
     package_data=package_data,
@@ -76,10 +87,10 @@ setup(
     long_description_content_type="text/markdown",
     include_package_data=True,
     keywords=keywords,
-    name=name_canonical,
+    name=NAME_CANONICAL,
     py_modules=py_modules,
     ext_modules=ext_modules,
     url="https://github.com/kai3341/systemPY",
-    version=version,
+    version=VERSION,
     zip_safe=True,
 )

@@ -8,9 +8,8 @@ library
 
 First you have to create file, for example, `celery_app.py`
 
-```
-from systempy import Unit
-from systempy.ext.celery import CeleryUnit
+```python
+from systempy.unit.ext.celery import CeleryUnit
 
 from .config import config
 
@@ -20,14 +19,14 @@ from .app import app as celery_app  # Advice to create an instencies of apps
 from . import tasks
 tasks.__package__
 
-class MyWorkerUnit(CeleryUnit, Unit):
+class MyWorkerApp(CeleryUnit):
     ...
 
 
 # Remember `CeleryUnit` require an `celery_app` and `config` kwargs
 # Also remember: use `CeleryUnit` as an example of your own `Unit`
 
-unit = MyWorkerUnit(
+unit = MyWorkerApp(
     config=config,
     celery_app=celery_app,
 )

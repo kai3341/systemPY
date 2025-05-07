@@ -1,9 +1,9 @@
 ## 1.0
 
 * [ ] API review
-* [ ] Tests
+* [x] Tests
 * [ ] Documantation
-    * [X] index
+    * [x] index
     * [x] Examples
     * [ ] API Reference
 
