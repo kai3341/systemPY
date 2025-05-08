@@ -1,10 +1,10 @@
-from os import environ
+from os import getenv
 
 from setuptools import setup
 
 from setup_constants import DESCRIPTION, NAME, NAME_CANONICAL, VERSION
 
-if "NO_MYPYC" not in environ:
+if getenv("USE_MYPYC") == "1":
     from setup_mypycify import ext_modules
 else:
     ext_modules = []

@@ -31,7 +31,12 @@ jobs:
         run: uv sync --locked --dev
 
       - name: Build the project
+        env:
+          USE_MYPYC: 1
         run: uv build --no-build-isolation --sdist --wheel
+
+      - name: Dirty hack
+        run: for f in dist/*.whl; do echo mv $f `sed -s 's%-linux_%-manylinux2014_%g' <<< $f`; done
 
       - name: mint API token
         id: mint-token
