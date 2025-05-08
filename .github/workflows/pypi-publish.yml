@@ -36,7 +36,7 @@ jobs:
         run: uv build --no-build-isolation --sdist --wheel
 
       - name: Dirty hack
-        run: for f in dist/*.whl; do echo mv $f `sed -s 's%-linux_%-manylinux2014_%g' <<< $f`; done
+        run: for f in dist/*.whl; do mv $f `sed -s 's%-linux_%-manylinux2014_%g' <<< $f`; done
 
       - name: mint API token
         id: mint-token
