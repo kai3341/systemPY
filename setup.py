@@ -1,18 +1,54 @@
+from collections.abc import Sequence
 from os import getenv
 
 from setuptools import setup
+from wheel.bdist_wheel import bdist_wheel
 
 from setup_constants import DESCRIPTION, NAME, NAME_CANONICAL, VERSION
 
-if getenv("USE_MYPYC") == "1":
+requirements_build: list[str] = []
+
+if getenv("USE_MYPYC"):
     from setup_mypycify import ext_modules
+
+    requirements_build.append("mypyc")
 else:
     ext_modules = []
 
 
+class BDistWheel(bdist_wheel):
+    MAX_TAGS = 10
+
+    def get_tag(self) -> Sequence[str]:
+        return (
+            self.python_tag,
+            self.__get_platform_interpret(),
+            self.__get_platform_tags(),
+        )
+
+    def __get_platform_interpret(self) -> str:
+        if not getenv("USE_MYPYC"):
+            return "none"
+
+        from packaging.tags import interpreter_name, interpreter_version
+
+        return f"{interpreter_name()}{interpreter_version()}"
+
+    def __get_platform_tags(self) -> str:
+        if not getenv("USE_MYPYC"):
+            return "any"
+
+        from packaging.tags import platform_tags
+
+        all_tags = tuple(platform_tags())
+        if len(all_tags) > self.MAX_TAGS:
+            all_tags = all_tags[: self.MAX_TAGS]
+
+        return ".".join(all_tags)
+
+
 requirements: list[str] = []
 
-requirements_build: list[str] = []
 
 packages = [
     NAME,
@@ -80,6 +116,7 @@ setup(
     extras_require={
         "dev": requirements_build,
     },
+    cmdclass={"bdist_wheel": BDistWheel},
     license="MIT",
     packages=packages,
     package_data=package_data,

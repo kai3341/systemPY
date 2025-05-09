@@ -1,6 +1,6 @@
 [project]
 name = "systempy"
-version = "0.1.0"
+version = "0.1.0+0"
 description = "Python application component initialization system"
 authors = [{name = "kai3341"}]
 readme = "README.md"
@@ -53,4 +53,8 @@ dev = [
     "mkdocs-material>=9.6.11",
     "mypy[mypyc]>=1.15.0",
     "ruff>=0.11.5",
+    "wheel>=0.45.1",
 ]
+
+[build-system]
+requires = ["mypy[mypyc]", "wheel>=0.45.1"]

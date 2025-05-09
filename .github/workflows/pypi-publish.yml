@@ -7,12 +7,13 @@ on:
 name: release
 
 jobs:
-  pypi-publish:
-    name: upload release to PyPI
-    runs-on: ubuntu-latest
+  make-binaries:
+    name: make binary builds
     environment: pypi
-    permissions:
-      id-token: write
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
@@ -27,16 +28,34 @@ jobs:
         with:
           python-version-file: "pyproject.toml"
 
-      - name: Install the project
-        run: uv sync --locked --dev
-
-      - name: Build the project
+      - name: Build the project with mypyc
         env:
           USE_MYPYC: 1
-        run: uv build --no-build-isolation --sdist --wheel
+        run: uv build --wheel
 
-      - name: Dirty hack
-        run: for f in dist/*.whl; do mv $f `sed -s 's%-linux_%-manylinux2014_%g' <<< $f`; done
+  pypi-publish:
+    name: upload release to PyPI
+    environment: pypi
+    needs: make-binaries
+    permissions:
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "pyproject.toml"
+
+      - name: Build the project without mypyc
+        run: uv build --sdist --wheel
 
       - name: mint API token
         id: mint-token
