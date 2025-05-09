@@ -28,10 +28,10 @@ jobs:
         with:
           python-version-file: "pyproject.toml"
 
-      - run: uv sync
-
       - name: Run tests
-        run: python manage.py test
+        run: |
+          uv sync
+          python manage.py test
 
       - name: Build the project with mypyc
         env:
