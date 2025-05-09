@@ -1,6 +1,13 @@
 from pathlib import Path
+from platform import system
+from signal import Signals
 from unittest import IsolatedAsyncioTestCase
 
+STOP_SIGNAL = (
+    Signals.CTRL_C_EVENT  # type: ignore[attr-defined]
+    if system() == "Windows"
+    else Signals.SIGINT
+)
 EXAMPLES = Path(__file__).parent.parent / "examples"
 
 
@@ -8,8 +15,14 @@ class Test(IsolatedAsyncioTestCase):
     async def test_subprocess_async_reload_signal(self) -> None:
         from asyncio import create_subprocess_exec, sleep
         from asyncio.subprocess import PIPE
-        from signal import SIGHUP, SIGINT
         from sys import executable
+
+        from systempy.unit._compat_signal import default_reload_signals
+
+        if not len(default_reload_signals):
+            self.skipTest("No reload signal supported")
+
+        first_reload_signal = default_reload_signals[0]
 
         process = await create_subprocess_exec(
             executable,
@@ -22,17 +35,17 @@ class Test(IsolatedAsyncioTestCase):
 
         self.assertEqual(process.returncode, None, "Process dead unexpectedly")
 
-        process.send_signal(SIGHUP)
+        process.send_signal(first_reload_signal)
         await sleep(0.3)
 
         self.assertEqual(process.returncode, None, "Process dead unexpectedly")
 
-        process.send_signal(SIGHUP)
+        process.send_signal(first_reload_signal)
         await sleep(0.2)
 
         self.assertEqual(process.returncode, None, "Process dead unexpectedly")
 
-        process.send_signal(SIGINT)
+        process.send_signal(STOP_SIGNAL)
         await sleep(0.2)
 
         self.assertEqual(process.returncode, 0)
@@ -188,8 +201,14 @@ class Test(IsolatedAsyncioTestCase):
     async def test_subprocess_sync_reload_signal(self) -> None:
         from asyncio import create_subprocess_exec, sleep
         from asyncio.subprocess import PIPE
-        from signal import SIGHUP, SIGINT
         from sys import executable
+
+        from systempy.unit._compat_signal import default_reload_signals
+
+        if not len(default_reload_signals):
+            self.skipTest("No reload signal supported")
+
+        first_reload_signal = default_reload_signals[0]
 
         process = await create_subprocess_exec(
             executable,
@@ -202,17 +221,17 @@ class Test(IsolatedAsyncioTestCase):
 
         self.assertEqual(process.returncode, None, "Process dead unexpectedly")
 
-        process.send_signal(SIGHUP)
+        process.send_signal(first_reload_signal)
         await sleep(0.3)
 
         self.assertEqual(process.returncode, None, "Process dead unexpectedly")
 
-        process.send_signal(SIGHUP)
+        process.send_signal(first_reload_signal)
         await sleep(0.2)
 
         self.assertEqual(process.returncode, None, "Process dead unexpectedly")
 
-        process.send_signal(SIGINT)
+        process.send_signal(STOP_SIGNAL)
         await sleep(0.2)
 
         self.assertEqual(process.returncode, 0)

@@ -20,11 +20,9 @@ class BDistWheel(bdist_wheel):
     MAX_TAGS = 10
 
     def get_tag(self) -> Sequence[str]:
-        return (
-            self.python_tag,
-            self.__get_platform_interpret(),
-            self.__get_platform_tags(),
-        )
+        interpret = self.__get_platform_interpret()
+        tag = interpret if getenv("USE_MYPYC") else self.python_tag
+        return (tag, interpret, self.__get_platform_tags())
 
     def __get_platform_interpret(self) -> str:
         if not getenv("USE_MYPYC"):

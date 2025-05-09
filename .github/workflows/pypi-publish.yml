@@ -12,7 +12,7 @@ jobs:
     environment: pypi
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -23,15 +23,21 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
 
-      - name: "Set up Python"
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version-file: "pyproject.toml"
 
+      - name: Install requirements
+        run: uv sync
+
+      - name: Run tests
+        run: python manage.py test
+
       - name: Build the project with mypyc
         env:
           USE_MYPYC: 1
-        run: uv build --wheel
+        run: uv build --wheel --no-build-isolation
 
   pypi-publish:
     name: upload release to PyPI
