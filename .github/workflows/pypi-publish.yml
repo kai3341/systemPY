@@ -28,8 +28,7 @@ jobs:
         with:
           python-version-file: "pyproject.toml"
 
-      - name: Install requirements
-        run: uv sync
+      - run: uv sync
 
       - name: Run tests
         run: python manage.py test
@@ -37,7 +36,7 @@ jobs:
       - name: Build the project with mypyc
         env:
           USE_MYPYC: 1
-        run: uv build --wheel --no-build-isolation
+        run: uv build --wheel
 
   pypi-publish:
     name: upload release to PyPI
