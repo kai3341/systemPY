@@ -1,7 +1,11 @@
+from __future__ import annotations
+
 from collections.abc import Collection, Iterator
 from dataclasses import InitVar, dataclass, field
-from typing import ParamSpec, TypeVar
+from typing import TypeVar
 from weakref import ref
+
+from typing_extensions import ParamSpec
 
 P = ParamSpec("P")
 T = TypeVar("T")

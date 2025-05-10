@@ -1,4 +1,8 @@
-import tomllib
+try:
+    import tomllib
+except ImportError:
+    # pyright: ignore[reportMissingImports]
+    import tomli as tomllib  # type: ignore[import-not-found,no-redef]
 
 NAME_CANONICAL = "systemPY"
 NAME: str = NAME_CANONICAL.lower()

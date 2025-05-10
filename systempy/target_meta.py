@@ -1,20 +1,26 @@
+from __future__ import annotations
+
 from abc import ABCMeta
-from collections.abc import Callable
 from dataclasses import Field, field
 from typing import (
+    TYPE_CHECKING,
     Any,
     ClassVar,
     Generic,
     NamedTuple,
-    ParamSpec,
     TypeVar,
     cast,
-    dataclass_transform,
 )
 
+from typing_extensions import ParamSpec, dataclass_transform
+
 from .libsystempy.class_role import class_role
-from .libsystempy.enums import ROLE
 from .libsystempy.register import mark_as_final
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from .libsystempy.enums import ROLE
 
 A = ParamSpec("A")
 T = TypeVar("T")
@@ -60,14 +66,14 @@ class TargetMeta(ABCMeta, Generic[A]):
         kw_only_default=True,
     )
     def __new__(
-        mcs: type["TargetMeta"],
+        mcs: type[TargetMeta],
         name: str,
         bases: tuple[type, ...],
         classdict: dict[str, Any],
         *,
         role: ROLE | None = None,
         **kwargs: Any,
-    ) -> type["TargetMeta"]:
+    ) -> type[TargetMeta]:
         for base in bases:
             if base in mark_as_final:
                 msg = mcs.__systempy_error_messages__.subclassed_baked.format(cls=base)
@@ -79,7 +85,7 @@ class TargetMeta(ABCMeta, Generic[A]):
         )
         return mcs.__systempy_criteria__(new_cls, role)(new_cls)
 
-    def __call__(cls, *args: A.args, **kwargs: A.kwargs) -> "TargetMeta[A]":
+    def __call__(cls, *args: A.args, **kwargs: A.kwargs) -> TargetMeta[A]:
         if cls not in mark_as_final:
             msg = cls.__systempy_error_messages__.instantiate_not_ready.format(cls=cls)
             raise TypeError(msg)

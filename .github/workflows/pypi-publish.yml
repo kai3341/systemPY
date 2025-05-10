@@ -13,6 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -26,15 +27,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version-file: "pyproject.toml"
+          python-version: ${{ matrix.python }}
+
+      - run: python --version
 
       - name: Run tests
-        run: uv run manage.py test
+        run: uv run --isolated manage.py test
 
       - name: Build the project with mypyc
         env:
           USE_MYPYC: 1
-        run: uv build --wheel --no-build-isolation
+        run: uv build --wheel
 
       - uses: actions/upload-artifact@v4
         with:
@@ -92,6 +95,3 @@ jobs:
 
       - name: Publish the project
         run: uv publish --token ${{ steps.mint-token.outputs.api-token }}
-
-      - name: Remove cache
-        run: gh run delete ${{ github.run_id }}

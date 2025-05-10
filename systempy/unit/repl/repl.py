@@ -1,15 +1,19 @@
+from __future__ import annotations
+
 import asyncio
 import asyncio.__main__ as amain  # type:ignore[import-not-found]
-import rlcompleter
 import sys
 from dataclasses import field
-from typing import Any, ParamSpec
+from typing import TYPE_CHECKING, Any
 
-from typing_extensions import deprecated
+from typing_extensions import ParamSpec, deprecated
 
 from ..scripting import ScriptUnit
 from .handle_interrupt import handle_interrupt, setup_completer
 from .mixins import ReplLocalsMixin
+
+if TYPE_CHECKING:
+    import rlcompleter
 
 A = ParamSpec("A")
 
@@ -87,11 +91,11 @@ class ReplUnit(ReplLocalsMixin, ScriptUnit[A]):
         while True:
             try:
                 self.loop.run_forever()
-            except KeyboardInterrupt:
+            except KeyboardInterrupt:  # noqa: PERF203
                 handle_interrupt(self)
                 if amain.repl_future and not amain.repl_future.done():
                     amain.repl_future.cancel()
-                    amain.repl_future_interrupted = True
+                    amain.repl_future_interrupted = True  # pyright: ignore[reportAttributeAccessIssue]
                 continue
             else:
                 self.loop.run_until_complete(self.on_shutdown())

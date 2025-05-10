@@ -1,16 +1,22 @@
+from __future__ import annotations
+
 from abc import abstractmethod
-from collections.abc import Callable
 from ctypes import pythonapi
 from dataclasses import field
 from signal import Signals, getsignal, signal
 from threading import current_thread
-from types import FrameType
-from typing import ClassVar, ParamSpec
+from typing import TYPE_CHECKING, ClassVar
+
+from typing_extensions import ParamSpec
 
 from ..libsystempy import ROLE
 from ..libsystempy.thread_exception import thread_send_exception
 from ..target import SyncMixinABC
 from ._compat_signal import default_reload_signals
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from types import FrameType
 
 PyThreadState_Get = pythonapi.PyThreadState_Get
 PyEval_RestoreThread = pythonapi.PyEval_RestoreThread

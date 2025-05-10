@@ -1,13 +1,18 @@
-from collections.abc import Callable, Coroutine
+from __future__ import annotations
+
 from inspect import iscoroutinefunction
-from typing import cast
+from typing import TYPE_CHECKING, cast
 from weakref import ref
 
 from .constants import lifecycle_disallowed_attrs, lifecycle_registered_methods
 from .enums import DIRECTION
 from .local_dataclasses import SeparatedLFMethods
-from .local_typing import CTuple, P, R, WeakTypeIterable
 from .register import mark_as_target, register_direction
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Coroutine
+
+    from .local_typing import CTuple, P, R, WeakTypeIterable
 
 
 def extract_attrs(iterable: WeakTypeIterable, reason: Callable) -> list[Callable]:

@@ -1,7 +1,9 @@
 from collections.abc import Callable
 from inspect import iscoroutinefunction
-from typing import Generic, ParamSpec, Protocol, TypeVar
+from typing import Generic, Protocol, TypeVar
 from weakref import WeakKeyDictionary, WeakSet, WeakValueDictionary, ref
+
+from typing_extensions import ParamSpec
 
 from .constants import (
     lifecycle_additional_configuration,
@@ -29,17 +31,20 @@ from .misc import get_key_or_create
 P = ParamSpec("P")
 R = TypeVar("R")
 
-register_addition_cfg_applier = NamedRegistry[[type, ClsCFG], None](
+register_addition_cfg_applier: "NamedRegistry[[type, ClsCFG], None]" = NamedRegistry(
     WeakValueDictionary(),
 )
-register_direction = NamedRegistry[[WeakTypeIterable, Callable], CTuple](
+register_direction: "NamedRegistry[[WeakTypeIterable, Callable], CTuple]" = (
+    NamedRegistry(
+        WeakValueDictionary(),
+    )
+)
+register_handler_by_aio: "NamedRegistry[[type, WeakTypeIterable, Callable, CTuple],Callable]" = NamedRegistry(  # noqa: E501
     WeakValueDictionary(),
 )
-register_handler_by_aio: NamedRegistry[
-    [type, WeakTypeIterable, Callable, CTuple],
-    Callable,
-] = NamedRegistry(WeakValueDictionary())
-register_check_method_type = NamedRegistry[[Callable], None](WeakValueDictionary())
+register_check_method_type: "NamedRegistry[[Callable], None]" = NamedRegistry(
+    WeakValueDictionary(),
+)
 
 register_hook_before: HookRegistry = HookRegistry(WeakKeyDictionary())
 register_hook_after: HookRegistry = HookRegistry(WeakKeyDictionary())

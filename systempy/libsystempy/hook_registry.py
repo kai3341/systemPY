@@ -1,13 +1,15 @@
+from __future__ import annotations
+
 from collections.abc import Callable
 from dataclasses import dataclass
 from inspect import iscoroutinefunction
 from typing import (
+    TYPE_CHECKING,
     ClassVar,
 )
 from weakref import WeakKeyDictionary
 
 from . import register
-from .enums import DIRECTION
 from .local_dataclasses import BaseRegistry
 from .local_typing import (
     Decorator,
@@ -17,6 +19,9 @@ from .local_typing import (
 )
 from .misc import get_key_or_create
 from .weak_queue import WeakQueue
+
+if TYPE_CHECKING:
+    from .enums import DIRECTION
 
 
 @dataclass()

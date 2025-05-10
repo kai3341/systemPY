@@ -9,14 +9,14 @@ TODO: It looks all util module may be built successfuly
 
 import os
 from collections.abc import Generator, Mapping
-from typing import Union
+from typing import Optional, Union
 
 from mypyc.build import mypycify
 
 from setup_constants import NAME, pyproject
 
 StructLeaf = tuple[str, ...]
-Struct = Mapping[str | None, Union[StructLeaf, "Struct"]]
+Struct = Mapping[Optional[str], Union[StructLeaf, "Struct"]]
 
 mypy_config: dict[str, str] = pyproject.get("tool", {}).get("mypy", {})
 

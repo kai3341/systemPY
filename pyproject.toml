@@ -1,10 +1,10 @@
 [project]
 name = "systempy"
-version = "0.1.3"
+version = "0.1.4"
 description = "Python application component initialization system"
 authors = [{name = "kai3341"}]
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
     "typing-extensions",
 ]
@@ -81,4 +81,4 @@ dev = [
 ]
 
 [build-system]
-requires = ["mypy[mypyc]", "wheel>=0.45.1"]
+requires = ["tomli; python_version < '3.11'", "mypy[mypyc]", "wheel>=0.45.1"]
