@@ -17,7 +17,7 @@ else:
 
 
 class BDistWheel(bdist_wheel):
-    MAX_TAGS = 10
+    MAX_TAGS = 5
 
     def get_tag(self) -> Sequence[str]:
         interpret = self.__get_platform_interpret()
