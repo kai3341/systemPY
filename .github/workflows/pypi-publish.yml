@@ -38,7 +38,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: binary-wheel-${{ github.run_id }}
+          name: binary-wheel-${{ github.run_id }}-${{ matrix.os }}
           path: dist/*
           compression-level: 0 # already compressed
 
@@ -68,7 +68,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: binary-wheel-${{ github.run_id }}
+          pattern: binary-wheel-${{ github.run_id }}-*
           path: dist
           merge-multiple: true
 
