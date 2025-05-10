@@ -30,7 +30,7 @@ try:
     assert rl_library, "Module `readline` already imported"
     rl = ctypes.CDLL(rl_library)
 
-    readline.parse_and_bind("tab: complete")
+    readline.parse_and_bind("tab: complete")  # type: ignore[attr-defined]
 
     rl_kill_full_line = rl.rl_kill_full_line
     rl_beg_of_line = rl.rl_beg_of_line
@@ -46,7 +46,7 @@ try:
 
     def setup_completer__readline(unit: Any) -> None:
         unit.repl_completer = rlcompleter.Completer(unit.repl_env_full)
-        readline.set_completer(unit.repl_completer.complete)
+        readline.set_completer(unit.repl_completer.complete)  # type: ignore[attr-defined]
 
 except:  # noqa: E722
     print(  # noqa: T201
