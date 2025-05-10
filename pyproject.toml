@@ -1,6 +1,6 @@
 [project]
 name = "systempy"
-version = "0.1.1"
+version = "0.1.2"
 description = "Python application component initialization system"
 authors = [{name = "kai3341"}]
 readme = "README.md"
@@ -8,6 +8,30 @@ requires-python = ">=3.11"
 dependencies = [
     "typing-extensions",
 ]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+keywords = [
+    "asyncio",
+    "graceful",
+    "init",
+    "initialization",
+    "shutdown",
+    "manager"
+]
+license="MIT"
 
 [project.optional-dependencies]
 extra = [
