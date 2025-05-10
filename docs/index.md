@@ -13,8 +13,8 @@ Python application component initialization system
 
 ## The problem
 
-The regular application contain many atomic components. Asyncio makes theirs
-initializing a little bit complicated. It's OK, when you have single entrypoint
+The regular application contains many atomic components. Asyncio makes their
+initializing a little bit complicated. It's OK, when you have a single entrypoint
 and initialize your application components via your framework. While you add
 new components to your application iteratively, you don't see any problem
 
@@ -25,16 +25,16 @@ shutdown
 
 The most painful part is one-time scripts. It's kind of The Banana Gorilla
 Problem: you wanted a banana but you have to initialize a gorilla holding the
-banana and the entire jungle, and then graceful shutdown it
+banana and the entire jungle, and then gracefully shutdown it
 
 ## Solution
 
-This library allows you to implement application startup and shutdown in
+This library allows you to implement application startup and shutdown in a
 declarative way. You have to implement a class for each your component,
 write the startup and shutdown code. Then combine required components as
-mixins into the current application `Unit` class. Then create an instance
+mixins into the current application `App` class. Then create an instance
 and pass dependencies as keyword arguments. In case it's daemon run
-`instance.run_sync()` methed
+`instance.run_sync()` method
 
 It's possible to use `systemPY` in three scenarios:
 

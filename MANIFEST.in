@@ -1,0 +1,4 @@
+include setup_constants.py setup_mypycify.py
+recursive-exclude tests *
+recursive-exclude examples *
+recursive-exclude docs *

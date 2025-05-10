@@ -82,8 +82,15 @@ Now you can run your daemon:
 python my_daemon.py
 ```
 
-By default `reload` action bound to `signals.SIGHUP`. Let's try to reload:
+By default `reload` action bound to `signals.SIGHUP` on Unix.
+Let's try to reload:
 
-```sh
-kill -HUP $YOUR_DAEMON_PID
-```
+=== "Unix"
+
+    ```sh
+    kill -HUP $YOUR_DAEMON_PID
+    ```
+
+=== "Windows"
+
+    It doesn't works right now
