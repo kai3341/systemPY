@@ -41,7 +41,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: binary-wheel-${{ github.run_id }}-${{ matrix.os }}
+          name: binary-wheel-${{ github.run_id }}-${{ matrix.os }}-${{ matrix.python }}
           path: dist/*
           compression-level: 0 # already compressed
 
