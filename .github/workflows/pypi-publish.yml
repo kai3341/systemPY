@@ -36,10 +36,11 @@ jobs:
           USE_MYPYC: 1
         run: uv build --wheel --no-build-isolation
 
-      - uses: actions/cache@v4
+      - uses: actions/upload-artifact@v4
         with:
-          key: binary-wheel-${{ github.run_id }}
-          path: dist
+          name: binary-wheel-${{ github.run_id }}
+          path: dist/*
+          compression-level: 0 # already compressed
 
   pypi-publish:
     name: upload release to PyPI
@@ -62,13 +63,14 @@ jobs:
         with:
           python-version-file: "pyproject.toml"
 
-      - uses: actions/cache/restore@v4
-        with:
-          key: binary-wheel-${{ github.run_id }}
-          path: dist
-
       - name: Build the project without mypyc
         run: uv build --sdist --wheel
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: binary-wheel-${{ github.run_id }}
+          path: dist
+          merge-multiple: true
 
       - name: mint API token
         id: mint-token
@@ -90,3 +92,6 @@ jobs:
 
       - name: Publish the project
         run: uv publish --token ${{ steps.mint-token.outputs.api-token }}
+
+      - name: Remove cache
+        run: gh run delete ${{ github.run_id }}

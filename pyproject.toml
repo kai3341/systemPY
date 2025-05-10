@@ -1,6 +1,6 @@
 [project]
 name = "systempy"
-version = "0.1.2"
+version = "0.1.3"
 description = "Python application component initialization system"
 authors = [{name = "kai3341"}]
 readme = "README.md"
