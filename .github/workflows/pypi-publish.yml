@@ -38,7 +38,7 @@ jobs:
 
       - uses: actions/cache@v4
         with:
-          key: binary-wheel
+          key: binary-wheel-{run_id}
           path: dist
 
   pypi-publish:
@@ -64,7 +64,7 @@ jobs:
 
       - uses: actions/cache/restore@v4
         with:
-          key: binary-wheel
+          key: binary-wheel-{run_id}
           path: dist
 
       - name: Build the project without mypyc
