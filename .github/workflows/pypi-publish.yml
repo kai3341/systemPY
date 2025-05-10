@@ -28,10 +28,24 @@ jobs:
         with:
           python-version-file: "pyproject.toml"
 
+      - name: Activate virtualenv
+        run: |
+          uv sync
+          . .venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
+
+      - name: Run tests
+        run: python manage.py test
+
       - name: Build the project with mypyc
         env:
           USE_MYPYC: 1
-        run: uv build --wheel
+        run: uv build --wheel --no-build-isolation
+
+      - uses: actions/cache@v4
+        with:
+          key: binary-wheel
+          path: dist
 
   pypi-publish:
     name: upload release to PyPI
@@ -53,6 +67,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version-file: "pyproject.toml"
+
+      - uses: actions/cache/restore@v4
+        with:
+          key: binary-wheel
+          path: dist
 
       - name: Build the project without mypyc
         run: uv build --sdist --wheel
