@@ -28,14 +28,8 @@ jobs:
         with:
           python-version-file: "pyproject.toml"
 
-      - name: Activate virtualenv
-        run: |
-          uv sync
-          . .venv/bin/activate
-          echo PATH=$PATH >> $GITHUB_ENV
-
       - name: Run tests
-        run: python manage.py test
+        run: uv run manage.py test
 
       - name: Build the project with mypyc
         env:
