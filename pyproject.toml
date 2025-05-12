@@ -49,6 +49,7 @@ reportGeneralTypeIssues = false
 reportIndexIssue = false
 reportInvalidTypeArguments = false
 reportIncompatibleMethodOverride = false
+reportAttributeAccessIssue = false
 
 [tool.ruff.lint]
 select=["ALL"]

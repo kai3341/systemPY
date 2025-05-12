@@ -8,7 +8,7 @@ name: release
 
 jobs:
   make-binaries:
-    name: make binary builds
+    name: test & build binary
     environment: pypi
     strategy:
       matrix:
