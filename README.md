@@ -63,4 +63,4 @@ You may to create `Unit` classes for each your application component where you
 may put your code. Then you may combine these `Unit` class mixins into the
 current `App` class, which composes your defined callbacks and runs in the
 right order. Depending on application type, these callbacks may be called by
-primary application or by you yourself
+primary application or by yourself
