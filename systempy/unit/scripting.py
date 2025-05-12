@@ -1,5 +1,6 @@
 from asyncio import run
-from typing import ParamSpec
+
+from typing_extensions import ParamSpec
 
 from ..libsystempy import ROLE
 from ..target import AsyncMixinABC, SyncMixinABC

@@ -10,11 +10,13 @@ Python application component initialization system
 ![format](https://img.shields.io/pypi/format/systemPY)
 [![Documentation Status](https://readthedocs.org/projects/systempy/badge/?version=latest)](https://systempy.readthedocs.io/en/latest/?badge=latest)
 ![GitHub issues](https://img.shields.io/github/issues/kai3341/systemPY)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
 ## The problem
 
-The regular application contain many atomic components. Asyncio makes theirs
-initializing a little bit complicated. It's OK, when you have single entrypoint
+The regular application contains many atomic components. Asyncio makes their
+initializing a little bit complicated. It's OK, when you have a single entrypoint
 and initialize your application components via your framework. While you add
 new components to your application iteratively, you don't see any problem
 
@@ -24,17 +26,17 @@ order. But it's a half of the problem! You have to implement also graceful
 shutdown
 
 The most painful part is one-time scripts. It's kind of The Banana Gorilla
-Problem: you wanted a banana but you have to initialize a gorilla holding the
-banana and the entire jungle, and then graceful shutdown it
+Problem: you just want a banana but you have to initialize a gorilla holding the
+banana and the entire jungle, and then gracefully shutdown it
 
 ## Solution
 
-This library allows you to implement application startup and shutdown in
+This library allows you to implement application startup and shutdown in a
 declarative way. You have to implement a class for each your component,
-write the startup and shutdown code. Then combine required components as
-mixins into the current application `Unit` class. Then create an instance
-and pass dependencies as keyword arguments. In case it's daemon run
-`instance.run_sync()` methed
+write the startup and shutdown code. Then you have to combine required
+components as mixins into the current application `App` class. Then create an
+instance and pass dependencies as keyword arguments. In case it's a self-hosted
+app you have to call the `instance.run_sync()` method
 
 It's possible to use `systemPY` in three scenarios:
 
@@ -42,7 +44,7 @@ It's possible to use `systemPY` in three scenarios:
   [celery](./examples/secondary/celery.md) or
   [starlette](./examples/secondary/starlette.md)
 
-- Self-hosted application -- [scripts](./examples/self-hosted/scripting.md),
+- Self-hosted application &#151 [scripts](./examples/self-hosted/scripting.md),
   [daemon](./examples/self-hosted/daemon.md), or
   [REPL](./examples/self-hosted/repl.md)
 
@@ -51,8 +53,8 @@ It's possible to use `systemPY` in three scenarios:
 
 ## Basic principles
 
-There are 6 most significant stages of the application lifecycle. Keep in mind
-we need in safe application reload. Just looks the
+There are 6 the most significant stages of the application lifecycle. Keep in
+mind that we also need to be able do a safe application reload. Just look at the
 [code](https://github.com/kai3341/systemPY/blob/main/systempy/target.py):
 
 === "Code"
@@ -87,39 +89,45 @@ we need in safe application reload. Just looks the
 
 === "Methods"
 
-    * `on_init` executes exactly once on application startup
+    * `on_init` is called exactly once on the application startup
 
-    * `pre_startup` is called before event loop startup
+    * `pre_startup` is called before the event loop is started
 
-    * `on_startup` is called exactly when event loop started
+    * `on_startup` is called exactly when event loop has started
 
-    * `on_shutdown` is called when application is going shutdown or reload but
-    event loop still working
+    * `on_shutdown` is called when the application is going to shutdown or
+    reload but the event loop is still working
 
-    * `post_shutdown` is called after event loop stopped or drained. When
-    application is going to reload, then it should be called `pre_startup`
+    * `post_shutdown` is called after event loop has stopped or drained. When
+    application is going to reload, next it would be called `pre_startup`
 
-    * `on_exit` executes exactly once when application is stopping
+    * `on_exit` is called exactly once when application is going to stop
 
 === "Target & Unit"
 
-    Target idea is similar to `systemd`'s targets. Keep in mind such examples like
-    `graphical.target` or `multi-user.target`. It means to achieve this target we
-    have to reach all pre-required targets
+    Target idea is similar to `systemd`'s targets. Keep in mind such examples
+    like `graphical.target` or `multi-user.target`. It means that we have to
+    reach all pre-required targets to achieve this target
 
     `Systemd`'s `Unit`s are bound to target. `Target` is a reason of `Unit`
     execution
 
-    Now about `systemPY`. To bind your `Unit` to `Target`, you have to subclass it.
-    After subclassing IDE will promt you in defining your `Unit`'s methods -- it's
-    just overriding `Target`'s methods. It's similar to `abc`, but everything is
+    Now about `systemPY`. To bind your component `Unit` to `Target`, you have
+    to subclass this `Target`. After subclassing the `Target` your IDE will
+    prompt you in defining your `Unit` component's methods &#151 it's just
+    overriding `Target`'s methods. It's similar to `abc.ABC`, but everything is
     optional.
 
 === "`@register`'s"
 
-    The last but not the least is `register_target_method`. It defines method's
-    type and payload method execution order. When you define syncronous method,
-    overriding it by asyncronous method will cause an error
+    The last but not least is the `register_target_method`. It defines the type
+    of this method and execution order for overridings of this method in
+    subclassed `Unit` components. When you define a syncronous method,
+    overriding it by an asyncronous method will cause an error
+
+    Funny fact: mypy would cause the warning if you override asyncronous method
+    with a syncronous one. But it's a false-positive warning and this code will
+    work. As mypy causes a warning here, I think nobody will use this feature
 
     Payload execution order may be `DIRECTION.FORWARD`, `DIRECTION.BACKWARD` and
     `DIRECTION.GATHER`. Typically you should use `DIRECTION.FORWARD` on
@@ -128,6 +136,10 @@ we need in safe application reload. Just looks the
     Also you may use `DIRECTION.GATHER` direction. Registered callbacks will be
     handled by `asyncio.gather` and will be executed in arbitrary order. You are
     able to use here both syncronous and asyncronous methods
+
+    Also there are available `register_hook_before` and `register_hook_after`.
+    Use them to extend existing `Target`s. Please have a look in the
+    [`Target`](./examples//target/custom-target.md) section for more information
 
 
 ### Naming and roles
@@ -139,14 +151,14 @@ All magic happens in `TargetMeta` metaclass. `TargetMeta` is a subclass of
 
     There are 4 roles of classes I found:
 
-    * `Target` -- the interface which defines lifecycle methods
+    * `Target` &#151 the interface which defines lifecycle methods
 
-    * `Unit` -- component with lifecycle methods
+    * `Unit` &#151 component with lifecycle methods
 
-    * `Mixin` -- class **without** lifecycle methods. It's special optimization of
+    * `Mixin` &#151 class **without** lifecycle methods. It's special optimization of
     `Target` role
 
-    * `App` -- the final "baked" class with composed lifecycle methods
+    * `App` &#151 the final "baked" class with composed lifecycle methods
 
     `TargetMeta` checks `role` kwarg. If kwarg `role` is not defined, `TargetMeta`
     tries to parse class name and decide what to do

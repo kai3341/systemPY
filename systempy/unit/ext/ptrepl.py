@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import sys
 from dataclasses import field
 from os import path
-from typing import ParamSpec
 
 from ptpython.repl import embed
+from typing_extensions import ParamSpec
 
 from systempy import LoopUnit
 from systempy.unit.repl.mixins import ReplLocalsMixin

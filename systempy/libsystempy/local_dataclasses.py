@@ -20,7 +20,7 @@ from .local_typing import (
 
 @dataclass()
 class LFMethodsRegistered(Generic[P, R]):
-    direction: DirectionHandler[P, R]
+    direction: "DirectionHandler[P, R]"
     direction_name: DIRECTION
     interface: ref[type] = field(init=False)
 
@@ -28,8 +28,8 @@ class LFMethodsRegistered(Generic[P, R]):
 @dataclass()
 class GenericHandlerSettings(Generic[P, R]):
     reason: ref[Callable]
-    collect: ref[Callable[[WeakTypeIterable, Callable], CTuple[P, R]]]
-    compose: ref[Callable[[type, WeakTypeIterable, Callable, CTuple[P, R]], Callable]]
+    collect: ref[Callable[[WeakTypeIterable, Callable], "CTuple[P, R]"]]
+    compose: ref[Callable[[type, WeakTypeIterable, Callable, "CTuple[P, R]"], Callable]]
 
 
 @dataclass()
@@ -71,12 +71,12 @@ class NamedRegistry(BaseRegistry[PrimitiveHashable, Callable[P, R]]):
     def __call__(self, named_or_hashable: Callable[P, R]) -> Callable[P, R]: ...
 
     @overload
-    def __call__(self, named_or_hashable: PrimitiveHashable) -> Decorator[P, R]: ...
+    def __call__(self, named_or_hashable: PrimitiveHashable) -> "Decorator[P, R]": ...
 
     def __call__(
         self,
-        named_or_hashable: PrimitiveHashable | Callable[P, R],
-    ) -> Decorator[P, R] | Callable[P, R]:
+        named_or_hashable: "PrimitiveHashable | Callable[P, R]",
+    ) -> "Decorator[P, R] | Callable[P, R]":
         if callable(named_or_hashable):
             name = named_or_hashable.__name__
             self._registry[name] = named_or_hashable

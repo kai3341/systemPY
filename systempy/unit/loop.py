@@ -1,7 +1,8 @@
 from asyncio import AbstractEventLoop, get_running_loop, run
 from collections.abc import Coroutine
 from dataclasses import field
-from typing import ParamSpec
+
+from typing_extensions import ParamSpec
 
 from ..libsystempy import ROLE
 from ..target import AsyncMixinABC

@@ -1,8 +1,7 @@
 from dataclasses import field
 from os import path
-from typing import ParamSpec
 
-from typing_extensions import deprecated
+from typing_extensions import ParamSpec, deprecated
 
 from systempy.unit.repl.repl import ReplUnit
 

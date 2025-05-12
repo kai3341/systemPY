@@ -1,17 +1,20 @@
 from collections.abc import Callable, Generator, Iterable
+from typing import TYPE_CHECKING
 
 from .check import check_callback_signature
 from .constants import lifecycle_registered_methods
-from .hook_registry import HookRegistry
 from .local_typing import P, R, WeakTypeIterable
 from .register import register_hook_after, register_hook_before
+
+if TYPE_CHECKING:
+    from .hook_registry import HookRegistry
 
 
 def build_callback_plan_hook_iter(
     cls: type,
     bases: WeakTypeIterable,
     reason: Callable[P, R],
-    hook_registry: HookRegistry[P, R],
+    hook_registry: "HookRegistry[P, R]",
 ) -> Generator[Callable[P, R], None, None]:
     if reason in hook_registry:
         next_reasons = hook_registry[reason]

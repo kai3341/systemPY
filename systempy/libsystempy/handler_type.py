@@ -43,7 +43,7 @@ def handler_sync(
     cls: type,
     bases: WeakTypeIterable,
     reason: Callable[P, None],
-    callbacks: CTuple[P, None],
+    callbacks: "CTuple[P, None]",
 ) -> Callable[P, None]:
     callbacks_total = build_callback_plan(cls, bases, reason, callbacks)
     with_current_repr = with_repr("Sync", reason, callbacks_total)
@@ -74,7 +74,7 @@ def handler_async(
     cls: type,
     bases: WeakTypeIterable,
     reason: Callable[P, MaybeCoro[None]],
-    callbacks: CTuple[P, MaybeCoro[None]],
+    callbacks: "CTuple[P, MaybeCoro[None]]",
 ) -> Callable[P, Coroutine[None, None, None]]:
     callbacks_total = build_callback_plan(cls, bases, reason, callbacks)
     with_current_repr = with_repr("Async", reason, callbacks_total)
@@ -148,7 +148,7 @@ def handler_gather(
     cls: type,
     bases: WeakTypeIterable,
     reason: Callable[P, MaybeCoro[None]],
-    callbacks: CTuple[P, MaybeCoro[None]],
+    callbacks: "CTuple[P, MaybeCoro[None]]",
 ) -> Callable[P, Coroutine[None, None, None]]:
     callbacks_total = build_callback_plan(cls, bases, reason, callbacks)
 

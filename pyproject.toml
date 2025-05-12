@@ -1,13 +1,36 @@
 [project]
 name = "systempy"
-version = "0.1.0"
+version = "0.1.4"
 description = "Python application component initialization system"
 authors = [{name = "kai3341"}]
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
     "typing-extensions",
 ]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+keywords = [
+    "asyncio",
+    "graceful",
+    "init",
+    "initialization",
+    "shutdown",
+    "manager"
+]
+license="MIT"
 
 [project.optional-dependencies]
 extra = [
@@ -26,6 +49,7 @@ reportGeneralTypeIssues = false
 reportIndexIssue = false
 reportInvalidTypeArguments = false
 reportIncompatibleMethodOverride = false
+reportAttributeAccessIssue = false
 
 [tool.ruff.lint]
 select=["ALL"]
@@ -53,4 +77,8 @@ dev = [
     "mkdocs-material>=9.6.11",
     "mypy[mypyc]>=1.15.0",
     "ruff>=0.11.5",
+    "wheel>=0.45.1",
 ]
+
+[build-system]
+requires = ["tomli; python_version < '3.11'", "mypy[mypyc]", "wheel>=0.45.1"]

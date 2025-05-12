@@ -1,12 +1,24 @@
+from __future__ import annotations
+
 import atexit
 from abc import abstractmethod
-from collections.abc import Iterator
 from dataclasses import Field, fields
-from types import TracebackType
-from typing import TYPE_CHECKING, Generic, ParamSpec, Self
+from typing import TYPE_CHECKING, Generic
 
-from .libsystempy import DIRECTION, ROLE, handler_metadata, register_target_method
+from typing_extensions import ParamSpec, Self
+
+from .libsystempy import (
+    DIRECTION,
+    ROLE,
+    handler_metadata,
+    lifecycle_disallowed_method_exempt,
+    register_target_method,
+)
 from .target_meta import TargetMeta
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from types import TracebackType
 
 A = ParamSpec("A")
 
@@ -32,6 +44,7 @@ class InterfaceTarget(metaclass=TargetMeta):
 
 
 class _InitMixin(InterfaceTarget):
+    @lifecycle_disallowed_method_exempt
     def __post_init__(self) -> None:
         on_exit_meta = handler_metadata[type(self).on_exit]
 

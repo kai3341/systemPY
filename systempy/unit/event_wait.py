@@ -1,7 +1,8 @@
 from asyncio import CancelledError, Event
 from contextlib import suppress
 from dataclasses import field
-from typing import ParamSpec
+
+from typing_extensions import ParamSpec
 
 from .loop import LoopUnit
 

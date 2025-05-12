@@ -7,12 +7,51 @@ on:
 name: release
 
 jobs:
+  make-binaries:
+    name: test & build binary
+    environment: pypi
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - run: python --version
+
+      - name: Run tests
+        run: uv run --isolated manage.py test
+
+      - name: Build the project with mypyc
+        env:
+          USE_MYPYC: 1
+        run: uv build --wheel
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: binary-wheel-${{ github.run_id }}-${{ matrix.os }}-${{ matrix.python }}
+          path: dist/*
+          compression-level: 0 # already compressed
+
   pypi-publish:
     name: upload release to PyPI
-    runs-on: ubuntu-latest
     environment: pypi
+    needs: make-binaries
     permissions:
       id-token: write
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -27,11 +66,14 @@ jobs:
         with:
           python-version-file: "pyproject.toml"
 
-      - name: Install the project
-        run: uv sync --locked --dev
+      - name: Build the project without mypyc
+        run: uv build --sdist --wheel
 
-      - name: Build the project
-        run: uv build --no-build-isolation --sdist --wheel
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: binary-wheel-${{ github.run_id }}-*
+          path: dist
+          merge-multiple: true
 
       - name: mint API token
         id: mint-token
@@ -52,4 +94,4 @@ jobs:
           echo "api-token=${api_token}" >> "${GITHUB_OUTPUT}"
 
       - name: Publish the project
-        run: uv publish --username __token__ --token ${{ steps.mint-token.outputs.api-token }}
+        run: uv publish --token ${{ steps.mint-token.outputs.api-token }}
