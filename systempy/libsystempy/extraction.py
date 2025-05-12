@@ -4,10 +4,10 @@ from inspect import iscoroutinefunction
 from typing import TYPE_CHECKING, cast
 from weakref import ref
 
-from .constants import lifecycle_disallowed_attrs, lifecycle_registered_methods
-from .enums import DIRECTION
+from .constants import lifecycle_registered_methods
+from .enums import DIRECTION, ROLE
 from .local_dataclasses import SeparatedLFMethods
-from .register import mark_as_target, register_direction
+from .register import class_role_registry, register_direction
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Coroutine
@@ -51,27 +51,20 @@ def callbacks_reversed(iterable: WeakTypeIterable, reason: Callable) -> CTuple:
     return tuple(callbacks)
 
 
+extract_bases__whitelist = {ROLE.UNIT, ROLE.APP}
+
+
 def extract_bases(cls: type) -> WeakTypeIterable:
     bases = [
         # ===
         Base
         for Base in cls.mro()
-        if Base not in mark_as_target
+        if class_role_registry[Base] in extract_bases__whitelist
     ]
 
-    for base in bases:
-        clsdict = vars(base)
-        for check_attribute, description in lifecycle_disallowed_attrs:
-            if check_attribute in clsdict:
-                message = f"Attribute {check_attribute} is not allowed"
+    app_class = bases.pop(0)
+    bases.append(app_class)
 
-                if description:
-                    message = f"{message}. {description}"
-
-                raise ValueError(message, base)
-
-    first = bases.pop(0)
-    bases.append(first)
     return tuple(map(ref, bases))
 
 

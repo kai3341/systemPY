@@ -7,7 +7,7 @@ from typing import final as typing_final
 from typing_extensions import NamedTuple
 
 from .configuration import apply_additional_configuration
-from .register import mark_as_final, mark_as_target, register_target
+from .register import register_target
 
 T = TypeVar("T")
 
@@ -30,8 +30,8 @@ final = dataclass(**default_dataclass_kwargs)
 
 
 class_role = ClassRole[type](
-    lambda cls: final(apply_additional_configuration(mark_as_final(typing_final(cls)))),
+    lambda cls: final(apply_additional_configuration(typing_final(cls))),
     nonfinal,
-    lambda cls: nonfinal(mark_as_target(cls)),
+    lambda cls: nonfinal(cls),
     lambda cls: nonfinal(register_target(cls)),
 )

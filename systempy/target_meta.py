@@ -15,12 +15,16 @@ from typing import (
 from typing_extensions import ParamSpec, dataclass_transform
 
 from .libsystempy.class_role import class_role
-from .libsystempy.register import mark_as_final
+from .libsystempy.constants import lifecycle_disallowed_attrs
+from .libsystempy.enums import ROLE
+from .libsystempy.register import (
+    class_role_registry,
+    lifecycle_disallowed_method_exempt,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from .libsystempy.enums import ROLE
 
 A = ParamSpec("A")
 T = TypeVar("T")
@@ -29,6 +33,20 @@ T = TypeVar("T")
 class ErrorMessages(NamedTuple):
     instantiate_not_ready: str
     subclassed_baked: str
+
+
+def _role_autodetect(cls: type) -> ROLE:
+    clsname_endswith = cls.__name__.endswith
+    if clsname_endswith("App"):
+        return ROLE.APP
+    if clsname_endswith(("Mixin", "MixinABC")):
+        return ROLE.MIXIN
+    if clsname_endswith(("Unit", "UnitABC")):
+        return ROLE.UNIT
+    if clsname_endswith(("Target", "TargetABC")):
+        return ROLE.TARGET
+
+    raise KeyError(cls)
 
 
 @dataclass_transform(
@@ -46,20 +64,11 @@ class TargetMeta(ABCMeta, Generic[A]):
         cls: type,
         role: ROLE | None,
     ) -> Callable[[type[T]], type[T]]:
-        if role is not None:
-            return getattr(class_role, role)
+        if role is None:
+            role = _role_autodetect(cls)
 
-        clsname_endswith = cls.__name__.endswith
-        if clsname_endswith("App"):
-            return class_role.app
-        if clsname_endswith(("Mixin", "MixinABC")):
-            return class_role.mixin
-        if clsname_endswith(("Unit", "UnitABC")):
-            return class_role.unit
-        if clsname_endswith(("Target", "TargetABC")):
-            return class_role.target
-
-        raise KeyError(cls)
+        class_role_registry[cls] = role
+        return getattr(class_role, role)
 
     @dataclass_transform(
         field_specifiers=(Field, field),
@@ -75,9 +84,22 @@ class TargetMeta(ABCMeta, Generic[A]):
         **kwargs: Any,
     ) -> type[TargetMeta]:
         for base in bases:
-            if base in mark_as_final:
+            if class_role_registry[base] == ROLE.APP:
                 msg = mcs.__systempy_error_messages__.subclassed_baked.format(cls=base)
                 raise TypeError(msg)
+
+            clsdict = vars(base)
+            for check_attribute, description in lifecycle_disallowed_attrs:
+                if check_attribute in clsdict:
+                    if clsdict[check_attribute] in lifecycle_disallowed_method_exempt:
+                        continue
+
+                    message = f"Attribute {check_attribute} is not allowed"
+
+                    if description:
+                        message = f"{message}. {description}"
+
+                    raise ValueError(message, base)
 
         new_cls = cast(
             "type[TargetMeta]",
@@ -86,7 +108,12 @@ class TargetMeta(ABCMeta, Generic[A]):
         return mcs.__systempy_criteria__(new_cls, role)(new_cls)
 
     def __call__(cls, *args: A.args, **kwargs: A.kwargs) -> TargetMeta[A]:
-        if cls not in mark_as_final:
+        cls_role = class_role_registry[cls]
+        if cls_role != ROLE.APP:
             msg = cls.__systempy_error_messages__.instantiate_not_ready.format(cls=cls)
             raise TypeError(msg)
         return super().__call__(*args, **kwargs)
+
+    def __init_subclass__(cls) -> None:
+        class_role_registry[cls] = ROLE.METACLASS
+        return super().__init_subclass__()

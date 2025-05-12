@@ -10,7 +10,7 @@ from .constants import (
     lifecycle_registered_methods,
     sync_or_async,
 )
-from .enums import DIRECTION
+from .enums import DIRECTION, ROLE
 from .hook_registry import HookRegistry
 from .local_dataclasses import (
     ClsCFG,
@@ -31,6 +31,8 @@ from .misc import get_key_or_create
 P = ParamSpec("P")
 R = TypeVar("R")
 
+lifecycle_disallowed_method_exempt = SetRegistry[Callable](WeakSet())
+
 register_addition_cfg_applier: "NamedRegistry[[type, ClsCFG], None]" = NamedRegistry(
     WeakValueDictionary(),
 )
@@ -48,13 +50,11 @@ register_check_method_type: "NamedRegistry[[Callable], None]" = NamedRegistry(
 
 register_hook_before: HookRegistry = HookRegistry(WeakKeyDictionary())
 register_hook_after: HookRegistry = HookRegistry(WeakKeyDictionary())
-mark_as_target = SetRegistry[type](WeakSet())
 
-# According to `typing.final` implementation I can't trust to `__final__` class
-# attribure
-mark_as_final = SetRegistry[type](WeakSet())
+class_role_registry = WeakKeyDictionary[type, ROLE]()
 
-mark_as_target.add(object, Generic, Protocol)  # type:ignore[arg-type]
+for t in (object, Generic, Protocol):
+    class_role_registry[t] = ROLE.BUILTINS  # type:ignore[index]
 
 
 msg_not_callable = "{func} is not a callable"
@@ -78,7 +78,7 @@ def register_target_method(direction: DIRECTION) -> Decorator:
 
 
 def register_target(cls: type[T]) -> type[T]:
-    mark_as_target(cls)
+    class_role_registry[cls] = ROLE.TARGET
 
     clsdict = vars(cls)
 
@@ -135,7 +135,7 @@ def register_target(cls: type[T]) -> type[T]:
 from . import check, extraction, handler_type  # noqa: E402, F401
 
 __all__ = (
-    "mark_as_target",
+    "class_role_registry",
     "register_addition_cfg_applier",
     "register_check_method_type",
     "register_direction",

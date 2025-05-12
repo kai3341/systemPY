@@ -968,8 +968,7 @@ class BasicTestCase(TestCase):
         from gc import collect
 
         from systempy.libsystempy.register import (
-            mark_as_final,
-            mark_as_target,
+            class_role_registry,
             register_hook_after,
             register_hook_before,
         )
@@ -980,30 +979,31 @@ class BasicTestCase(TestCase):
 
         collect()
 
-        self.assertEqual(len(mark_as_final.regisrty), 0)
-
-        marked_as_target = {
-            "Protocol",
-            "DaemonUnit",
-            "ExtTarget",
-            "SyncMixinABC",
-            "Target",
-            "_FieldIterMixin",
-            "object",
-            "AsyncMixinABC",
-            "_InitMixin",
-            "InterfaceTarget",
-            "ReplLocalsMixin",
-            "Unit",
-            "LoopUnit",
-            "Generic",
-            "ScriptUnit",
-            "AsyncScriptUnit",
+        class_roles_expected = {
+            "object": "ROLE.BUILTINS",
+            "Generic": "ROLE.BUILTINS",
+            "Protocol": "ROLE.BUILTINS",
+            "InterfaceTarget": "ROLE.TARGET",
+            "_InitMixin": "ROLE.MIXIN",
+            "_FieldIterMixin": "ROLE.MIXIN",
+            "Target": "ROLE.MIXIN",
+            "SyncMixinABC": "ROLE.MIXIN",
+            "AsyncMixinABC": "ROLE.MIXIN",
+            "_BaseDaemonUnitABC": "ROLE.UNIT",
+            "DaemonUnit": "ROLE.MIXIN",
+            "LoopUnit": "ROLE.MIXIN",
+            "EventWaitUnit": "ROLE.UNIT",
+            "ScriptUnit": "ROLE.MIXIN",
+            "AsyncScriptUnit": "ROLE.MIXIN",
+            "ReplLocalsMixin": "ROLE.MIXIN",
+            "ReplUnit": "ROLE.UNIT",
+            "Unit": "ROLE.MIXIN",
+            "ExtTarget": "ROLE.TARGET",
         }
 
-        self.assertSetEqual(
-            {c.__name__ for c in mark_as_target.regisrty},
-            marked_as_target,
+        self.assertDictEqual(
+            {cls.__name__: str(role) for cls, role in class_role_registry.items()},
+            class_roles_expected,
         )
 
         hook_parents_names = {

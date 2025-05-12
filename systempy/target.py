@@ -7,7 +7,13 @@ from typing import TYPE_CHECKING, Generic
 
 from typing_extensions import ParamSpec, Self
 
-from .libsystempy import DIRECTION, ROLE, handler_metadata, register_target_method
+from .libsystempy import (
+    DIRECTION,
+    ROLE,
+    handler_metadata,
+    lifecycle_disallowed_method_exempt,
+    register_target_method,
+)
 from .target_meta import TargetMeta
 
 if TYPE_CHECKING:
@@ -38,6 +44,7 @@ class InterfaceTarget(metaclass=TargetMeta):
 
 
 class _InitMixin(InterfaceTarget):
+    @lifecycle_disallowed_method_exempt
     def __post_init__(self) -> None:
         on_exit_meta = handler_metadata[type(self).on_exit]
 

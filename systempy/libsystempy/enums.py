@@ -28,3 +28,5 @@ class ROLE(str, Enum):
     UNIT = "unit"
     MIXIN = "mixin"
     TARGET = "target"
+    BUILTINS = "builtins"
+    METACLASS = "metaclass"
