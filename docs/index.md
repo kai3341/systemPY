@@ -44,7 +44,7 @@ It's possible to use `systemPY` in three scenarios:
   [celery](./examples/secondary/celery.md) or
   [starlette](./examples/secondary/starlette.md)
 
-- Self-hosted application -- [scripts](./examples/self-hosted/scripting.md),
+- Self-hosted application &#151 [scripts](./examples/self-hosted/scripting.md),
   [daemon](./examples/self-hosted/daemon.md), or
   [REPL](./examples/self-hosted/repl.md)
 
@@ -54,7 +54,7 @@ It's possible to use `systemPY` in three scenarios:
 ## Basic principles
 
 There are 6 the most significant stages of the application lifecycle. Keep in
-mind we need in safe application reload. Just looks the
+mind that we also need to be able do a safe application reload. Just look at the
 [code](https://github.com/kai3341/systemPY/blob/main/systempy/target.py):
 
 === "Code"
@@ -105,23 +105,29 @@ mind we need in safe application reload. Just looks the
 
 === "Target & Unit"
 
-    Target idea is similar to `systemd`'s targets. Keep in mind such examples like
-    `graphical.target` or `multi-user.target`. It means to achieve this target we
-    have to reach all pre-required targets
+    Target idea is similar to `systemd`'s targets. Keep in mind such examples
+    like `graphical.target` or `multi-user.target`. It means that we have to
+    reach all pre-required targets to achieve this target
 
     `Systemd`'s `Unit`s are bound to target. `Target` is a reason of `Unit`
     execution
 
-    Now about `systemPY`. To bind your `Unit` to `Target`, you have to subclass it.
-    After subclassing IDE will promt you in defining your `Unit`'s methods -- it's
-    just overriding `Target`'s methods. It's similar to `abc`, but everything is
+    Now about `systemPY`. To bind your component `Unit` to `Target`, you have
+    to subclass this `Target`. After subclassing the `Target` your IDE will
+    prompt you in defining your `Unit` component's methods &#151 it's just
+    overriding `Target`'s methods. It's similar to `abc.ABC`, but everything is
     optional.
 
 === "`@register`'s"
 
-    The last but not the least is `register_target_method`. It defines method's
-    type and payload method execution order. When you define syncronous method,
-    overriding it by asyncronous method will cause an error
+    The last but not least is the `register_target_method`. It defines the type
+    of this method and execution order for overridings of this method in
+    subclassed `Unit` components. When you define a syncronous method,
+    overriding it by an asyncronous method will cause an error
+
+    Funny fact: mypy would cause the warning if you override asyncronous method
+    with a syncronous one. But it's a false-positive warning and this code will
+    work. As mypy causes a warning here, I think nobody will use this feature
 
     Payload execution order may be `DIRECTION.FORWARD`, `DIRECTION.BACKWARD` and
     `DIRECTION.GATHER`. Typically you should use `DIRECTION.FORWARD` on
@@ -130,6 +136,10 @@ mind we need in safe application reload. Just looks the
     Also you may use `DIRECTION.GATHER` direction. Registered callbacks will be
     handled by `asyncio.gather` and will be executed in arbitrary order. You are
     able to use here both syncronous and asyncronous methods
+
+    Also there are available `register_hook_before` and `register_hook_after`.
+    Use them to extend existing `Target`s. Please have a look in the
+    [`Target`](./examples//target/custom-target.md) section for more information
 
 
 ### Naming and roles
@@ -141,14 +151,14 @@ All magic happens in `TargetMeta` metaclass. `TargetMeta` is a subclass of
 
     There are 4 roles of classes I found:
 
-    * `Target` -- the interface which defines lifecycle methods
+    * `Target` &#151 the interface which defines lifecycle methods
 
-    * `Unit` -- component with lifecycle methods
+    * `Unit` &#151 component with lifecycle methods
 
-    * `Mixin` -- class **without** lifecycle methods. It's special optimization of
+    * `Mixin` &#151 class **without** lifecycle methods. It's special optimization of
     `Target` role
 
-    * `App` -- the final "baked" class with composed lifecycle methods
+    * `App` &#151 the final "baked" class with composed lifecycle methods
 
     `TargetMeta` checks `role` kwarg. If kwarg `role` is not defined, `TargetMeta`
     tries to parse class name and decide what to do
