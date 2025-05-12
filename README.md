@@ -14,7 +14,7 @@ Python application component initialization system
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
 Full documantation is available at
-[Read the Docs](https://systempy.readthedocs.io/en/latest/)
+[Read the Docs](https://systempy.readthedocs.io/latest/)
 
 ## The problem
 
