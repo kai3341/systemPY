@@ -967,7 +967,7 @@ class BasicTestCase(TestCase):
     def test_zzz_memory_leak(self) -> None:
         from gc import collect
 
-        from systempy.libsystempy.register import (
+        from systempy.libsystempy import (
             class_role_registry,
             register_hook_after,
             register_hook_before,
