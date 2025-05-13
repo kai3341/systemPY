@@ -1,7 +1,7 @@
 from collections.abc import Callable, Generator, Iterable
 from typing import TYPE_CHECKING
 
-from .check.callbacks import check_callback_signature
+from .check.callback import check_callback_signature
 from .constants import lifecycle_registered_methods
 from .local_typing import P, R, WeakTypeIterable
 from .register import register_hook_after, register_hook_before

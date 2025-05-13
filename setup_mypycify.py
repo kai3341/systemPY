@@ -54,7 +54,6 @@ mypycify_structure: Struct = {
         "libsystempy": {
             None: (
                 "callback_plan.py",
-                "check.py",
                 "class_role.py",
                 "configuration.py",
                 "constants.py",
@@ -70,6 +69,12 @@ mypycify_structure: Struct = {
                 "thread_exception.py",
                 # "weak_queue.py",
             ),
+            "check": {
+                None: (
+                    "callback.py",
+                    "subclass.py",
+                ),
+            },
         },
     },
 }
