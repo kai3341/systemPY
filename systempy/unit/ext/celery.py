@@ -1,8 +1,10 @@
 from celery import Celery, signals  # type: ignore[import-untyped]
+from typing_extensions import deprecated
 
 from systempy import Target
 
 
+@deprecated("Will be removed into separated package")
 class CeleryUnit(Target):
     celery_app: Celery | type[Celery]
     config: dict

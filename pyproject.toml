@@ -1,6 +1,6 @@
 [project]
 name = "systempy"
-version = "0.1.5"
+version = "0.1.6"
 description = "Python application component initialization system"
 authors = [{name = "kai3341"}]
 readme = "README.md"
@@ -31,16 +31,21 @@ keywords = [
     "manager"
 ]
 license="MIT"
+license-files = ["LICENSE"]
 
 [project.optional-dependencies]
 extra = [
-    "celery>=5.5.1",
     "ptpython>=3.0.30",
-    "starlette>=0.46.2",
 ]
 
 [tool.pyright]
 include = ["systempy/", "tests/", "_util/"]
+exclude = [
+    "^build/",
+    "^dist/",
+    "systempy/unit/ext/celery.py",
+    "systempy/unit/ext/starlette.py",
+]
 reportMissingModuleSource = false
 reportArgumentType = false
 reportCallIssue = false
@@ -70,15 +75,24 @@ line-ending = "auto"
 python_version = "3.11"
 mypy_path = "$MYPY_CONFIG_FILE_DIR/systempy"
 disable_error_code = ["import-untyped", "return", "empty-body"]
-exclude = ["^build/", "^dist/"]
+exclude = [
+    "^build/",
+    "^dist/",
+    "systempy/unit/ext/celery.py",
+    "systempy/unit/ext/starlette.py",
+]
 
 [dependency-groups]
 dev = [
     "mkdocs-material>=9.6.11",
-    "mypy[mypyc]>=1.15.0",
+    "mypy[mypyc]>=1.15.0; python_version >= '3.9'",
     "ruff>=0.11.5",
-    "wheel>=0.45.1",
+    "wheel>=0.45.1; python_version >= '3.14'",
 ]
 
 [build-system]
-requires = ["tomli; python_version < '3.11'", "mypy[mypyc]", "wheel>=0.45.1"]
+requires = [
+    "tomli; python_version < '3.11'",
+    "mypy[mypyc]>=1.15.0; python_version >= '3.9'",
+    "wheel>=0.45.1; python_version >= '3.14'",
+]
