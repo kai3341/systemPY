@@ -1,10 +1,10 @@
 from collections.abc import Callable
 from inspect import iscoroutinefunction
 
-from .constants import sync_or_async
-from .enums import DIRECTION
-from .local_typing import function_types
-from .register import register_check_method_type
+from ..constants import sync_or_async
+from ..enums import DIRECTION
+from ..local_typing import function_types
+from ..register import register_check_method_type
 
 sync_or_async_names = tuple(i.value for i in sync_or_async)
 sync_or_async_names_rev = tuple(reversed(sync_or_async_names))

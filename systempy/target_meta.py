@@ -14,12 +14,11 @@ from typing import (
 
 from typing_extensions import ParamSpec, dataclass_transform
 
-from .libsystempy.class_role import class_role
-from .libsystempy.constants import lifecycle_disallowed_attrs
-from .libsystempy.enums import ROLE
-from .libsystempy.register import (
+from .libsystempy import (
+    ROLE,
+    check_on_subclassing,
+    class_role,
     class_role_registry,
-    lifecycle_disallowed_method_exempt,
 )
 
 if TYPE_CHECKING:
@@ -88,18 +87,7 @@ class TargetMeta(ABCMeta, Generic[A]):
                 msg = mcs.__systempy_error_messages__.subclassed_baked.format(cls=base)
                 raise TypeError(msg)
 
-            clsdict = vars(base)
-            for check_attribute, description in lifecycle_disallowed_attrs:
-                if check_attribute in clsdict:
-                    if clsdict[check_attribute] in lifecycle_disallowed_method_exempt:
-                        continue
-
-                    message = f"Attribute {check_attribute} is not allowed"
-
-                    if description:
-                        message = f"{message}. {description}"
-
-                    raise ValueError(message, base)
+            check_on_subclassing(base)
 
         new_cls = cast(
             "type[TargetMeta]",

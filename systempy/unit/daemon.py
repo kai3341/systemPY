@@ -9,8 +9,7 @@ from typing import TYPE_CHECKING, ClassVar
 
 from typing_extensions import ParamSpec
 
-from ..libsystempy import ROLE
-from ..libsystempy.thread_exception import thread_send_exception
+from ..libsystempy import ROLE, thread_send_exception
 from ..target import SyncMixinABC
 from ._compat_signal import default_reload_signals
 

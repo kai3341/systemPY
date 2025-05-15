@@ -132,7 +132,7 @@ def register_target(cls: type[T]) -> type[T]:
 
 
 # === Just populate registries ===
-from . import check, extraction, handler_type  # noqa: E402, F401
+from . import extraction, handler_type  # noqa: E402, F401
 
 __all__ = (
     "class_role_registry",
