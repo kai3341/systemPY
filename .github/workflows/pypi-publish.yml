@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-22.04, ubuntu-latest, windows-latest, macos-latest]
-        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -31,13 +31,22 @@ jobs:
 
       - run: python --version
 
-      - name: Run tests
+      - name: Run tests pre
         run: uv run --isolated manage.py test
 
       - name: Build the project with mypyc
         env:
           USE_MYPYC: 1
         run: uv build --wheel
+
+      - name: Install built wheel
+        run: pip install dist/*
+
+      - name: Remove systempy sources to use installed wheel
+        run: rm -rf systempy
+
+      - name: Run tests post to check built wheel
+        run: uv run --isolated manage.py test
 
       - uses: actions/upload-artifact@v4
         with:

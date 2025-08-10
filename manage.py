@@ -4,15 +4,12 @@ from abc import ABC, abstractmethod
 from argparse import ArgumentParser, Namespace
 from collections.abc import Callable, Generator
 from dataclasses import dataclass
-from os import environ, execv
+from os import environ, execve
 from pathlib import Path
 from sys import executable
-from sys import path as syspath
 from typing import ClassVar
 
-root_dir = Path()
-src_dir = root_dir / "src"
-syspath.append(str(src_dir))
+root_dir = Path().absolute()
 
 VENV_BIN = Path(executable).parent
 
@@ -92,7 +89,7 @@ class DocWebSubparser(BaseManagePY):
 
     def execute(self) -> None:
         args = tuple(self.collect_args_iter())
-        execv(args[0], args)  # noqa: S606
+        execve(args[0], args, {})  # noqa: S606
 
 
 @ManagePY.register("test")
@@ -125,7 +122,7 @@ class TestsSubparser(BaseManagePY):
 
     def execute(self) -> None:
         args = tuple(self.collect_args_iter())
-        execv(args[0], args)  # noqa: S606
+        execve(args[0], args, {"PYTHONPATH": str(root_dir)})  # noqa: S606
 
 
 if __name__ == "__main__":
