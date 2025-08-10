@@ -32,21 +32,21 @@ jobs:
       - run: python --version
 
       - name: Run tests pre
-        run: uv run --isolated manage.py test
+        run: uv run --isolated -p `which python` manage.py test
 
       - name: Build the project with mypyc
         env:
           USE_MYPYC: 1
-        run: uv build --wheel
+        run: uv build -p `which python` --wheel
 
       - name: Install built wheel
         run: pip install dist/*
 
       - name: Remove systempy sources to use installed wheel
-        run: rm -rf systempy
+        run: rm -rf ./systempy
 
       - name: Run tests post to check built wheel
-        run: uv run --isolated manage.py test
+        run: uv run --isolated -p `which python` manage.py test
 
       - uses: actions/upload-artifact@v4
         with:
