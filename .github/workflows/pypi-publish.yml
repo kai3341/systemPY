@@ -40,7 +40,7 @@ jobs:
       - name: Build the project with mypyc
         env:
           USE_MYPYC: 1
-        run: uv build -p python --active --wheel
+        run: uv build -p python --wheel
 
       - name: Install built wheel
         run: pip install dist/*
