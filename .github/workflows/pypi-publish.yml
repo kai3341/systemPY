@@ -30,17 +30,17 @@ jobs:
           python-version: ${{ matrix.python }}
 
       - run: python --version
-
-      - name: Setup venv
-        run: uv venv -p python
+      - run: uv venv -p python
+      - run: source .venv/bin/activate
+      - run: uv sync -p python --active
 
       - name: Run tests pre
-        run: uv run -p python manage.py test
+        run: uv run -p python --active manage.py test
 
       - name: Build the project with mypyc
         env:
           USE_MYPYC: 1
-        run: uv build -p python --wheel
+        run: uv build -p python --active --wheel
 
       - name: Install built wheel
         run: pip install dist/*
@@ -49,7 +49,7 @@ jobs:
         run: rm -rf ./systempy
 
       - name: Run tests post to check built wheel
-        run: uv run -p python manage.py test
+        run: uv run -p python --active manage.py test
 
       - uses: actions/upload-artifact@v4
         with:
