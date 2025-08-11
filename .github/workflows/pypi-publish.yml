@@ -7,6 +7,7 @@ on:
   workflow_dispatch:
 
 env:
+  VIRTUAL_ENV: ${GITHUB_WORKSPACE}/.venv/
   UV_PYTHON: ${GITHUB_WORKSPACE}/.venv/bin/python
 
 jobs:
@@ -34,7 +35,7 @@ jobs:
 
       - run: python --version
 
-      - run: uv venv
+      - run: uv venv ${VIRTUAL_ENV}
         env:
           UV_PYTHON: null
           UV_SYSTEM_PYTHON: true
