@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  UV_SYSTEM_PYTHON: true
+  UV_PYTHON: ${GITHUB_WORKSPACE}/.venv/bin/python
 
 jobs:
   make-binaries:
@@ -33,7 +33,11 @@ jobs:
           python-version: ${{ matrix.python }}
 
       - run: python --version
+
       - run: uv venv
+        env:
+          UV_SYSTEM_PYTHON: true
+
       - run: uv sync
 
       - name: Run tests pre
