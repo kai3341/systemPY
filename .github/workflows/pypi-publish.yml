@@ -7,7 +7,6 @@ on:
   workflow_dispatch:
 
 env:
-  UV_SYSTEM_PYTHON: true
   VIRTUAL_ENV: ${{ github.workspace }}/.venv
 
 jobs:
@@ -41,20 +40,25 @@ jobs:
 
       - name: Run tests pre
         run: uv run manage.py test
+        shell: bash
 
       - name: Build the project with mypyc
         env:
           USE_MYPYC: 1
         run: uv build --wheel
+        shell: bash
 
       - name: Install built wheel
         run: pip install dist/*
+        shell: bash
 
       - name: Remove systempy sources to use installed wheel
         run: rm -rf ./systempy
+        shell: bash
 
       - name: Run tests post to check built wheel
         run: uv run -p manage.py test
+        shell: bash
 
       - uses: actions/upload-artifact@v4
         with:
