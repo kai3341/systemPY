@@ -43,12 +43,12 @@ jobs:
           USE_MYPYC: 1
         run: uv build --wheel
 
-      - name: Install built wheel
-        run: pip install -t . --no-deps dist/*
-        shell: bash
-
       - name: Remove systempy sources to use installed wheel
         run: rm -rf ./systempy
+        shell: bash
+
+      - name: Install built wheel
+        run: pip install -t . --no-deps dist/*
         shell: bash
 
       - name: Run tests post to check built wheel
