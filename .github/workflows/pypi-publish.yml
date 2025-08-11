@@ -36,6 +36,7 @@ jobs:
 
       - run: uv venv
         env:
+          UV_PYTHON: null
           UV_SYSTEM_PYTHON: true
 
       - run: uv sync
