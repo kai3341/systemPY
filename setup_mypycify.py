@@ -60,7 +60,7 @@ mypycify_structure: Struct = {
                 "creation.py",
                 "extraction.py",
                 # "enums.py",
-                "handler_type.py",
+                # "handler_type.py",  # fails on python3.12
                 # "hook_registry.py",
                 # "local_dataclasses.py",  # https://github.com/python/mypy/issues/13304  # noqa: E501, ERA001
                 "local_typing.py",
