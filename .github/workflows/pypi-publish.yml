@@ -1,10 +1,13 @@
+name: release
+
 on:
   release:
     types:
       - published
   workflow_dispatch:
 
-name: release
+env:
+  UV_SYSTEM_PYTHON: true
 
 jobs:
   make-binaries:
@@ -12,7 +15,7 @@ jobs:
     environment: pypi
     strategy:
       matrix:
-        os: [ubuntu-22.04, ubuntu-latest, macos-latest]
+        os: [ubuntu-22.04, ubuntu-latest, windows-latest, macos-latest]
         python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     runs-on: ${{ matrix.os }}
     steps:
@@ -30,17 +33,16 @@ jobs:
           python-version: ${{ matrix.python }}
 
       - run: python --version
-      - run: uv venv -p python
-      - run: source .venv/bin/activate
-      - run: uv sync -p python --active
+      - run: uv venv
+      - run: uv sync
 
       - name: Run tests pre
-        run: uv run -p python --active manage.py test
+        run: uv run manage.py test
 
       - name: Build the project with mypyc
         env:
           USE_MYPYC: 1
-        run: uv build -p python --wheel
+        run: uv build --wheel
 
       - name: Install built wheel
         run: pip install dist/*
@@ -49,7 +51,7 @@ jobs:
         run: rm -rf ./systempy
 
       - name: Run tests post to check built wheel
-        run: uv run -p python --active manage.py test
+        run: uv run -p manage.py test
 
       - uses: actions/upload-artifact@v4
         with:
