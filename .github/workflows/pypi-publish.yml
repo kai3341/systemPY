@@ -44,7 +44,7 @@ jobs:
         run: uv build --wheel
 
       - name: Install built wheel
-        run: pip install dist/*
+        run: pip install -t . --no-deps dist/*
         shell: bash
 
       - name: Remove systempy sources to use installed wheel
