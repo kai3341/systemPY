@@ -6,9 +6,6 @@ on:
       - published
   workflow_dispatch:
 
-env:
-  VIRTUAL_ENV: ${{ github.workspace }}/.venv
-
 jobs:
   make-binaries:
     name: test & build
