@@ -4,19 +4,21 @@ from inspect import iscoroutinefunction
 from typing import TYPE_CHECKING, cast
 from weakref import ref
 
-from .constants import lifecycle_registered_methods
+from .constants import created_handlers, lifecycle_registered_methods, original_methods
 from .enums import DIRECTION, ROLE
 from .local_dataclasses import SeparatedLFMethods
 from .register import class_role_registry, register_direction
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Coroutine
+    from collections.abc import Callable, Coroutine, Generator
 
     from .local_typing import CTuple, P, R, WeakTypeIterable
 
 
-def extract_attrs(iterable: WeakTypeIterable, reason: Callable) -> list[Callable]:
-    result: list[Callable] = []
+def extract_attrs(
+    iterable: WeakTypeIterable,
+    reason: Callable,
+) -> Generator[Callable, None, None]:
     cfg = lifecycle_registered_methods[reason]
     interface = cfg.interface()
 
@@ -29,12 +31,18 @@ def extract_attrs(iterable: WeakTypeIterable, reason: Callable) -> list[Callable
         if not issubclass(cls, interface):
             continue
 
+        if cls_original_methods := original_methods.get(cls):
+            if maybe_value := cls_original_methods.get(reason):
+                yield maybe_value
+                continue
+
         cls_dict = cls.__dict__
+        maybe_callable = cls_dict.get(reason.__name__)
 
-        if (maybe_val := cls_dict.get(reason.__name__)) is not None:
-            result.append(maybe_val)
+        if maybe_callable is None or maybe_callable in created_handlers:
+            continue
 
-    return result
+        yield maybe_callable
 
 
 @register_direction(DIRECTION.FORWARD)
@@ -46,7 +54,7 @@ def callbacks_direct(iterable: WeakTypeIterable, reason: Callable) -> CTuple:
 
 @register_direction(DIRECTION.BACKWARD)
 def callbacks_reversed(iterable: WeakTypeIterable, reason: Callable) -> CTuple:
-    callbacks = extract_attrs(iterable, reason)
+    callbacks = list(extract_attrs(iterable, reason))
     callbacks.reverse()
     return tuple(callbacks)
 
@@ -62,8 +70,11 @@ def extract_bases(cls: type) -> WeakTypeIterable:
         if class_role_registry[Base] in extract_bases__whitelist
     ]
 
-    app_class = bases.pop(0)
-    bases.append(app_class)
+    insert_at = len(bases) - 1
+
+    while class_role_registry[bases[0]] is ROLE.APP:
+        bases.insert(insert_at, bases.pop(0))
+        insert_at -= 1
 
     return tuple(map(ref, bases))
 

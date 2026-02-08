@@ -1,6 +1,7 @@
 from asyncio import AbstractEventLoop, get_running_loop, run
-from collections.abc import Coroutine
+from collections.abc import Callable, Coroutine
 from dataclasses import field
+from sys import version_info
 
 from typing_extensions import ParamSpec
 
@@ -9,6 +10,8 @@ from ..target import AsyncMixinABC
 from .daemon import _BaseDaemonUnitABC
 
 A = ParamSpec("A")
+
+LoopFactory = Callable[[], AbstractEventLoop] | None
 
 
 def handle_error(exc: RuntimeError) -> None:
@@ -22,12 +25,21 @@ def handle_error(exc: RuntimeError) -> None:
 
 
 class LoopUnit(AsyncMixinABC, _BaseDaemonUnitABC[A], role=ROLE.MIXIN):
+    loop_factory: LoopFactory = field(default=None)
+
     _main_async_coro: Coroutine[None, None, None] = field(init=False, repr=False)
     __loop: AbstractEventLoop = field(init=False, repr=False)
 
-    def main_sync(self) -> None:
-        run_coroutine = self.run_async()
-        run(run_coroutine)
+    if version_info >= (3, 12):
+
+        def main_sync(self) -> None:
+            run_coroutine = self.run_async()
+            run(run_coroutine, loop_factory=self.loop_factory)
+    else:
+
+        def main_sync(self) -> None:
+            run_coroutine = self.run_async()
+            run(run_coroutine)
 
     async def run_async(self) -> None:
         self.__loop = get_running_loop()

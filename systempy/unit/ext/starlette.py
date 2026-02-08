@@ -1,8 +1,10 @@
 from starlette.applications import Starlette
+from typing_extensions import deprecated
 
 from systempy import Target
 
 
+@deprecated("Will be removed into separated package")
 class StarletteUnit(Target):
     starlette_app: Starlette
 

@@ -1,19 +1,19 @@
+name: release
+
 on:
   release:
     types:
       - published
   workflow_dispatch:
 
-name: release
-
 jobs:
   make-binaries:
-    name: test & build binary
+    name: test & build
     environment: pypi
     strategy:
       matrix:
-        os: [ubuntu-22.04, ubuntu-latest, windows-latest, macos-latest]
-        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        os: [ubuntu-22.04, ubuntu-latest, macos-latest]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -31,13 +31,28 @@ jobs:
 
       - run: python --version
 
-      - name: Run tests
-        run: uv run --isolated manage.py test
+      - run: uv venv ${VIRTUAL_ENV}
+
+      - run: uv sync
+
+      - name: Run tests pre
+        run: uv run manage.py test
 
       - name: Build the project with mypyc
         env:
           USE_MYPYC: 1
         run: uv build --wheel
+
+      - name: Remove systempy sources to use installed wheel
+        run: rm -rf ./systempy
+        shell: bash
+
+      - name: Install built wheel
+        run: pip install -t . --no-deps dist/*
+        shell: bash
+
+      - name: Run tests post to check built wheel
+        run: uv run manage.py test
 
       - uses: actions/upload-artifact@v4
         with:

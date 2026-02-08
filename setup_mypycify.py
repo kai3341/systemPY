@@ -54,14 +54,13 @@ mypycify_structure: Struct = {
         "libsystempy": {
             None: (
                 "callback_plan.py",
-                "check.py",
                 "class_role.py",
                 "configuration.py",
                 "constants.py",
                 "creation.py",
                 "extraction.py",
                 # "enums.py",
-                "handler_type.py",
+                # "handler_type.py",  # fails on python3.12
                 # "hook_registry.py",
                 # "local_dataclasses.py",  # https://github.com/python/mypy/issues/13304  # noqa: E501, ERA001
                 "local_typing.py",
@@ -70,6 +69,12 @@ mypycify_structure: Struct = {
                 "thread_exception.py",
                 # "weak_queue.py",
             ),
+            "check": {
+                None: (
+                    "callback.py",
+                    "subclass.py",
+                ),
+            },
         },
     },
 }

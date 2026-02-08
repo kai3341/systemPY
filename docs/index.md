@@ -38,6 +38,10 @@ components as mixins into the current application `App` class. Then create an
 instance and pass dependencies as keyword arguments. In case it's a self-hosted
 app you have to call the `instance.run_sync()` method
 
+Note that `systempy` is **NOT** a di framework, but it may be used with any of
+them. Also `systempy` is **NOT** a binding to systemd, but I was inspired by it
+and `systempy` is doing similar things on a much smaller scale
+
 It's possible to use `systemPY` in three scenarios:
 
 - Secondary application, which is handled by another application like
@@ -144,45 +148,53 @@ mind that we also need to be able do a safe application reload. Just look at the
 
 ### Naming and roles
 
-All magic happens in `TargetMeta` metaclass. `TargetMeta` is a subclass of
-`abc.ABCMeta`, that's why you are able to to use `@abc.abstractmethod` decorator
+All the magic happens in `TargetMeta` metaclass. The `TargetMeta` is a subclass
+of `abc.ABCMeta`, that's why you are able to to use `@abc.abstractmethod`
+decorator
 
 === "Class roles"
 
-    There are 4 roles of classes I found:
+    There are 6 roles of classes I found:
 
     * `Target` &#151 the interface which defines lifecycle methods
 
     * `Unit` &#151 component with lifecycle methods
 
-    * `Mixin` &#151 class **without** lifecycle methods. It's special optimization of
-    `Target` role
+    * `Mixin` &#151 class **without** lifecycle methods. It's special
+    optimization of `Target` role
 
     * `App` &#151 the final "baked" class with composed lifecycle methods
 
-    `TargetMeta` checks `role` kwarg. If kwarg `role` is not defined, `TargetMeta`
-    tries to parse class name and decide what to do
+    * `Builtins` &#151 a special optimization to force skiping `builtins`
+    classes processing by `libsystempy`. Normally you wouldn't face it
+
+    * `Metaclass` &#151 the same kind of optimization as `Builtins`, but used by
+    `TargetMeta` and its subclasses. It happens automatically in the
+    `__init_subclass__` hook
+
+    `TargetMeta` checks `role` kwarg. If kwarg `role` is not defined,
+    `TargetMeta` tries to parse class name and decide what to do
 
 === "by naming"
 
-    Here we are trying to manipulate class roles by class names. It's wery similar
-    to idea of [tailwind-css](https://tailwindcss.com/). You don't have to do any
-    extra import, just keep class naming and be happy:
+    Here we are trying to manipulate class roles by class names. It's very
+    similar to the idea of [tailwind-css](https://tailwindcss.com/). You don't
+    have to do any extra import, just follow class naming and be happy:
 
     * Classes with names, ends with `Target` or `TargetABC` / matches
-    `r'(\S*)Target(ABC)?$'`, will be interpreted as `Target` role
+    `r'(\S*)Target(ABC)?$'`, will be interpreted as a `Target` role
 
     * Classes with names, ends with `Unit` or `UnitABC` / matches
-    `r'(\S*)Unit(ABC)?$'`, will be interpreted as `Unit` role
+    `r'(\S*)Unit(ABC)?$'`, will be interpreted as an `Unit` role
 
     * Classes with names, ends with `Mixin` or `MixinABC` / matches
-    `r'(\S*)Mixin(ABC)?$'`, will be interpreted as `Mixin` role. Remember: the
-    `Mixin` role is a special optimisation of `Target` role and means the class
-    **does not have own lifecycle methods**
+    `r'(\S*)Mixin(ABC)?$'`, will be interpreted as a `Mixin` role. Remember: the
+    `Mixin` role is a special optimisation of the `Target` role which means that
+    the class **does not have own lifecycle methods**
 
     * Classes with names, ends with `App` / matches `r'(\S*)App$'`, will be
-    interpreted as `App` role. Due App role does not allow subclassing, AppABC
-    has no sense
+    interpreted as an `App` role. Due App role does not allow subclassing,
+    AppABC has no sense
 
     ```python
     from systempy import Target
@@ -204,9 +216,9 @@ All magic happens in `TargetMeta` metaclass. `TargetMeta` is a subclass of
 
 === "by `role` kwarg"
 
-    Sometimes you may prefer to pass to class explicit role. You can find such
-    examples in `systempy` code base too. When you are passing `role` kwargs,
-    `systempy` doesn't try to parse class name:
+    Sometimes you may prefer to pass to the class the explicit role. You can
+    find such examples in `systempy` code base too. When you are passing the
+    `role` kwarg, `systempy` doesn't try to parse class name:
 
     ```python
     from systempy import ROLE, Target
@@ -218,9 +230,9 @@ All magic happens in `TargetMeta` metaclass. `TargetMeta` is a subclass of
     ```
 
 
-## That's all? Nope, it's really begin
+## That's all? Nope, it's the very beginning!
 
-You are able to register own `Target` with own lifecycle methods. The first
+You are able to register own `Target` with your own lifecycle methods. The first
 such example is [already included](https://github.com/kai3341/systemPY/blob/main/systempy/ext/target_ext.py):
 
 === "Code"
@@ -243,23 +255,20 @@ such example is [already included](https://github.com/kai3341/systemPY/blob/main
 
 === "Methods"
 
-    Here there were registered two new lifecycle methods:
+    Here two new lifecycle methods there were registered:
 
     * `post_startup` callbacks will be called exactly after finished
-    `Target.on_startup` in `DIRECTION.FORWARD` order
+    `Target.on_startup` in a `DIRECTION.FORWARD` order
 
-    * `pre_shutdown` callbacks will be called before running `Target.on_shutdown`
-    in `DIRECTION.BACKWARD` order
+    * `pre_shutdown` callbacks will be called before running
+    `Target.on_shutdown` in a `DIRECTION.BACKWARD` order
 
-You are able to define your own lifecycle stages without any limit binding them
-before or after already existing. It's like `systemd`'s `Unit` options `Before`
-and `After`. Yes, [`systemPY` is a small `systemd`'s brother](https://telegra.ph/Why-does-it-systemPY-08-12)
+You are able to define your own lifecycle stages without any limit by binding
+them before or after already existing. It's like `systemd`'s `Unit` options
+`Before` and `After`. Yes, [`systemPY` is a small `systemd`'s brother](https://telegra.ph/Why-does-it-systemPY-08-12)
 
-You can find more examples. Interesting `Target` example is a
-[daemon](./examples/self-hosted/daemon.md) example
-
-Also look at the [REPL](./examples/self-hosted/repl.md) example. REPL is useful
-and handy, also example has the most canonical usage example
+You can find more examples. Actually the whole `systempy` itself is the example
+of `libsystempy` usage. Don't be afraid to read `systempy`'s source code
 
 ## Method Relosve Order
 
@@ -267,16 +276,16 @@ I'll exaplin on the part of [REPL](./examples/self-hosted/repl.md) example:
 
 ```python
 class MyReplApp(    # INIT      # SHUTDOWN
-    ConfigUnit,     # 1         # 5
-    LoggerUnit,     # 2         # 4
-    MyFirstDBUnit,  # 3         # 3
-    RedisUnit,      # 4         # 2
-    PTReplUnit,     # 5         # 1
-): ...
+    ConfigUnit,     # 1         # 6
+    LoggerUnit,     # 2         # 5
+    MyFirstDBUnit,  # 3         # 4
+    RedisUnit,      # 4         # 3
+    PTReplUnit,     # 5         # 2
+): ...              # 6         # 1
 ```
 
-Important: while you are implementing your `Unit` mixins, remember **NEVER** call
-`super()` in lifecycle methods. These methods will be collected and called
+Important: while you are implementing your `Unit` mixins, remember **NEVER**
+call `super()` in lifecycle methods. These methods will be collected and called
 by `systemPY` in the right order
 
 # Installing

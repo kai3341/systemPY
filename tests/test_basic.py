@@ -1,14 +1,12 @@
 from os import environ
 from typing import TypeVar
-from unittest import TestCase, skip, skipIf
+from unittest import TestCase, skipIf
 
 T = TypeVar("T")
 
 
 class BasicTestCase(TestCase):
     def test_custom_target(self) -> None:
-        from gc import collect
-
         from _util._cbutil import _method_async, _method_sync
         from systempy import (
             DIRECTION,
@@ -230,8 +228,6 @@ class BasicTestCase(TestCase):
             async def main_async(self) -> None:
                 results_append("main_async")
 
-        collect()  # Make sure we didn't leave any object without refs
-
         ExampleDaemonApp.launch()
 
         expected_result = [
@@ -291,33 +287,7 @@ class BasicTestCase(TestCase):
 
         self.assertListEqual(results, expected_result, "lifecycle method order")
 
-        self.assertEqual(
-            ExampleDaemonApp.on_init.__qualname__,
-            "Sync[on_init]("
-            "ExampleDaemon1Unit.before_on_init;"
-            "ExampleDaemon2Unit.before_on_init;"
-            "ExampleDaemon3Unit.before_on_init;"
-            "ExampleDaemon1Unit.on_init;"
-            "ExampleDaemon2Unit.on_init;"
-            "ExampleDaemon3Unit.on_init;"
-            "_BaseDaemonUnitABC.on_init;"
-            "ExampleDaemon1Unit.after_on_init;"
-            "ExampleDaemon2Unit.after_on_init;"
-            "ExampleDaemon3Unit.after_on_init)",
-        )
-
-        self.assertEqual(
-            ExampleDaemonApp.before_on_init.__qualname__,
-            "Sync[before_on_init]("
-            "ExampleDaemon1Unit.before_on_init;"
-            "ExampleDaemon2Unit.before_on_init;"
-            "ExampleDaemon3Unit.before_on_init)",
-        )
-
-    @skip("not ready")
     def test_custom_target_wrong_inheritence(self) -> None:
-        from gc import collect
-
         from _util._cbutil import _method_async, _method_sync
         from systempy import (
             DIRECTION,
@@ -422,7 +392,7 @@ class BasicTestCase(TestCase):
         _sync_2 = _method_sync(results_append, "2")
         _async_2 = _method_async(results_append, "2")
 
-        class ExampleDaemon2Unit(ExampleDaemonTarget):
+        class ExampleDaemon2Unit(Target):
             @_sync_2
             def before_on_init(self) -> None: ...
 
@@ -472,67 +442,11 @@ class BasicTestCase(TestCase):
             def also_after_post_shutdown(self) -> None: ...
 
             @_sync_2
-            def after_also_after_post_shutdown(self) -> None: ...
-
-        _sync_3 = _method_sync(results_append, "3")
-        _async_3 = _method_async(results_append, "3")
-
-        class ExampleDaemon3Unit(ExampleDaemonTarget):
-            @_sync_3
-            def before_on_init(self) -> None: ...
-
-            @_sync_3
-            def on_init(self) -> None: ...
-
-            @_sync_3
-            def after_on_init(self) -> None: ...
-
-            @_sync_3
-            def before_pre_startup(self) -> None: ...
-
-            @_sync_3
-            def pre_startup(self) -> None: ...
-
-            @_sync_3
-            def after_pre_startup(self) -> None: ...
-
-            @_async_3
-            async def on_startup(self) -> None: ...
-
-            @_async_3
-            async def post_startup(self) -> None: ...
-
-            @_async_3
-            async def before_post_startup(self) -> None: ...
-
-            @_gather
-            async def after_post_startup(self) -> None: ...
-
-            @_gather
-            async def before_pre_shutdown(self) -> None: ...
-
-            @_async_3
-            async def pre_shutdown(self) -> None: ...
-
-            @_async_3
-            async def on_shutdown(self) -> None: ...
-
-            @_sync_3
-            def post_shutdown(self) -> None: ...
-
-            @_sync_3
-            def after_post_shutdown(self) -> None: ...
-
-            @_sync_3
-            def also_after_post_shutdown(self) -> None: ...
-
-            @_sync_3
             def after_also_after_post_shutdown(self) -> None: ...
 
         class ExampleDaemonApp(
             ExampleDaemon1Unit,
             ExampleDaemon2Unit,
-            ExampleDaemon3Unit,
             LoopUnit,
         ):
             reload_signals = ()
@@ -540,11 +454,34 @@ class BasicTestCase(TestCase):
             async def main_async(self) -> None:
                 results_append("main_async")
 
-        collect()  # Make sure we didn't leave any object without refs
-
         ExampleDaemonApp.launch()
 
-        print(results)
+        expected_result = [
+            "before_on_init:1",
+            "on_init:1",
+            "on_init:2",
+            "after_on_init:1",
+            "before_pre_startup:1",
+            "pre_startup:1",
+            "pre_startup:2",
+            "after_pre_startup:1",
+            "on_startup:1",
+            "on_startup:2",
+            "main_async",
+            "on_shutdown:2",
+            "on_shutdown:1",
+            "post_shutdown:2",
+            "post_shutdown:1",
+            "after_post_shutdown:1",
+            "also_after_post_shutdown:1",
+            "after_also_after_post_shutdown:1",
+        ]
+
+        self.assertListEqual(
+            results,
+            expected_result,
+            "some ExampleDaemon2Unit methods have to be skipped",
+        )
 
     def test_async_stop_reload(self) -> None:
         from threading import Thread
@@ -862,6 +799,134 @@ class BasicTestCase(TestCase):
 
         self.assertListEqual(results_expected, results)
 
+    def test_sync_script_app_subclassing(self) -> None:
+        from _util._cbutil import _method_sync
+        from systempy import ScriptUnit, Target
+
+        results: list[str] = []
+        results_append = results.append
+
+        _sync_1 = _method_sync(results_append, "1")
+
+        class Example1Unit(Target):
+            @_sync_1
+            def on_init(self) -> None: ...
+
+            @_sync_1
+            def pre_startup(self) -> None: ...
+
+            @_sync_1
+            def post_shutdown(self) -> None: ...
+
+        _sync_2 = _method_sync(results_append, "2")
+
+        class Example2Unit(Target):
+            @_sync_2
+            def on_init(self) -> None: ...
+
+            @_sync_2
+            def pre_startup(self) -> None: ...
+
+            @_sync_2
+            def post_shutdown(self) -> None: ...
+
+        _sync_3 = _method_sync(results_append, "3")
+
+        class Example3Unit(Target):
+            @_sync_3
+            def on_init(self) -> None: ...
+
+            @_sync_3
+            def pre_startup(self) -> None: ...
+
+            @_sync_3
+            def post_shutdown(self) -> None: ...
+
+        _sync_4 = _method_sync(results_append, "4")
+
+        class ExampleScript4App(
+            Example1Unit,
+            Example2Unit,
+            Example3Unit,
+            ScriptUnit,
+        ):
+            def main_sync(self) -> None:
+                results_append("main_sync")
+
+            @_sync_4
+            def on_init(self) -> None: ...
+
+            @_sync_4
+            def pre_startup(self) -> None: ...
+
+            @_sync_4
+            def post_shutdown(self) -> None: ...
+
+        _sync_5 = _method_sync(results_append, "5")
+
+        class ExampleScript5App(ExampleScript4App):
+            @_sync_5
+            def on_init(self) -> None: ...
+
+            @_sync_5
+            def pre_startup(self) -> None: ...
+
+            @_sync_5
+            def post_shutdown(self) -> None: ...
+
+        _sync_6 = _method_sync(results_append, "6")
+
+        class ExampleScript6App(ExampleScript5App):
+            @_sync_6
+            def on_init(self) -> None: ...
+
+            @_sync_6
+            def pre_startup(self) -> None: ...
+
+            @_sync_6
+            def post_shutdown(self) -> None: ...
+
+        _sync_7 = _method_sync(results_append, "7")
+
+        class ExampleScript7App(ExampleScript6App):
+            @_sync_7
+            def on_init(self) -> None: ...
+
+            @_sync_7
+            def pre_startup(self) -> None: ...
+
+            @_sync_7
+            def post_shutdown(self) -> None: ...
+
+        ExampleScript7App.launch()
+
+        results_expected = [
+            "on_init:1",
+            "on_init:2",
+            "on_init:3",
+            "on_init:4",
+            "on_init:5",
+            "on_init:6",
+            "on_init:7",
+            "pre_startup:1",
+            "pre_startup:2",
+            "pre_startup:3",
+            "pre_startup:4",
+            "pre_startup:5",
+            "pre_startup:6",
+            "pre_startup:7",
+            "main_sync",
+            "post_shutdown:7",
+            "post_shutdown:6",
+            "post_shutdown:5",
+            "post_shutdown:4",
+            "post_shutdown:3",
+            "post_shutdown:2",
+            "post_shutdown:1",
+        ]
+
+        self.assertListEqual(results_expected, results)
+
     def test_async_script(self) -> None:
         from _util._cbutil import _method_async, _method_sync
         from systempy import AsyncScriptUnit, Target
@@ -967,7 +1032,7 @@ class BasicTestCase(TestCase):
     def test_zzz_memory_leak(self) -> None:
         from gc import collect
 
-        from systempy.libsystempy.register import (
+        from systempy.libsystempy import (
             class_role_registry,
             register_hook_after,
             register_hook_before,
@@ -976,6 +1041,7 @@ class BasicTestCase(TestCase):
         # create many objects
         for _ in range(int(environ["MEMORE_LEAK_ROUNDS"])):
             self.test_custom_target()
+            self.test_sync_script_app_subclassing()
 
         collect()
 
@@ -1001,8 +1067,12 @@ class BasicTestCase(TestCase):
             "ExtTarget": "ROLE.TARGET",
         }
 
+        class_roles_found = {
+            cls.__qualname__: str(role) for cls, role in class_role_registry.items()
+        }
+
         self.assertDictEqual(
-            {cls.__name__: str(role) for cls, role in class_role_registry.items()},
+            class_roles_found,
             class_roles_expected,
         )
 

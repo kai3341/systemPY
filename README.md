@@ -41,6 +41,10 @@ components as mixins into the current application `App` class. Then create an
 instance and pass dependencies as keyword arguments. In case it's a self-hosted
 app you have to call the `instance.run_sync()` method
 
+Note that `systempy` is **NOT** a di framework, but it may be used with any of
+them. Also `systempy` is **NOT** a binding to systemd, but I was inspired by it
+and `systempy` is doing similar things on a much smaller scale
+
 ## Basic principles
 
 There are 6 the most significant stages of the application lifecycle:

@@ -2,12 +2,6 @@
 ReplUnit is deprecated. Please use PTReplUnit instead.
 """
 
-from pathlib import Path
-from sys import path
-
-root_dir = Path(__file__).parent.parent
-path.append(str(root_dir))
-
 from _util._cbutil import _method_sync
 from systempy import ReplUnit, Target
 

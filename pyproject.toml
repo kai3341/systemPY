@@ -1,6 +1,6 @@
 [project]
 name = "systempy"
-version = "0.1.5"
+version = "0.1.6"
 description = "Python application component initialization system"
 authors = [{name = "kai3341"}]
 readme = "README.md"
@@ -17,6 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -31,16 +32,21 @@ keywords = [
     "manager"
 ]
 license="MIT"
+license-files = ["LICENSE"]
 
 [project.optional-dependencies]
 extra = [
-    "celery>=5.5.1",
     "ptpython>=3.0.30",
-    "starlette>=0.46.2",
 ]
 
 [tool.pyright]
 include = ["systempy/", "tests/", "_util/"]
+exclude = [
+    "^build/",
+    "^dist/",
+    "systempy/unit/ext/celery.py",
+    "systempy/unit/ext/starlette.py",
+]
 reportMissingModuleSource = false
 reportArgumentType = false
 reportCallIssue = false
@@ -53,7 +59,7 @@ reportAttributeAccessIssue = false
 
 [tool.ruff.lint]
 select=["ALL"]
-ignore = ["D", "S101", "TID252", "ANN401", "PTH119", "RET503", "PT009"]
+ignore = ["D", "S101", "TID252", "ANN401", "PTH119", "RET503", "PT009", "PLC0415", "SIM102"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -67,18 +73,27 @@ line-ending = "auto"
 "_util/*" = ["E402"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 mypy_path = "$MYPY_CONFIG_FILE_DIR/systempy"
 disable_error_code = ["import-untyped", "return", "empty-body"]
-exclude = ["^build/", "^dist/"]
+exclude = [
+    "^build/",
+    "^dist/",
+    "systempy/unit/ext/celery.py",
+    "systempy/unit/ext/starlette.py",
+]
 
 [dependency-groups]
 dev = [
     "mkdocs-material>=9.6.11",
-    "mypy[mypyc]>=1.15.0",
+    "mypy[mypyc]>=1.15.0; python_version >= '3.9'",
     "ruff>=0.11.5",
-    "wheel>=0.45.1",
+    "wheel>=0.45.1; python_version >= '3.14'",
 ]
 
 [build-system]
-requires = ["tomli; python_version < '3.11'", "mypy[mypyc]", "wheel>=0.45.1"]
+requires = [
+    "tomli; python_version < '3.11'",
+    "mypy[mypyc]>=1.15.0; python_version >= '3.9'",
+    "wheel>=0.45.1; python_version >= '3.14'",
+]
