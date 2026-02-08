@@ -34,7 +34,7 @@ class LoopUnit(AsyncMixinABC, _BaseDaemonUnitABC[A], role=ROLE.MIXIN):
 
         def main_sync(self) -> None:
             run_coroutine = self.run_async()
-            run(run_coroutine, loop_factory=self.loop_factory)
+            run(run_coroutine, loop_factory=self.loop_factory)  # type: ignore[call-arg]
     else:
 
         def main_sync(self) -> None:
