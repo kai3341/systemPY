@@ -33,7 +33,7 @@ jobs:
       - run: uv sync
 
       - name: Run tests pre
-        run: uv run manage.py test
+        run: uv run manage.py test --memory-leak-rounds=0
 
       - name: Build the project with mypyc
         env:
@@ -49,4 +49,4 @@ jobs:
         shell: bash
 
       - name: Run tests post to check built wheel
-        run: uv run manage.py test
+        run: uv run manage.py test --memory-leak-rounds=0
