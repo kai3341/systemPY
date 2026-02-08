@@ -2,6 +2,7 @@ from asyncio import AbstractEventLoop, get_running_loop, run
 from collections.abc import Callable, Coroutine
 from dataclasses import field
 from sys import version_info
+from typing import Union
 
 from typing_extensions import ParamSpec
 
@@ -11,7 +12,7 @@ from .daemon import _BaseDaemonUnitABC
 
 A = ParamSpec("A")
 
-LoopFactory = Callable[[], AbstractEventLoop] | None
+LoopFactory = Union[Callable[[], AbstractEventLoop], None]
 
 
 def handle_error(exc: RuntimeError) -> None:
