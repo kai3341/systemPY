@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from argparse import ArgumentParser, Namespace
 from collections.abc import Callable, Generator
 from dataclasses import dataclass
-from os import environ, execve
+from os import execve
 from pathlib import Path
 from sys import executable
 from typing import ClassVar
@@ -106,9 +106,15 @@ class TestsSubparser(BaseManagePY):
         default=2,
     )
 
+    parser.add_argument(
+        "tests",
+        nargs="*",
+        help="Test names to execute",
+    )
+
     # ===
 
-    def collect_args_iter(self) -> Generator[str, None, None]:
+    def collect_args_iter(self, new_env: dict[str, str]) -> Generator[str, None, None]:
         ns: Namespace = self.namespace
 
         if ns.memory_leak_rounds:
@@ -116,13 +122,20 @@ class TestsSubparser(BaseManagePY):
             if memory_leak_rounds < 1:
                 raise ValueError
 
-            environ["MEMORE_LEAK_ROUNDS"] = str(memory_leak_rounds)
+            new_env["MEMORE_LEAK_ROUNDS"] = str(memory_leak_rounds)
 
-        yield from (executable, "-m", "unittest", "discover", "tests")
+        yield from (executable, "-m", "unittest")
+
+        if ns.tests:
+            for test in ns.tests:
+                yield f"tests.{test}"
+        else:
+            yield from ("discover", "-v", "tests")
 
     def execute(self) -> None:
-        args = tuple(self.collect_args_iter())
-        execve(args[0], args, {"PYTHONPATH": str(root_dir)})  # noqa: S606
+        new_env = {"PYTHONPATH": str(root_dir)}
+        args = tuple(self.collect_args_iter(new_env))
+        execve(args[0], args, new_env)  # noqa: S606
 
 
 if __name__ == "__main__":

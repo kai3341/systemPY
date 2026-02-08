@@ -31,7 +31,6 @@ T = TypeVar("T")
 
 class ErrorMessages(NamedTuple):
     instantiate_not_ready: str
-    subclassed_baked: str
 
 
 def _role_autodetect(cls: type) -> ROLE:
@@ -56,7 +55,6 @@ class TargetMeta(ABCMeta, Generic[A]):
     __systempy_error_messages__: ClassVar = ErrorMessages(
         instantiate_not_ready="Caught attempt to instantiate class {cls}, but "
         "its name doesn't match `.*App`. You have to rename it or subclass it",
-        subclassed_baked="Subclassing of `*.App` classes {cls} is not allowed",
     )
 
     def __systempy_criteria__(
@@ -83,10 +81,6 @@ class TargetMeta(ABCMeta, Generic[A]):
         **kwargs: Any,
     ) -> type[TargetMeta]:
         for base in bases:
-            if class_role_registry[base] == ROLE.APP:
-                msg = mcs.__systempy_error_messages__.subclassed_baked.format(cls=base)
-                raise TypeError(msg)
-
             check_on_subclassing(base)
 
         new_cls = cast(

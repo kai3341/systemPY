@@ -1,4 +1,5 @@
-from weakref import WeakKeyDictionary
+from collections.abc import Callable
+from weakref import WeakKeyDictionary, WeakSet, WeakValueDictionary
 
 from .enums import TYPE as _TYPE
 from .local_typing import DisallowedAttrInfo, LFMetadata, LFRegistered, LFTypeConfig
@@ -8,6 +9,8 @@ lifecycle_registered_methods: LFRegistered = WeakKeyDictionary()
 
 sync_or_async = (_TYPE.SYNC, _TYPE.ASYNC)
 handler_metadata: LFMetadata = WeakKeyDictionary()
+original_methods = WeakKeyDictionary[type, WeakValueDictionary[Callable, Callable]]()
+created_handlers = WeakSet[Callable]()
 
 
 lifecycle_disallowed_attrs: list[DisallowedAttrInfo] = [

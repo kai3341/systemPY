@@ -59,7 +59,7 @@ reportAttributeAccessIssue = false
 
 [tool.ruff.lint]
 select=["ALL"]
-ignore = ["D", "S101", "TID252", "ANN401", "PTH119", "RET503", "PT009"]
+ignore = ["D", "S101", "TID252", "ANN401", "PTH119", "RET503", "PT009", "PLC0415", "SIM102"]
 
 [tool.ruff.format]
 quote-style = "double"

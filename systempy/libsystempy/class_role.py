@@ -2,12 +2,11 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from sys import version_info
 from typing import TypeVar
-from typing import final as typing_final
 
 from typing_extensions import NamedTuple
 
 from .configuration import apply_additional_configuration
-from .register import register_target
+from .register import lifecycle_disallowed_method_exempt, register_target
 
 T = TypeVar("T")
 
@@ -29,8 +28,17 @@ nonfinal = dataclass(**default_dataclass_kwargs, init=False, repr=False, eq=Fals
 final = dataclass(**default_dataclass_kwargs)
 
 
+def role_app(cls: type) -> type:
+    cls = final(apply_additional_configuration(cls))
+    clsdict = cls.__dict__
+    for name in ("__init__", "__post_init__"):
+        if method := clsdict.get(name):
+            lifecycle_disallowed_method_exempt(method)
+    return cls
+
+
 class_role = ClassRole(
-    lambda cls: final(apply_additional_configuration(typing_final(cls))),
+    role_app,
     nonfinal,
     nonfinal,
     lambda cls: nonfinal(register_target(cls)),

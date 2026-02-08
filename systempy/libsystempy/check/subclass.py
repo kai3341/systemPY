@@ -6,7 +6,8 @@ def check_on_subclassing(cls: type) -> None:
     clsdict = vars(cls)
     for check_attribute, description in lifecycle_disallowed_attrs:
         if check_attribute in clsdict:
-            if clsdict[check_attribute] in lifecycle_disallowed_method_exempt:
+            attr_val = clsdict[check_attribute]
+            if attr_val in lifecycle_disallowed_method_exempt:
                 continue
 
             message = f"Attribute {check_attribute} is not allowed"
