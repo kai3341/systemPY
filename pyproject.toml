@@ -73,7 +73,7 @@ line-ending = "auto"
 "_util/*" = ["E402"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 mypy_path = "$MYPY_CONFIG_FILE_DIR/systempy"
 disable_error_code = ["import-untyped", "return", "empty-body"]
 exclude = [
