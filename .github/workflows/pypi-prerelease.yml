@@ -30,7 +30,7 @@ jobs:
 
       - run: uv venv ${VIRTUAL_ENV}
 
-      - run: uv version --bump patch --bump dev=${{ github.sha }}
+      - run: uv version --bump patch --bump dev=${{ github.run_id }}
 
       - run: uv sync
 
@@ -80,7 +80,7 @@ jobs:
         with:
           python-version-file: "pyproject.toml"
 
-      - run: uv version --bump patch --bump dev=${{ github.sha }}
+      - run: uv version --bump patch --bump dev=${{ github.run_id }}
 
       - name: Build the project without mypyc
         run: uv build --sdist --wheel
