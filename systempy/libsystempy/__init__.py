@@ -1,4 +1,4 @@
-from .check.subclass import check_on_subclassing
+from .check_subclass import check_on_subclassing
 from .class_role import class_role
 from .constants import handler_metadata
 from .enums import DIRECTION, ROLE
