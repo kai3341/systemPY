@@ -18,9 +18,10 @@ BaseManagePYType = type["BaseManagePY"]
 
 if platform == "win32":
     from subprocess import run
+    from sys import stderr, stdout
 
     def execute_process(args: tuple[str, ...], env: dict[str, str]) -> None:
-        run(args, check=True, capture_output=True, env=env)  # noqa: S603
+        run(args, check=True, stdout=stdout, stderr=stderr, env=env)  # noqa: S603
 
 else:
     from os import execve
