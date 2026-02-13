@@ -2,7 +2,7 @@ from asyncio import AbstractEventLoop, get_running_loop, run
 from collections.abc import Callable, Coroutine
 from dataclasses import field
 from sys import version_info
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 from typing_extensions import ParamSpec
 
@@ -25,22 +25,35 @@ def handle_error(exc: RuntimeError) -> None:
     raise exc
 
 
-class LoopUnit(AsyncMixinABC, _BaseDaemonUnitABC[A], role=ROLE.MIXIN):
+_loop_unit_role = ROLE.MIXIN if version_info >= (3, 12) else ROLE.UNIT
+
+
+class LoopUnit(AsyncMixinABC, _BaseDaemonUnitABC[A], role=_loop_unit_role):
     loop_factory: LoopFactory = field(default=None)
 
     _main_async_coro: Coroutine[None, None, None] = field(init=False, repr=False)
     __loop: AbstractEventLoop = field(init=False, repr=False)
 
-    if version_info >= (3, 12):
+    if TYPE_CHECKING:
+
+        def main_sync(self) -> None: ...
+
+    elif version_info >= (3, 12):
 
         def main_sync(self) -> None:
-            run_coroutine = self.run_async()
-            run(run_coroutine, loop_factory=self.loop_factory)  # type: ignore[call-arg]
+            run(self.run_async(), loop_factory=self.loop_factory)
+
     else:
 
+        def on_init(self) -> None:
+            if self.loop_factory:
+                from asyncio import get_event_loop_policy
+
+                policy = get_event_loop_policy()
+                policy._loop_factory = self.loop_factory  # noqa: SLF001
+
         def main_sync(self) -> None:
-            run_coroutine = self.run_async()
-            run(run_coroutine)
+            run(self.run_async())
 
     async def run_async(self) -> None:
         self.__loop = get_running_loop()
