@@ -20,7 +20,7 @@ if platform == "win32":
     from subprocess import run
 
     def execute_process(args: tuple[str, ...], env: dict[str, str]) -> None:
-        run(args, check=True, env=env)  # noqa: S603
+        run(args, check=True, capture_output=True, env=env)  # noqa: S603
 
 else:
     from os import execve
