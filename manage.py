@@ -4,9 +4,8 @@ from abc import ABC, abstractmethod
 from argparse import ArgumentParser, Namespace
 from collections.abc import Callable, Generator
 from dataclasses import dataclass
-from os import execve
 from pathlib import Path
-from sys import executable
+from sys import executable, platform
 from typing import ClassVar
 
 root_dir = Path().absolute()
@@ -15,6 +14,19 @@ VENV_BIN = Path(executable).parent
 
 
 BaseManagePYType = type["BaseManagePY"]
+
+
+if platform == "win32":
+    from subprocess import run
+
+    def execute_process(args: tuple[str, ...], env: dict[str, str]) -> None:
+        run(args, check=True, env=env)  # noqa: S603
+
+else:
+    from os import execve
+
+    def execute_process(args: tuple[str, ...], env: dict[str, str]) -> None:
+        execve(args[0], args, env)  # noqa: S606
 
 
 @dataclass()
@@ -89,7 +101,7 @@ class DocWebSubparser(BaseManagePY):
 
     def execute(self) -> None:
         args = tuple(self.collect_args_iter())
-        execve(args[0], args, {})  # noqa: S606
+        execute_process(args, {})
 
 
 @ManagePY.register("test")
@@ -135,7 +147,7 @@ class TestsSubparser(BaseManagePY):
     def execute(self) -> None:
         new_env = {"PYTHONPATH": str(root_dir)}
         args = tuple(self.collect_args_iter(new_env))
-        execve(args[0], args, new_env)  # noqa: S606
+        execute_process(args, new_env)
 
 
 if __name__ == "__main__":
