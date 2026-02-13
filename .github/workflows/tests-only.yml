@@ -16,9 +16,9 @@ jobs:
             # macos-15,
             # macos-26,
             windows-2022,
-            # windows-2025,
+            windows-2025,
           ]
-        python: ["3.11"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4

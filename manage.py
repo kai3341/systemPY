@@ -19,10 +19,12 @@ BaseManagePYType = type["BaseManagePY"]
 
 if platform == "win32":
     from subprocess import run
+    from sys import exit as sys_exit
     from sys import stderr, stdout
 
     def execute_process(args: tuple[str, ...]) -> None:
-        run(args, check=True, stdout=stdout, stderr=stderr, env=environ)  # noqa: S603
+        process = run(args, check=True, stdout=stdout, stderr=stderr, env=environ)  # noqa: S603
+        sys_exit(process.returncode)
 
 else:
     from os import execv
