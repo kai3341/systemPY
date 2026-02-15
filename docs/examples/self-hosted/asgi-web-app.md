@@ -2,64 +2,116 @@ I wanted to start coding immediately, but I have one important thing for you
 to say before: somewhy many ASGI frameworks implemented lifespan as side task
 [[uvicorn](https://uvicorn.dev/concepts/lifespan/#lifespan-architecture),
 [granian](https://github.com/emmett-framework/granian?tab=readme-ov-file#hooks)].
-And this breaks an idea to use contextvars, but we can embed ASGI Web server
-into our application.
+And this breaks an idea to use `contextvars`, but we can embed ASGI Web server
+into our application, and `ASGIServerUnit` would help to do it
 
-Let's create a decorator, converting out ASGI App factory to ASGI Server factory:
+All this article is about how to use `contextvars` with ASGI servers. If you
+use different DI solution use this article as just funny story
 
-Text below is incatual...
+`ASGIServerUnit` is implementation-agnostic and depends on protocol only. Also
+I've created useful `asgi_server_factory_decorator`, helping you to minify
+boilerplate code
 
-
-```python
-# lib.asgi_app_to_server
-
-from collections.abc import Callable
-from typing import Any
-
-from systempy.unit.asgi_server import ASGIServerFactory
-
-from lib.asgi_server_implementation import server
-
-ASGIApp = Callable
-ASGIAppFactory = Callable[[], ASGIApp]
-
-def asgi_app_to_server(
-    host: str,
-    port: int,
-    **any_params: dict[str, Any],
-) -> Callable[[ASGIAppFactory], ASGIServerFactory]:
-    def inner (asgi_app_factory: ASGIAppFactory) -> ASGIServerFactory:
-        return lambda: server(asgi_app_factory, host, port)
-    
-    return inner
-```
-
-Let's create server factories for different ASGI servers!
+Let's create ASGI server factories!
 
 === "uvicorn"
 
     ```python
-    # lib.asgi_server_implementation
+    # lib.create_asgi_server
+    from typing import NotRequired, TypedDict, Any
+
+    from systempy.unit.asgi_server import (
+        asgi_server_factory_decorator,
+        ASGIAppFactory,
+        ASGIServerProtocol,
+    )
     from uvicorn import Config, Server
 
-    def server(app_factory: ASGIAppFactory, host: str, port: int) -> Server:
-        config = Config(app_factory, factory=True, host=host, port=port)
+
+    class UvicornKwargs(TypedDict):
+        host: NotRequired[str]
+        port: NotRequired[int]
+
+
+    def create_settings(example_param: Any) -> UvicornKwargs:
+        return {"port": 12345}
+
+
+    @asgi_server_factory_decorator
+    def create_asgi_server(
+        app_factory: ASGIAppFactory,
+        settings: UvicornKwargs,
+    ) -> ASGIServerProtocol:
+        config = Config(app_factory, factory=True, **settings)
         return Server(config)
     ```
 
 === "granian"
 
     ```python
-    # lib.asgi_server_implementation
+    # lib.create_asgi_server
+    from typing import NotRequired, TypedDict, Any
+
+    from systempy.unit.asgi_server import (
+        asgi_server_factory_decorator,
+        ASGIAppFactory,
+        ASGIServerProtocol,
+    )
     from granian.server.embed import Server
     from granian.constants import Interfaces
 
-    def server(app_factory: ASGIAppFactory, host: str, port: int) -> Server:
+
+    class GranianKwargs(TypedDict):
+        address: NotRequired[str]
+        port: NotRequired[int]
+
+
+    def create_settings(example_param: Any) -> GranianKwargs:
+        return {"port": 12345}
+
+
+    @asgi_server_factory_decorator
+    def create_asgi_server(
+        app_factory: ASGIAppFactory,
+        settings: GranianKwargs,
+    ) -> ASGIServerProtocol:
         return Server(
             app_factory,
             interface=Interfaces.ASGI,
             factory=True,
-            host=host,
-            port=port,
+            **settings
         )
     ```
+
+And now we are ready to use it:
+
+```python
+# web_app.py
+
+from functools import partial
+
+from fastapi import FastAPI  # for example
+from systempy.unit.asgi_server import ASGIServerUnit
+
+from lib.create_asgi_server import create_asgi_server, create_settings
+
+from .views import router
+
+
+# Hint: use `functools.partial` to curry your `create_settings` if required
+@create_asgi_server(partial(create_settings, "example_param_value"))
+def create_app() -> FastAPI:
+    app = FastAPI()
+    app.include_router(router)
+    return app
+
+
+class ExampleWebApp(
+    ASGIServerUnit,
+    # ... more units
+): ...
+
+
+if __name__ == '__main__':
+    ExampleWebApp.launch(asgi_server_factory=create_app)
+```

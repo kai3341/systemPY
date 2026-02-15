@@ -2,11 +2,8 @@ from collections.abc import Callable
 from dataclasses import field
 from typing import Protocol, TypeVar
 
-from typing_extensions import ParamSpec
-
 from systempy.unit.loop import LoopUnit
 
-P = ParamSpec("P")
 S = TypeVar("S")
 
 
@@ -39,12 +36,12 @@ class ASGIServerUnit(LoopUnit):
 
 def asgi_server_factory_decorator(
     server_factory: Callable[[ASGIAppFactory, S], ASGIServerProtocol],
-) -> Callable[[Callable[[], S]], Callable[[ASGIAppFactory], ASGIServerProtocol]]:
+) -> Callable[[Callable[[], S]], Callable[[ASGIAppFactory], ASGIServerFactory]]:
     def outer(
         configure_server: Callable[[], S],
-    ) -> Callable[[ASGIAppFactory], ASGIServerProtocol]:
-        def inner(asg_app_factory: ASGIAppFactory) -> ASGIServerProtocol:
-            return server_factory(asg_app_factory, configure_server())
+    ) -> Callable[[ASGIAppFactory], ASGIServerFactory]:
+        def inner(asg_app_factory: ASGIAppFactory) -> ASGIServerFactory:
+            return lambda: server_factory(asg_app_factory, configure_server())
 
         return inner
 
