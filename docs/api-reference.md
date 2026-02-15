@@ -8,7 +8,7 @@
 
 ## `ScriptUnit`
 
-## `AsyncScriptUnit`
+## `AsyncScriptUnit` (removed. Now it's just `LoopUnit`)
 
 ## `DaemonUnit`
 

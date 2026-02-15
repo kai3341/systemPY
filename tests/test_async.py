@@ -1,4 +1,3 @@
-from pathlib import Path
 from platform import system
 from signal import Signals
 from unittest import IsolatedAsyncioTestCase
@@ -8,7 +7,6 @@ STOP_SIGNAL = (
     if system() == "Windows"
     else Signals.SIGINT
 )
-EXAMPLES = Path(__file__).parent.parent / "examples"
 
 
 class Test(IsolatedAsyncioTestCase):
@@ -26,7 +24,8 @@ class Test(IsolatedAsyncioTestCase):
 
         process = await create_subprocess_exec(
             executable,
-            (str(EXAMPLES / "async_reload_signal.py")),
+            "-m",
+            "examples.async_reload_signal",
             stdout=PIPE,
             stderr=PIPE,
         )
@@ -212,7 +211,8 @@ class Test(IsolatedAsyncioTestCase):
 
         process = await create_subprocess_exec(
             executable,
-            (str(EXAMPLES / "sync_reload_signal.py")),
+            "-m",
+            "examples.sync_reload_signal",
             stdout=PIPE,
             stderr=PIPE,
         )
@@ -224,7 +224,15 @@ class Test(IsolatedAsyncioTestCase):
         process.send_signal(first_reload_signal)
         await sleep(0.3)
 
-        self.assertEqual(process.returncode, None, "Process dead unexpectedly")
+        self.assertEqual(
+            process.returncode,
+            None,
+            (
+                "Process dead unexpectedly!\n",
+                f"Stdout:\n{process.stdout}\n",
+                f"Stderr:\n{process.stderr}\n",
+            ),
+        )
 
         process.send_signal(first_reload_signal)
         await sleep(0.2)

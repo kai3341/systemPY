@@ -163,7 +163,8 @@ decorator
     * `Mixin` &#151 class **without** lifecycle methods. It's special
     optimization of `Target` role
 
-    * `App` &#151 the final "baked" class with composed lifecycle methods
+    * `App` &#151 the final "baked" class with composed lifecycle methods. Since
+    `systempy>=0.1.7` it's allowed to subclass them too
 
     * `Builtins` &#151 a special optimization to force skiping `builtins`
     classes processing by `libsystempy`. Normally you wouldn't face it
@@ -179,7 +180,7 @@ decorator
 
     Here we are trying to manipulate class roles by class names. It's very
     similar to the idea of [tailwind-css](https://tailwindcss.com/). You don't
-    have to do any extra import, just follow class naming and be happy:
+    have to do any extra import, just follow class naming rules and be happy:
 
     * Classes with names, ends with `Target` or `TargetABC` / matches
     `r'(\S*)Target(ABC)?$'`, will be interpreted as a `Target` role

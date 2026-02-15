@@ -149,7 +149,6 @@ class TestsSubparser(BaseManagePY):
             yield from ("discover", "-v", "tests")
 
     def execute(self) -> None:
-        environ["PYTHONPATH"] = str(root_dir)
         args = tuple(self.collect_args_iter())
         execute_process(args)
 

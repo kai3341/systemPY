@@ -1088,7 +1088,6 @@ class BasicTestCase(TestCase):
             "LoopUnit": "ROLE.MIXIN" if version_info >= (3, 12) else "ROLE.UNIT",
             "EventWaitUnit": "ROLE.UNIT",
             "ScriptUnit": "ROLE.MIXIN",
-            "AsyncScriptUnit": "ROLE.MIXIN",
             "ReplLocalsMixin": "ROLE.MIXIN",
             "ReplUnit": "ROLE.UNIT",
             "Unit": "ROLE.MIXIN",
