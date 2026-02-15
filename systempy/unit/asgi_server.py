@@ -1,8 +1,13 @@
 from collections.abc import Callable
 from dataclasses import field
-from typing import Protocol
+from typing import Protocol, TypeVar
+
+from typing_extensions import ParamSpec
 
 from systempy.unit.loop import LoopUnit
+
+P = ParamSpec("P")
+S = TypeVar("S")
 
 
 class ASGIServerProtocol(Protocol):
@@ -11,6 +16,8 @@ class ASGIServerProtocol(Protocol):
 
 
 ASGIServerFactory = Callable[[], ASGIServerProtocol]
+ASGIApp = Callable
+ASGIAppFactory = Callable[[], ASGIApp]
 
 
 class ASGIServerUnit(LoopUnit):
@@ -28,3 +35,17 @@ class ASGIServerUnit(LoopUnit):
 
     def post_shutdown(self) -> None:
         del self.__asgi_server
+
+
+def asgi_server_factory_decorator(
+    server_factory: Callable[[ASGIAppFactory, S], ASGIServerProtocol],
+) -> Callable[[Callable[[], S]], Callable[[ASGIAppFactory], ASGIServerProtocol]]:
+    def outer(
+        configure_server: Callable[[], S],
+    ) -> Callable[[ASGIAppFactory], ASGIServerProtocol]:
+        def inner(asg_app_factory: ASGIAppFactory) -> ASGIServerProtocol:
+            return server_factory(asg_app_factory, configure_server())
+
+        return inner
+
+    return outer

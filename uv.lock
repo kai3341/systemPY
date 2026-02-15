@@ -904,6 +904,7 @@ extra = [
 dev = [
     { name = "mkdocs-material" },
     { name = "mypy", extra = ["mypyc"] },
+    { name = "ptpython" },
     { name = "ruff" },
     { name = "wheel", marker = "python_full_version >= '3.14'" },
 ]
@@ -919,6 +920,7 @@ provides-extras = ["extra"]
 dev = [
     { name = "mkdocs-material", specifier = ">=9.6.11" },
     { name = "mypy", extras = ["mypyc"], marker = "python_full_version >= '3.9'", specifier = ">=1.15.0" },
+    { name = "ptpython", specifier = ">=3.0.32" },
     { name = "ruff", specifier = ">=0.11.5" },
     { name = "wheel", marker = "python_full_version >= '3.14'", specifier = ">=0.45.1" },
 ]

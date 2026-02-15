@@ -34,11 +34,6 @@ keywords = [
 license="MIT"
 license-files = ["LICENSE"]
 
-[project.optional-dependencies]
-extra = [
-    "ptpython>=3.0.30",
-]
-
 [tool.pyright]
 include = ["systempy/", "tests/", "_util/"]
 exclude = [
@@ -46,6 +41,7 @@ exclude = [
     "^dist/",
     "systempy/unit/ext/celery.py",
     "systempy/unit/ext/starlette.py",
+    "/setup.py",
 ]
 reportMissingModuleSource = false
 reportArgumentType = false
@@ -81,12 +77,14 @@ exclude = [
     "^dist/",
     "systempy/unit/ext/celery.py",
     "systempy/unit/ext/starlette.py",
+    "^setup.py",
 ]
 
 [dependency-groups]
 dev = [
     "mkdocs-material>=9.6.11",
     "mypy[mypyc]>=1.15.0; python_version >= '3.9'",
+    "ptpython>=3.0.32",
     "ruff>=0.11.5",
     "wheel>=0.45.1; python_version >= '3.14'",
 ]
