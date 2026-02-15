@@ -43,6 +43,8 @@ jobs:
 
       - name: Run tests pre
         run: uv run -- manage.py test --memory-leak-rounds=0
+        env:
+          WINDOWS_TIMEOUT_MUL: "0.1"
 
       - name: Build the project with mypyc
         env:
@@ -59,3 +61,5 @@ jobs:
 
       - name: Run tests post to check built wheel
         run: uv run -- manage.py test --memory-leak-rounds=0
+        env:
+          WINDOWS_TIMEOUT_MUL: "0.1"
