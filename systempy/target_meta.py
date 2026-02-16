@@ -90,8 +90,7 @@ class TargetMeta(ABCMeta, Generic[A]):
         return mcs.__systempy_criteria__(new_cls, role)(new_cls)
 
     def __call__(cls, *args: A.args, **kwargs: A.kwargs) -> TargetMeta[A]:
-        cls_role = class_role_registry[cls]
-        if cls_role != ROLE.APP:
+        if class_role_registry[cls] != ROLE.APP:
             msg = cls.__systempy_error_messages__.instantiate_not_ready.format(cls=cls)
             raise TypeError(msg)
         return super().__call__(*args, **kwargs)

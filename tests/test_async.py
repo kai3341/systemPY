@@ -1,19 +1,35 @@
-from pathlib import Path
+from asyncio import create_subprocess_exec
+from asyncio import sleep as __sleep
 from platform import system
 from signal import Signals
 from unittest import IsolatedAsyncioTestCase
 
+current_system = system()
+
 STOP_SIGNAL = (
     Signals.CTRL_C_EVENT  # type: ignore[attr-defined]
-    if system() == "Windows"
+    if current_system == "Windows"
     else Signals.SIGINT
 )
-EXAMPLES = Path(__file__).parent.parent / "examples"
+
+if current_system in ("Linux", "Darwin"):
+    from os import getloadavg
+
+    sleep_units_mul = min((0.05 * ((getloadavg()[0] + 1) ** 0.6), 0.25))
+
+else:
+    from os import getenv
+
+    sleep_units_mul = float(getenv("WINDOWS_TIMEOUT_MUL", "0.25"))
+
+
+async def sleep_units(units: float) -> None:
+    await __sleep(sleep_units_mul * units)
 
 
 class Test(IsolatedAsyncioTestCase):
     async def test_subprocess_async_reload_signal(self) -> None:
-        from asyncio import create_subprocess_exec, sleep
+
         from asyncio.subprocess import PIPE
         from sys import executable
 
@@ -26,27 +42,28 @@ class Test(IsolatedAsyncioTestCase):
 
         process = await create_subprocess_exec(
             executable,
-            (str(EXAMPLES / "async_reload_signal.py")),
+            "-m",
+            "examples.async_reload_signal",
             stdout=PIPE,
             stderr=PIPE,
         )
 
-        await sleep(0.4)
+        await sleep_units(4)
 
         self.assertEqual(process.returncode, None, "Process dead unexpectedly")
 
         process.send_signal(first_reload_signal)
-        await sleep(0.3)
+        await sleep_units(3)
 
         self.assertEqual(process.returncode, None, "Process dead unexpectedly")
 
         process.send_signal(first_reload_signal)
-        await sleep(0.2)
+        await sleep_units(2)
 
         self.assertEqual(process.returncode, None, "Process dead unexpectedly")
 
         process.send_signal(STOP_SIGNAL)
-        await sleep(0.2)
+        await sleep_units(2)
 
         self.assertEqual(process.returncode, 0)
 
@@ -199,7 +216,6 @@ class Test(IsolatedAsyncioTestCase):
         self.assertListEqual(lines, lines_expected)
 
     async def test_subprocess_sync_reload_signal(self) -> None:
-        from asyncio import create_subprocess_exec, sleep
         from asyncio.subprocess import PIPE
         from sys import executable
 
@@ -212,27 +228,36 @@ class Test(IsolatedAsyncioTestCase):
 
         process = await create_subprocess_exec(
             executable,
-            (str(EXAMPLES / "sync_reload_signal.py")),
+            "-m",
+            "examples.sync_reload_signal",
             stdout=PIPE,
             stderr=PIPE,
         )
 
-        await sleep(0.4)
+        await sleep_units(4)
 
         self.assertEqual(process.returncode, None, "Process dead unexpectedly")
 
         process.send_signal(first_reload_signal)
-        await sleep(0.3)
+        await sleep_units(3)
 
-        self.assertEqual(process.returncode, None, "Process dead unexpectedly")
+        self.assertEqual(
+            process.returncode,
+            None,
+            (
+                "Process dead unexpectedly!\n",
+                f"Stdout:\n{process.stdout}\n",
+                f"Stderr:\n{process.stderr}\n",
+            ),
+        )
 
         process.send_signal(first_reload_signal)
-        await sleep(0.2)
+        await sleep_units(2)
 
         self.assertEqual(process.returncode, None, "Process dead unexpectedly")
 
         process.send_signal(STOP_SIGNAL)
-        await sleep(0.2)
+        await sleep_units(2)
 
         self.assertEqual(process.returncode, 0)
 

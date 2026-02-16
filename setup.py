@@ -6,7 +6,9 @@ from wheel.bdist_wheel import bdist_wheel
 
 from setup_constants import NAME
 
-if getenv("USE_MYPYC"):
+USE_MYPYC = bool(int(getenv("USE_MYPYC", "0")))
+
+if USE_MYPYC:
     from setup_mypycify import ext_modules
 
 else:
@@ -18,11 +20,11 @@ class BDistWheel(bdist_wheel):
 
     def get_tag(self) -> Sequence[str]:
         interpret = self.__get_platform_interpret()
-        tag = interpret if getenv("USE_MYPYC") else self.python_tag
+        tag = interpret if USE_MYPYC else self.python_tag
         return (tag, interpret, self.__get_platform_tags())
 
     def __get_platform_interpret(self) -> str:
-        if not getenv("USE_MYPYC"):
+        if not USE_MYPYC:
             return "none"
 
         from packaging.tags import interpreter_name, interpreter_version
@@ -30,7 +32,7 @@ class BDistWheel(bdist_wheel):
         return f"{interpreter_name()}{interpreter_version()}"
 
     def __get_platform_tags(self) -> str:
-        if not getenv("USE_MYPYC"):
+        if not USE_MYPYC:
             return "any"
 
         from packaging.tags import platform_tags

@@ -68,13 +68,9 @@ mypycify_structure: Struct = {
                 # "register.py",
                 "thread_exception.py",
                 # "weak_queue.py",
+                "check_callback.py",
+                "check_subclass.py",
             ),
-            "check": {
-                None: (
-                    "callback.py",
-                    "subclass.py",
-                ),
-            },
         },
     },
 }

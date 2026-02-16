@@ -33,7 +33,9 @@ Also check for [example](https://github.com/kai3341/systemPY/blob/next-0.1.x/exa
 ## `LoopUnit`
 
 is (almost) subclass of `DaemonUnit`, but configured to run **asyncronous**
-long-living jobs. It **requires** for implementation `main_async()`
+scripts and long-living jobs. It **requires** for implementation `main_async()`
+Also you may pass `loop_factory` in kwargs. This feature is tested and wirks on
+all supported python versions despite different implementation
 
 ```python
 from systempy import LoopUnit
@@ -93,4 +95,4 @@ Let's try to reload:
 
 === "Windows"
 
-    It doesn't works right now
+    It doesn't works right now due Windows does not supports signals

@@ -1,9 +1,9 @@
 # Scripting example
 
-Both `ScriptUnit` and `AsyncScriptUnit` provide handy abstraction to write one
+Both `ScriptUnit` and `LoopUnit` provide handy abstraction to write one
 time scripts. Both of them has defined `@abc.abstractmethod`s
 
-Maybe you need something more smart? Please check [`DaemonUnit`](./daemon.md)
+Maybe you need something smarter? Please check [`DaemonUnit`](./daemon.md)
 
 ## `ScriptUnit`
 
@@ -26,20 +26,22 @@ if __name__ == "__main__":
     ExampleScriptApp.launch()
 ```
 
-## `AsyncScriptUnit`
+## `LoopUnit`
 
-is a subclass of `ScriptUnit` and aimed to help writing **asyncronous** scripts.
+is aimed to help writing **asyncronous** scripts and daemons.
 It **requires** to override `main_async` method
+Also you may pass `loop_factory` in kwargs. This feature is tested and wirks on
+all supported python versions despite different implementation
 
 ```python
-from systempy import ScriptUnit
+from systempy import LoopUnit
 from lib.unit import Example1Unit, Example2Unit, Example3Unit
 
 class ExampleAsyncScriptApp(
     Example1Unit,
     Example2Unit,
     Example3Unit,
-    AsyncScriptUnit,
+    LoopUnit,
 ):
     async def main_async(self) -> None: ...
 

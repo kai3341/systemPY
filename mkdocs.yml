@@ -7,6 +7,7 @@ repo_url: https://github.com/kai3341/systemPY
 
 nav:
   - Home: index.md
+  - Getting Started: getting-started.md
   - Examples:
       - Units:
           - Rodi: examples/unit/rodi.md
@@ -21,6 +22,7 @@ nav:
           - Scripting: examples/self-hosted/scripting.md
           - Daemon: examples/self-hosted/daemon.md
           - REPL: examples/self-hosted/repl.md
+          - ASGI Web App: examples/self-hosted/asgi-web-app.md
       - Secondary Application:
           - FastAPI / Starlette: examples/secondary/starlette.md
           - Celery: examples/secondary/celery.md

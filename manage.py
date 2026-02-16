@@ -4,9 +4,9 @@ from abc import ABC, abstractmethod
 from argparse import ArgumentParser, Namespace
 from collections.abc import Callable, Generator
 from dataclasses import dataclass
-from os import execve
+from os import environ
 from pathlib import Path
-from sys import executable
+from sys import executable, platform
 from typing import ClassVar
 
 root_dir = Path().absolute()
@@ -15,6 +15,22 @@ VENV_BIN = Path(executable).parent
 
 
 BaseManagePYType = type["BaseManagePY"]
+
+
+if platform == "win32":
+    from subprocess import run
+    from sys import exit as sys_exit
+    from sys import stderr, stdout
+
+    def execute_process(args: tuple[str, ...]) -> None:
+        process = run(args, check=True, stdout=stdout, stderr=stderr, env=environ)  # noqa: S603
+        sys_exit(process.returncode)
+
+else:
+    from os import execv
+
+    def execute_process(args: tuple[str, ...]) -> None:
+        execv(args[0], args)  # noqa: S606
 
 
 @dataclass()
@@ -89,7 +105,7 @@ class DocWebSubparser(BaseManagePY):
 
     def execute(self) -> None:
         args = tuple(self.collect_args_iter())
-        execve(args[0], args, {})  # noqa: S606
+        execute_process(args)
 
 
 @ManagePY.register("test")
@@ -114,7 +130,7 @@ class TestsSubparser(BaseManagePY):
 
     # ===
 
-    def collect_args_iter(self, new_env: dict[str, str]) -> Generator[str, None, None]:
+    def collect_args_iter(self) -> Generator[str, None, None]:
         ns: Namespace = self.namespace
 
         if ns.memory_leak_rounds:
@@ -122,7 +138,7 @@ class TestsSubparser(BaseManagePY):
             if memory_leak_rounds < 1:
                 raise ValueError
 
-            new_env["MEMORE_LEAK_ROUNDS"] = str(memory_leak_rounds)
+            environ["MEMORE_LEAK_ROUNDS"] = str(memory_leak_rounds)
 
         yield from (executable, "-m", "unittest")
 
@@ -133,9 +149,8 @@ class TestsSubparser(BaseManagePY):
             yield from ("discover", "-v", "tests")
 
     def execute(self) -> None:
-        new_env = {"PYTHONPATH": str(root_dir)}
-        args = tuple(self.collect_args_iter(new_env))
-        execve(args[0], args, new_env)  # noqa: S606
+        args = tuple(self.collect_args_iter())
+        execute_process(args)
 
 
 if __name__ == "__main__":

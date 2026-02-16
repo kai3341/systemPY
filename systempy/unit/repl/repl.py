@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 from typing_extensions import ParamSpec, deprecated
 
 from ..scripting import ScriptUnit
-from .handle_interrupt import handle_interrupt, setup_completer
+from .handle_interrupt import ReplHandlers, get_repr_handlers
 from .mixins import ReplLocalsMixin
 
 if TYPE_CHECKING:
@@ -25,6 +25,7 @@ class ReplUnit(ReplLocalsMixin, ScriptUnit[A]):
     repl_completer: rlcompleter.Completer = field(init=False)
     repl_thread: amain.REPLThread = field(init=False)
     repl_env_full: dict[str, Any] = field(init=False)
+    __repr_handlers: ReplHandlers = field(init=False)
 
     def __setup_repl(self) -> None:
         self.loop = asyncio.new_event_loop()
@@ -32,7 +33,7 @@ class ReplUnit(ReplLocalsMixin, ScriptUnit[A]):
 
         self._setup_repl_env()
 
-        setup_completer(self)
+        self.__repr_handlers.setup_completer(self)
 
         self.console = amain.AsyncIOInteractiveConsole(
             self.repl_env_full,
@@ -52,6 +53,7 @@ class ReplUnit(ReplLocalsMixin, ScriptUnit[A]):
         self.repl_thread.start()
 
     def on_init(self) -> None:
+        self.__repr_handlers = get_repr_handlers()
         self._setup_repl_caller_frame()
         self.__setup_repl()
 
@@ -92,7 +94,7 @@ class ReplUnit(ReplLocalsMixin, ScriptUnit[A]):
             try:
                 self.loop.run_forever()
             except KeyboardInterrupt:  # noqa: PERF203
-                handle_interrupt(self)
+                self.__repr_handlers.handle_interrupt(self)
                 if amain.repl_future and not amain.repl_future.done():
                     amain.repl_future.cancel()
                     amain.repl_future_interrupted = True  # pyright: ignore[reportAttributeAccessIssue]
