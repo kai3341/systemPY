@@ -9,15 +9,23 @@ jobs:
     environment: pypi
     strategy:
       matrix:
+<<<<<<< HEAD
         os:
           [
+=======
+        os: [
+>>>>>>> main
             ubuntu-22.04,
             ubuntu-24.04,
             macos-14,
             macos-15,
             macos-26,
             windows-2022,
+<<<<<<< HEAD
             windows-2025,
+=======
+            # windows-2025,
+>>>>>>> main
           ]
         python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
     runs-on: ${{ matrix.os }}
