@@ -25,24 +25,32 @@ Let's create ASGI server factories!
         ASGIAppFactory,
         ASGIServerProtocol,
     )
+
     from uvicorn import Config, Server
 
 
-    class UvicornKwargs(TypedDict):
+    class ExampleConfigObject(TypedDict):
+        # Hint: this may be ANY object, because you handle it by your code
         host: NotRequired[str]
         port: NotRequired[int]
 
 
-    def create_settings(example_param: Any) -> UvicornKwargs:
+    def create_settings(example_param: Any) -> ExampleConfigObject:
+        # Hint: it may be useful to parametrize this function, and
+        # `example_param` demonstrates it. Use partial to curry this function
         return {"port": 12345}
 
 
     @asgi_server_factory_decorator
     def create_asgi_server(
         app_factory: ASGIAppFactory,
-        settings: UvicornKwargs,
+        settings: ExampleConfigObject,
     ) -> ASGIServerProtocol:
-        config = Config(app_factory, factory=True, **settings)
+        config = Config(
+            app_factory,
+            factory=True,
+            **settings,
+        )
         return Server(config)
     ```
 
@@ -61,19 +69,22 @@ Let's create ASGI server factories!
     from granian.constants import Interfaces
 
 
-    class GranianKwargs(TypedDict):
+    class ExampleConfigObject(TypedDict):
+        # Hint: this may be ANY object, because you handle it by your code
         address: NotRequired[str]
         port: NotRequired[int]
 
 
-    def create_settings(example_param: Any) -> GranianKwargs:
+    def create_settings(example_param: Any) -> ExampleConfigObject:
+        # Hint: it may be useful to parametrize this function, and
+        # `example_param` demonstrates it. Use partial to curry this function
         return {"port": 12345}
 
 
     @asgi_server_factory_decorator
     def create_asgi_server(
         app_factory: ASGIAppFactory,
-        settings: GranianKwargs,
+        settings: ExampleConfigObject,
     ) -> ASGIServerProtocol:
         return Server(
             app_factory,
@@ -85,33 +96,68 @@ Let's create ASGI server factories!
 
 And now we are ready to use it:
 
-```python
-# web_app.py
+=== "FastAPI"
 
-from functools import partial
+    ```python
+    # web_app.py
 
-from fastapi import FastAPI  # for example
-from systempy.unit.asgi_server import ASGIServerUnit
+    from functools import partial
 
-from lib.create_asgi_server import create_asgi_server, create_settings
+    from fastapi import FastAPI
+    from systempy.unit.asgi_server import ASGIServerUnit
 
-from .views import router
+    from lib.create_asgi_server import create_asgi_server, create_settings
 
-
-# Hint: use `functools.partial` to curry your `create_settings` if required
-@create_asgi_server(partial(create_settings, "example_param_value"))
-def create_app() -> FastAPI:
-    app = FastAPI()
-    app.include_router(router)
-    return app
+    from .views import router
 
 
-class ExampleWebApp(
-    ASGIServerUnit,
-    # ... more units
-): ...
+    # Hint: use `functools.partial` to curry your `create_settings` if required
+    @create_asgi_server(partial(create_settings, "example_param_value"))
+    def create_app() -> FastAPI:
+        app = FastAPI()
+        app.include_router(router)
+        return app
 
 
-if __name__ == '__main__':
-    ExampleWebApp.launch(asgi_server_factory=create_app)
-```
+    class ExampleWebApp(
+        ASGIServerUnit,
+        # ... more units
+    ): ...
+
+
+    if __name__ == '__main__':
+        ExampleWebApp.launch(asgi_server_factory=create_app)
+    ```
+
+=== "Litestar"
+
+    ```python
+    # web_app.py
+
+    from functools import partial
+
+    from litestar import Litestar
+    from systempy.unit.asgi_server import ASGIServerUnit
+
+    from lib.create_asgi_server import create_asgi_server, create_settings
+
+    from .views import router
+
+
+    # Hint: use `functools.partial` to curry your `create_settings` if required
+    @create_asgi_server(partial(create_settings, "example_param_value"))
+    def create_app() -> Litestar:
+        return Litestar(
+            route_handlers=[router],
+        )
+
+
+    class ExampleWebApp(
+        ASGIServerUnit,
+        # ... more units
+    ): ...
+
+
+    if __name__ == '__main__':
+        ExampleWebApp.launch(asgi_server_factory=create_app)
+    ```
