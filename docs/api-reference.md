@@ -14,9 +14,16 @@
 
 ## `LoopUnit`
 
+All `LoopUnit` subclasses accept optional `loop_factory` kwarg:
+`Callable[[], AbstractEventLoop]`. Tested with python versions 3.9 &#151 3.14
+
 ## `EventWaitUnit`
 
 ## `ReplUnit` (deprecated)
+
+## `ASGIServerUnit` and `asgi_server_factory_decorator`
+
+Please check [ASGI Web Server](examples/self-hosted/asgi-web-app.md) article
 
 ## `ext.celery.CeleryUnit`
 
