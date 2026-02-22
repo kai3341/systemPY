@@ -1,5 +1,5 @@
 I wanted to start coding immediately, but I have one important thing for you
-to say before: somewhy many ASGI frameworks implemented lifespan as side task
+to say before: some why many ASGI frameworks implemented lifespan as side task
 [[uvicorn](https://uvicorn.dev/concepts/lifespan/#lifespan-architecture),
 [granian](https://github.com/emmett-framework/granian?tab=readme-ov-file#hooks)].
 And this breaks an idea to use `contextvars`, but we can embed ASGI Web server

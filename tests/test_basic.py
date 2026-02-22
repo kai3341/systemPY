@@ -287,7 +287,7 @@ class BasicTestCase(TestCase):
 
         self.assertListEqual(results, expected_result, "lifecycle method order")
 
-    def test_custom_target_wrong_inheritence(self) -> None:
+    def test_custom_target_wrong_inheritance(self) -> None:
         from _util._cbutil import _method_async, _method_sync
         from systempy import (
             DIRECTION,
@@ -1056,8 +1056,8 @@ class BasicTestCase(TestCase):
     def test_target_from_scratch(self) -> None: ...
 
     @skipIf(
-        "MEMORE_LEAK_ROUNDS" not in environ,
-        "Variable `MEMORE_LEAK_ROUNDS` is not defined",
+        "MEMORY_LEAK_ROUNDS" not in environ,
+        "Variable `MEMORY_LEAK_ROUNDS` is not defined",
     )
     def test_zzz_memory_leak(self) -> None:
         from gc import collect
@@ -1067,7 +1067,7 @@ class BasicTestCase(TestCase):
         from systempy.libsystempy import class_role_registry
 
         # create many objects
-        for _ in range(int(environ["MEMORE_LEAK_ROUNDS"])):
+        for _ in range(int(environ["MEMORY_LEAK_ROUNDS"])):
             self.test_custom_target()
             collect()
             self.test_sync_script_app_subclassing()

@@ -1,6 +1,6 @@
 # Redis / Valkey unit example
 
-Both `Reis` or `Valkey` use `redis-py` connector
+Both `Redis` or `Valkey` use `redis-py` connector
 
 === "contextvars"
 

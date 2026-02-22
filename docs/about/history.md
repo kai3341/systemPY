@@ -36,7 +36,7 @@
 
 ### 0.0.13
 
-- Somewhy it supressed exception happened inside event loop
+- Some why it is suppressed exception happened inside event loop
 
 ### 0.0.10 &#151 0.0.12
 
@@ -92,11 +92,11 @@
     false-positive integration test result
 - - Maybe via checking subprocess result code and checking it's stdout/stderr
     logs. Anyway it's better then via socket and works good everywhere
-- No examples yet (except my pet project which is closedsource, haha)
+- No examples yet (except my pet project which is closed-source, ha-ha)
 
 ### 0.0.0
 
-- Unfortunally, the name `lifecycle` is already used. Choosing the new name
+- Unfortunately, the name `lifecycle` is already used. Choosing the new name
 - - New name is `systemPY`
 - - The LULZ explanation is in the article
     [Why does it `systemPY`?](https://telegra.ph/Why-does-it-systemPY-08-12)

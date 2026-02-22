@@ -21,7 +21,7 @@
   monster:
 - - X11 is Linux-specific back-end
 - - Wayland is Linux-specific back-end too require different solution
-- - Normally it should be `readline` is installsed on Linux machines. That's why
+- - Normally it should be `readline` is installed on Linux machines. That's why
     I think fallback implementation is a big time waste
 - - I don't have MacOS device to check any solution
 - - OK, I have a virtual machine with Windows
