@@ -125,12 +125,12 @@ mind that we also need to be able do a safe application reload. Just look at the
 === "`@register`'s"
 
     The last but not least is the `register_target_method`. It defines the type
-    of this method and execution order for overridings of this method in
-    subclassed `Unit` components. When you define a syncronous method,
-    overriding it by an asyncronous method will cause an error
+    of this method and execution order for overriding of this method in
+    subclassed `Unit` components. When you define a synchronous method,
+    overriding it by an asynchronous method will cause an error
 
-    Funny fact: mypy would cause the warning if you override asyncronous method
-    with a syncronous one. But it's a false-positive warning and this code will
+    Funny fact: mypy would cause the warning if you override asynchronous method
+    with a synchronous one. But it's a false-positive warning and this code will
     work. As mypy causes a warning here, I think nobody will use this feature
 
     Payload execution order may be `DIRECTION.FORWARD`, `DIRECTION.BACKWARD` and
@@ -139,7 +139,7 @@ mind that we also need to be able do a safe application reload. Just look at the
 
     Also you may use `DIRECTION.GATHER` direction. Registered callbacks will be
     handled by `asyncio.gather` and will be executed in arbitrary order. You are
-    able to use here both syncronous and asyncronous methods
+    able to use here both synchronous and asynchronous methods
 
     Also there are available `register_hook_before` and `register_hook_after`.
     Use them to extend existing `Target`s. Please have a look in the
@@ -166,7 +166,7 @@ decorator
     * `App` &#151 the final "baked" class with composed lifecycle methods. Since
     `systempy>=0.1.7` it's allowed to subclass them too
 
-    * `Builtins` &#151 a special optimization to force skiping `builtins`
+    * `Builtins` &#151 a special optimization to force skipping `builtins`
     classes processing by `libsystempy`. Normally you wouldn't face it
 
     * `Metaclass` &#151 the same kind of optimization as `Builtins`, but used by
@@ -190,7 +190,7 @@ decorator
 
     * Classes with names, ends with `Mixin` or `MixinABC` / matches
     `r'(\S*)Mixin(ABC)?$'`, will be interpreted as a `Mixin` role. Remember: the
-    `Mixin` role is a special optimisation of the `Target` role which means that
+    `Mixin` role is a special optimization of the `Target` role which means that
     the class **does not have own lifecycle methods**
 
     * Classes with names, ends with `App` / matches `r'(\S*)App$'`, will be
@@ -271,9 +271,9 @@ them before or after already existing. It's like `systemd`'s `Unit` options
 You can find more examples. Actually the whole `systempy` itself is the example
 of `libsystempy` usage. Don't be afraid to read `systempy`'s source code
 
-## Method Relosve Order
+## Method Resolve Order
 
-I'll exaplin on the part of [REPL](./examples/self-hosted/repl.md) example:
+I'll explain on the part of [REPL](./examples/self-hosted/repl.md) example:
 
 ```python
 class MyReplApp(    # INIT      # SHUTDOWN

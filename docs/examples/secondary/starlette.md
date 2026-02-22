@@ -16,7 +16,7 @@ from systempy.unit.ext.starlette import StarletteUnit
 from .starlette_instance import app as starlette_app
 
 from . import views
-# Linters somewhy don't know that imports has side effects
+# Linters some why don't know that imports has side effects
 views.__package__
 
 

@@ -2,7 +2,7 @@
 
 * [ ] API review
 * [x] Tests
-* [ ] Documantation
+* [ ] Documentation
     * [x] index
     * [x] Examples
     * [ ] API Reference

@@ -16,11 +16,11 @@ Is it OK? It's a little buggy. Try to press `Ctrl+C` to send KeyboardInterrupt.
 Does it handles correctly? Then press `Tab`. When you have `readline` library
 it should complete the command line, but it does not work too
 
-There are some tries to fix this anoying behavior. Right now the best solution
+There are some tries to fix this annoying behavior. Right now the best solution
 is [PTRepl Extension](#ptrepl-extension) -- it works fine on Linux, MacOS and
 Windows
 
-## Vanila asyncio repl `ReplUnit` (deprecated). Implement the unit
+## Vanilla asyncio repl `ReplUnit` (deprecated). Implement the unit
 
 This solution does not requires external libraries and uses `ctypes`. On Linux
 and MacOS when library `readline` is available, this solution is good enough,
@@ -110,10 +110,10 @@ if __name__ == '__main__':
 
 This is drop-in replacement of
 [PrettyReplUnit Extension](#prettyreplunit-extension), but it implemented in
-absolutelly different way and relies on
+absolutely different way and relies on
 [ptpython](https://github.com/prompt-toolkit/ptpython) library.
 It works fine on Linux, MacOS and Windows, and I like it's hints and syntax
-highliting. Before starting you have to install this requirement:
+highlighting. Before starting you have to install this requirement:
 
 ```sh
 pip install ptpython

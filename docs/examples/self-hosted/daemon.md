@@ -9,7 +9,7 @@ it provides some extra features:
 
 ## `DaemonUnit`
 
-Same as [`ScriptUnit`](./scripting.md), the `DaemonUnit` is **syncronous** unit
+Same as [`ScriptUnit`](./scripting.md), the `DaemonUnit` is **synchronous** unit
 and **requires** for implementation `main_sync()`
 
 ```python
@@ -32,9 +32,9 @@ Also check for [example](https://github.com/kai3341/systemPY/blob/next-0.1.x/exa
 
 ## `LoopUnit`
 
-is (almost) subclass of `DaemonUnit`, but configured to run **asyncronous**
+is (almost) subclass of `DaemonUnit`, but configured to run **asynchronous**
 scripts and long-living jobs. It **requires** for implementation `main_async()`
-Also you may pass `loop_factory` in kwargs. This feature is tested and wirks on
+Also you may pass `loop_factory` in kwargs. This feature is tested and works on
 all supported python versions despite different implementation
 
 ```python

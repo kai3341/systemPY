@@ -7,7 +7,7 @@ Maybe you need something smarter? Please check [`DaemonUnit`](./daemon.md)
 
 ## `ScriptUnit`
 
-aimed to help writing **syncronous** scripts. It **requires** to override
+aimed to help writing **synchronous** scripts. It **requires** to override
 `main_sync` method
 
 ```python
@@ -28,9 +28,9 @@ if __name__ == "__main__":
 
 ## `LoopUnit`
 
-is aimed to help writing **asyncronous** scripts and daemons.
+is aimed to help writing **asynchronous** scripts and daemons.
 It **requires** to override `main_async` method
-Also you may pass `loop_factory` in kwargs. This feature is tested and wirks on
+Also you may pass `loop_factory` in kwargs. This feature is tested and works on
 all supported python versions despite different implementation
 
 ```python

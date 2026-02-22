@@ -10,7 +10,7 @@ sync_or_async_names = tuple(i.value for i in sync_or_async)
 sync_or_async_names_rev = tuple(reversed(sync_or_async_names))
 
 CHECK_CALLBACK_ERROR_MESSAGE__TEMPLATE = (
-    "{name} must be %sronous function, but {func} is %sronous"
+    "{name} must be `%s` function, but {func} is `%s`"
 )
 
 check_callback_signature__error_message: tuple[str, ...] = (
@@ -21,8 +21,8 @@ check_callback_signature__error_message: tuple[str, ...] = (
 
 def check_callback_signature(reason: Callable, func: Callable) -> None:
     """
-    When `reason` is syncronous, `func` have to be syncronous too
-    Asyncronous `reason` executors may to execute both `func` types
+    When `reason` is synchronous, `func` have to be synchronous too
+    Asynchronous `reason` executors may to execute both `func` types
     """
 
     assert isinstance(reason, function_types)
@@ -48,5 +48,5 @@ def check_callback_signature(reason: Callable, func: Callable) -> None:
 @register_check_method_type(DIRECTION.GATHER)
 def gather(target: Callable) -> None:
     if not iscoroutinefunction(target):
-        error_message = "Can not `asyncio.gather` syncronous method"
+        error_message = "Can not `asyncio.gather` synchronous method"
         raise ValueError(error_message, target)

@@ -1,6 +1,6 @@
 # Creating own Target from scratch
 
-You may deside you need more (or less) startup and shutdown stages and they
+You may decide you need more (or less) startup and shutdown stages and they
 doesn't match target, provided by systempy. It's time to define your own:
 
 === "naming"
