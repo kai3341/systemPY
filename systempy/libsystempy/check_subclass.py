@@ -1,5 +1,5 @@
-from ..constants import lifecycle_disallowed_attrs
-from ..register import lifecycle_disallowed_method_exempt
+from .constants import lifecycle_disallowed_attrs
+from .register import lifecycle_disallowed_method_exempt
 
 
 def check_on_subclassing(cls: type) -> None:

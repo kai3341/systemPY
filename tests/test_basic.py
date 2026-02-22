@@ -997,6 +997,8 @@ class BasicTestCase(TestCase):
             Example3Unit,
             AsyncScriptUnit,
         ):
+            reload_signals = ()
+
             async def main_async(self) -> None:
                 results_append("main_async")
 
@@ -1023,6 +1025,34 @@ class BasicTestCase(TestCase):
 
         self.assertListEqual(results_expected, results)
 
+    def test_custom_event_loop(self) -> None:
+
+        from asyncio import AbstractEventLoop, SelectorEventLoop
+
+        from systempy import AsyncScriptUnit
+
+        results: list[str] = []
+        results_append = results.append
+
+        def loop_factory() -> AbstractEventLoop:
+            results_append("custom_event_loop")
+            return SelectorEventLoop()
+
+        class ExampleScriptApp(AsyncScriptUnit):
+            reload_signals = ()
+
+            async def main_async(self) -> None:
+                results_append("main_async")
+
+        ExampleScriptApp.launch(loop_factory=loop_factory)
+
+        results_expected = [
+            "custom_event_loop",
+            "main_async",
+        ]
+
+        self.assertListEqual(results_expected, results)
+
     def test_target_from_scratch(self) -> None: ...
 
     @skipIf(
@@ -1031,19 +1061,17 @@ class BasicTestCase(TestCase):
     )
     def test_zzz_memory_leak(self) -> None:
         from gc import collect
+        from sys import version_info
 
-        from systempy.libsystempy import (
-            class_role_registry,
-            register_hook_after,
-            register_hook_before,
-        )
+        from systempy import register_hook_after, register_hook_before
+        from systempy.libsystempy import class_role_registry
 
         # create many objects
         for _ in range(int(environ["MEMORE_LEAK_ROUNDS"])):
             self.test_custom_target()
+            collect()
             self.test_sync_script_app_subclassing()
-
-        collect()
+            collect()
 
         class_roles_expected = {
             "object": "ROLE.BUILTINS",
@@ -1057,10 +1085,9 @@ class BasicTestCase(TestCase):
             "AsyncMixinABC": "ROLE.MIXIN",
             "_BaseDaemonUnitABC": "ROLE.UNIT",
             "DaemonUnit": "ROLE.MIXIN",
-            "LoopUnit": "ROLE.MIXIN",
+            "LoopUnit": "ROLE.MIXIN" if version_info >= (3, 12) else "ROLE.UNIT",
             "EventWaitUnit": "ROLE.UNIT",
             "ScriptUnit": "ROLE.MIXIN",
-            "AsyncScriptUnit": "ROLE.MIXIN",
             "ReplLocalsMixin": "ROLE.MIXIN",
             "ReplUnit": "ROLE.UNIT",
             "Unit": "ROLE.MIXIN",

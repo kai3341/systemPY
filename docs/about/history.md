@@ -1,5 +1,18 @@
 ## Changelog
 
+### 0.1.7
+
+- Since now it's allowed to subclass `App`-units, yay!
+- Minor build system fixes: fix windows and macos builds
+- Remove `AsyncScryptUnit`, re-export `LoopUnit` as `AsyncScryptUnit`
+- Add `loop_factory` kwarg to `LoopUnit`. Test it's working with all supported
+  python versions
+- Implement `ASGIServerUnit` and `asgi_server_factory_decorator`
+
+### 0.1.1 &#151 0.1.6
+
+- Minor build system fixes
+
 ### 0.1.0
 
 - Huge refactoring
