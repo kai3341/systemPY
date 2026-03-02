@@ -138,7 +138,7 @@ class TestsSubparser(BaseManagePY):
             if memory_leak_rounds < 1:
                 raise ValueError
 
-            environ["MEMORE_LEAK_ROUNDS"] = str(memory_leak_rounds)
+            environ["MEMORY_LEAK_ROUNDS"] = str(memory_leak_rounds)
 
         yield from (executable, "-m", "unittest")
 

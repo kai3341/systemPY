@@ -91,14 +91,14 @@ class NamedRegistry(BaseRegistry[PrimitiveHashable, Callable[P, R]]):
 
 @dataclass()
 class SetRegistry(Generic[VT]):
-    regisrty: MutableSet[VT] = field(default_factory=set)
+    registry: MutableSet[VT] = field(default_factory=set)
 
     def __call__(self, target: VT) -> VT:
-        self.regisrty.add(target)
+        self.registry.add(target)
         return target
 
     def __contains__(self, target: VT) -> bool:
-        return target in self.regisrty
+        return target in self.registry
 
     def add(self, *args: VT) -> None:
         for t in args:

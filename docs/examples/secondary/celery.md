@@ -13,7 +13,7 @@ from systempy.unit.ext.celery import CeleryUnit
 
 from .config import config
 
-from .app import app as celery_app  # Advice to create an instencies of apps
+from .app import app as celery_app  # Advice to create an instancies of apps
 # in separated file(s) to avoid circular imports
 
 from . import tasks
